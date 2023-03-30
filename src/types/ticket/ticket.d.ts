@@ -69,11 +69,11 @@ export interface iNote {
 export interface ifollowUp {
   id?: ObjectId;
   name: string;
-  followUpDate: Date | string | number;
+  followUpDate: Date | string | number | null;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
-  followUpDate1: Date | string | number;
-  followUpDate2: Date | string | number;
+  followUpDate1: Date | string | number | null;
+  followUpDate2: Date | string | number | null;
 }

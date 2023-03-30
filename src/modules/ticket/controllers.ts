@@ -165,21 +165,22 @@ export const createTicket = PromiseWrapper(
         ];
         await startTemplateFlow("flow", "en", consumer.phone, components);
       }
-
-      await createOneFollowUp({
-        firstName: consumer.firstName,
-        name: doctor.name,
-        phone: consumer.phone,
-        followUpDate: new Date(ticket.followUp.getTime()).toISOString(),
-        lastName: consumer.lastName,
-        email: "",
-        followUpDate1: new Date(
-          ticket.followUp.getTime() - 1 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-        followUpDate2: new Date(
-          ticket.followUp.getTime() - 2 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-      });
+      if (ticket.followUp !== null) {
+        await createOneFollowUp({
+          firstName: consumer.firstName,
+          name: doctor.name,
+          phone: consumer.phone,
+          followUpDate: new Date(ticket.followUp.getTime()).toISOString(),
+          lastName: consumer.lastName,
+          email: "",
+          followUpDate1: new Date(
+            ticket.followUp.getTime() - 1 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+          followUpDate2: new Date(
+            ticket.followUp.getTime() - 2 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+        });
+      }
 
       return res.status(status).json(body);
     }

@@ -48,7 +48,7 @@ let todayDate = new Date()
   .split(",")[0];
 
 //follow up Messages
-cron.schedule(" 30 19 * * *", () => {
+cron.schedule(" 30 04 * * *", () => {
   try {
     MongoService.collection("followUp")
       .find({})
@@ -69,11 +69,13 @@ cron.schedule(" 30 19 * * *", () => {
             timeZone: "Asia/Kolkata",
           })
           .split(",")[0];
+
         let oneDayBeforeFormat = new Date(val.followUpDate1)
           .toLocaleString("en-IN", {
             timeZone: "Asia/Kolkata",
           })
           .split(",")[0];
+
         const doctorDate = new Date(val.followUpDate)
           .toLocaleString("en-IN", {
             timeZone: "Asia/Kolkata",
