@@ -41,14 +41,14 @@ app.use(
     return res.status(status).json({ message: message });
   }
 );
-let todayDate = new Date()
-  .toLocaleString("en-IN", {
-    timeZone: "Asia/Kolkata",
-  })
-  .split(",")[0];
 
 //follow up Messages
-cron.schedule(" 30 04 * * *", () => {
+cron.schedule("50 11 * * *", () => {
+  let todayDate = new Date()
+    .toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+    })
+    .split(",")[0];
   try {
     MongoService.collection("followUp")
       .find({})
