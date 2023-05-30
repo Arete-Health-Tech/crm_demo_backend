@@ -9,3 +9,5 @@ router.route("/register").post(isLoggedIn, isAdmin, validations.create, controll
 router.route("/login").post(validations.login, controllers.login);
 
 export default router;
+
+// isLoggedIn, isAdmin,

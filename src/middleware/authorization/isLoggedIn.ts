@@ -15,5 +15,5 @@ const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
     next(new ErrorHandler("JWT Malformed", 403));
   }
 };
-
+  
 export default isLoggedIn;

@@ -85,7 +85,7 @@ const generateEstimate = async (
             // }),
              
             wards
-  .filter((ward: any) => ward.type === 0)
+  .filter((ward: any) => ward.type === 1)
   .forEach((item: any) => {
     const icu = wards.find(
       (ward: any) =>
