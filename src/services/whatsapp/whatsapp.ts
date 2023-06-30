@@ -114,3 +114,55 @@ export const followUpMessage = async (
     console.log("Error Format");
   }
 };
+
+
+
+export const estimateTemplateMessage = async (
+  receiver: string,
+  templateName: string,
+  templateLanguage: string,
+  location:string
+) => {
+  try {
+    const templatePayload: any = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: receiver,
+      type: "template",
+      template: {
+        name: templateName,
+        language: {
+          code: templateLanguage,
+        },
+        components: [
+          {
+            type: "header",
+            parameters: [
+              {
+                type: "document",
+                document: {
+                  link: location,
+                  filename: "Arete-Estimate",   
+                
+                },
+              },
+            ],
+          },
+          {
+            type: "body",
+          },
+        ],
+      },
+    };
+
+    const { data } = await axios.post(WHATSAPP_URL, templatePayload, {
+      headers: {
+        Authorization: `Bearer ${WA_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return data;
+  } catch (error: any) {
+    throw new ErrorHandler(error.response.data.error.message, 500);
+  }
+};

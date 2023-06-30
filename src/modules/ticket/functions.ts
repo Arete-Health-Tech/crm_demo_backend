@@ -12,6 +12,8 @@ import {
   iNote,
   iPrescription,
   iTicket,
+  iTicketUpdate,
+  subStageCodeType,
 } from "../../types/ticket/ticket";
 import MongoService, { Collections } from "../../utils/mongo";
 import {
@@ -34,10 +36,42 @@ export const getAllTicketHandler = async () => {
   return await MongoService.collection(Collections.TICKET).find({}).toArray();
 };
 
+export const findOneTicket = async (ticketId: ObjectId) => {
+  return await MongoService.collection(Collections.TICKET).findOne<iTicket>({
+    _id: ticketId,
+  });
+};
+
 export const getConsumerTickets = async (consumerId: ObjectId) => {
   return await MongoService.collection(Collections.TICKET)
     .find<iTicket>({ consumer: consumerId })
     .toArray();
+};
+
+export const updateTicket = async (
+  ticketId: string,
+  body: iTicketUpdate,
+  session: ClientSession
+) => {
+  return await MongoService.collection(Collections.TICKET).updateOne(
+    {
+      _id: new ObjectId(ticketId),
+    },
+    { $set: body },
+    { session }
+  );
+};
+
+export const updateSubStage = async (
+  ticketId: ObjectId,
+  subStageCode: subStageCodeType,
+  session: ClientSession
+) => {
+  return await MongoService.collection(Collections.TICKET).updateOne(
+    { _id: ticketId },
+    { $set: { subStageCode } },
+    { session }
+  );
 };
 
 export const getConsumerPrescriptions = async (consumerId: ObjectId) => {

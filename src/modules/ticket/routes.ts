@@ -16,6 +16,7 @@ router
   .post(upload.single("image"), validations.create, controllers.createTicket)
   .get(isRepresentative, controllers.getRepresentativeTickets);
 router.route("/:consumerId").get(controllers.ticketsWithPrescription);
+router.route("/ticketUpdate").put(controllers.updateTicketData);
 router
   .route("/estimate")
   .post(validations.createEstimate, controllers.createEstimateController);

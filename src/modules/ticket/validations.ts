@@ -102,15 +102,22 @@ export const createEstimate = [
       }
       return true;
     }),
-  body("insuranceCompany").optional().notEmpty().isString(),
-  body("insurancePolicyNumber").optional().notEmpty().isString(),
-  body("insurancePolicyAmount").optional().notEmpty().isNumeric(),
+  body("insuranceCompany").optional().isString(),
+  body("insurancePolicyNumber").optional().isString(),
+  body("insurancePolicyAmount").optional().isNumeric(),
   body("investigationAmount").optional().notEmpty().isNumeric(),
   body("procedureAmount").optional().notEmpty().isNumeric(),
   body("medicineAmount").optional().notEmpty().isNumeric(),
   body("equipmentAmount").optional().notEmpty().isNumeric(),
   body("bloodAmount").optional().notEmpty().isNumeric(),
   body("additionalAmount").optional().notEmpty().isNumeric(),
+];
+
+export const updateTicketSubStage = [
+  body("ticket")
+    .notEmpty()
+    .isString()
+    .customSanitizer((value) => new ObjectId(value)),
 ];
 
 export const get_estimate = [param("ticketId").notEmpty()];
