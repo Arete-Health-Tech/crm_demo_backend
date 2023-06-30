@@ -8,6 +8,7 @@ import ticket from "./ticket/routes";
 import flow from "./flow/routes";
 import script from "./script/routes";
 import task from "./task/routes";
+// import { searchedTicketData } from "./ticket/controllers";
 const router = Router();
 
 router.use("/representative", representative);
@@ -19,6 +20,7 @@ router.use("/ticket", ticket);
 router.use("/flow", flow);
 router.use("/script", script);
 router.use("/task", task);
+// router.use("/search",searchedTicketData)
 // router.use("/uhid",uhidDetails)
 
 export default router;

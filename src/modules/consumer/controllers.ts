@@ -9,6 +9,7 @@ export const register = PromiseWrapper(async (req: Request, res: Response, next:
 
 export const search = PromiseWrapper(async (req: Request, res: Response, next: NextFunction) => {
   const { status, body } = await searchConsumer(req.query.search as string);
+  console.log(body);
   return res.status(status).json(body);
 });
 

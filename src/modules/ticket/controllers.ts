@@ -55,10 +55,13 @@ import {
   getAllTicketHandler,
   getConsumerPrescriptions,
   getConsumerTickets,
+  findOneTicket,
   getPrescriptionById,
   getTicketEstimates,
   getTicketNotes,
   searchService,
+  updateSubStage,
+  updateTicket,
 } from "./functions";
 import Schedule from "node-schedule";
 import { CONSUMER } from "../../types/consumer/consumer";
@@ -133,7 +136,8 @@ export const createTicket = PromiseWrapper(
     if (!_id) {
       new ErrorHandler("failed to create prescription", 400);
     } else {
-      const stage = await findStageByCode(0);
+      const stage = await findStageByCode(1);
+      const engagementConfirm = req.body.admission;
       const representatives = await getSortedLeadCountRepresentatives();
       if (representatives.length === 0)
         throw new ErrorHandler("Representatives Not Found", 422);
@@ -145,6 +149,10 @@ export const createTicket = PromiseWrapper(
           assigned: representatives[0]._id,
           stage: stage._id!,
           date: new Date(),
+          subStageCode: {
+            active: !!engagementConfirm,
+            code: 1,
+          },
         },
         session
       );
@@ -235,6 +243,9 @@ export const ticketsWithPrescription = PromiseWrapper(
 
 export const getRepresentativeTickets = PromiseWrapper(
   async (req: Request, res: Response, next: NextFunction) => {
+    console.log("query: ", req.query.name);
+    const query: any[] =
+      req.query?.name !== "undefined" ? [req.query.name] : [];
     const tickets = await MongoService.collection(Collections.TICKET)
       .aggregate([
         {
@@ -248,6 +259,20 @@ export const getRepresentativeTickets = PromiseWrapper(
               { $limit: 1 },
             ],
             as: "consumer",
+          },
+        },
+        {
+          $match: {
+            $or:
+              query.length > 0
+                ? [
+                    {
+                      "consumer.firstName": {
+                        $all: query,
+                      },
+                    },
+                  ]
+                : [{}],
           },
         },
         {
@@ -333,6 +358,7 @@ export const createEstimateController = PromiseWrapper(
     session: ClientSession
   ) => {
     const estimateBody: iEstimateBody = req.body;
+
     if (req.body.icuType) {
       const icuTypeCheck = await getWardById(estimateBody.icuType);
       if (icuTypeCheck === null)
@@ -354,6 +380,24 @@ export const createEstimateController = PromiseWrapper(
       session
     );
     await generateEstimate(estimate._id, session); // creates and send estimate pdf
+
+    const ticketData: iTicket | null = await findOneTicket(estimateBody.ticket);
+
+    if (ticketData !== null) {
+      if (ticketData?.subStageCode.code < 2) {
+        const result = await updateSubStage(
+          estimateBody.ticket,
+          {
+            active: true,
+            code: 2,
+          },
+          session
+        ); //update estimation substage
+      }
+    } else {
+      throw new ErrorHandler("couldn't find ticket Id", 400);
+    }
+
     return res.status(200).json(estimate);
   }
 );
@@ -375,16 +419,58 @@ export const CreateNote = PromiseWrapper(
     next: NextFunction,
     session: ClientSession
   ) => {
-    const note = await createNote(
-      {
-        text: req.body.text,
-        ticket: req.body.ticket,
-        createdAt: Date.now(),
-        creator: req.user!._id,
-      },
-      session
-    );
+    const noteBody = {
+      text: req.body.text,
+      ticket: req.body.ticket,
+      createdAt: Date.now(),
+      creator: req.user!._id,
+    };
+    const note = await createNote(noteBody, session); //update estimation substage
+
+    const ticketData: iTicket | null = await findOneTicket(noteBody.ticket);
+
+    if (ticketData !== null) {
+      if (
+        ticketData?.subStageCode.code < 4 &&
+        ticketData?.subStageCode.code > 2
+      ) {
+        await updateSubStage(
+          noteBody.ticket,
+          {
+            active: true,
+            code: 4,
+          },
+          session
+        ); //update ticket substage
+      }
+    } else {
+      throw new ErrorHandler("couldn't find ticket Id", 400);
+    }
     res.status(200).json(note);
+  }
+);
+
+export const updateTicketData = PromiseWrapper(
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    session: ClientSession
+  ) => {
+    try {
+      const stage = await findStageByCode(req.body.stageCode);
+      const result = await updateTicket(
+        req.body.ticket,
+        {
+          stage: stage._id!,
+          subStageCode: req.body.subStageCode,
+        },
+        session
+      ); //update next ticket stage
+      res.status(200).json("Stage updated!");
+    } catch (e) {
+      res.status(500).json({ status: 500, error: e });
+    }
   }
 );
 
@@ -430,3 +516,4 @@ function capitalizeFirstLetter(part: string): any {
 function capitalizeName(name: any): any {
   throw new Error("Function not implemented.");
 }
+  

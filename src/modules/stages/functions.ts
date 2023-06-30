@@ -3,7 +3,13 @@ import { FUNCTION_RESPONSE } from "../../types/api/api";
 import { iStage } from "../../types/stages/stages";
 import ErrorHandler from "../../utils/errorHandler";
 import MongoService, { Collections } from "../../utils/mongo";
-import { createOneStage, findOneStage, findServices, findStage } from "./crud";
+import {
+  createOneStage,
+  findOneStage,
+  findServices,
+  findStage,
+  findSubStages,
+} from "./crud";
 
 export const findStageById = async (id: string): Promise<any> => {
   const stage = await findOneStage({ _id: new ObjectId(id) });
@@ -11,10 +17,14 @@ export const findStageById = async (id: string): Promise<any> => {
 };
 
 export const findStageByCode = async (code: number): Promise<iStage> => {
-  return (await MongoService.collection(Collections.STAGE).findOne<iStage>({ code })) as iStage;
+  return (await MongoService.collection(Collections.STAGE).findOne<iStage>({
+    code,
+  })) as iStage;
 };
 
-export const createStageHandler = async (stage: iStage): Promise<FUNCTION_RESPONSE> => {
+export const createStageHandler = async (
+  stage: iStage
+): Promise<FUNCTION_RESPONSE> => {
   if (stage.parent) {
     const check = await findStageById(stage.parent);
     if (check === null) throw new ErrorHandler("Parent not found", 400);
@@ -27,6 +37,10 @@ export const createStageHandler = async (stage: iStage): Promise<FUNCTION_RESPON
 
 export const getAllStagesHandler = async () => {
   return await findStage({});
+};
+
+export const getAllSubStagesHandler = async () => {
+  return await findSubStages({});
 };
 
 export const searchConsumer = async (

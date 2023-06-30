@@ -1,15 +1,25 @@
 import { ObjectId } from "mongodb";
 
+export interface subStageCodeType {
+  active: boolean;
+  code: number;
+}
+
 export interface iTicket {
   _id?: ObjectId;
   consumer: ObjectId;
   stage: ObjectId;
+  subStageCode: subStageCodeType;
   prescription: ObjectId;
   creator: ObjectId;
   assigned: ObjectId;
   value?: number;
   highlights?: string[];
   date: Date;
+}
+export interface iTicketUpdate {
+  stage?: ObjectId;
+  subStageCode?: subStageCodeType;
 }
 
 export interface iPrescription {

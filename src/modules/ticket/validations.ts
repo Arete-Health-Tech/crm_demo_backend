@@ -113,6 +113,13 @@ export const createEstimate = [
   body("additionalAmount").optional().notEmpty().isNumeric(),
 ];
 
+export const updateTicketSubStage = [
+  body("ticket")
+    .notEmpty()
+    .isString()
+    .customSanitizer((value) => new ObjectId(value)),
+];
+
 export const get_estimate = [param("ticketId").notEmpty()];
 
 export const create_note = [
