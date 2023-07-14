@@ -334,7 +334,7 @@ export const getRepresentativeTickets = PromiseWrapper(
 
       if (ticket.estimate[0]) {
         const service = await findOneService({
-          _id: ticket.estimate[0].service[0].id,
+          _id: ticket.estimate[0]?.service[0]?.id,
         });
         ticket.estimate[0].service[0] = {
           ...ticket.estimate[0].service[0],

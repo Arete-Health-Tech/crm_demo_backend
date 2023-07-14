@@ -12,6 +12,7 @@ import {  followUpMessage } from "./services/whatsapp/whatsapp";
 import { getMedia } from "./services/aws/s3";
 import { getServiceById } from "./modules/service/functions";
 import { findOneService } from "./modules/service/crud";
+import { ConnectFlow } from "./modules/flow/controller";
 
 
 const cron = require("node-cron");
@@ -36,6 +37,16 @@ app.get("/prod/", async (req: Request, res: Response) => {
 });
 
 app.use("/prod/api/v1/", moduleRoutes);
+
+
+app.get(
+  "/prod/api/v1/messanger",
+  async (req: Request, res: Response, next: NextFunction) => {
+    const service = await findOneService({ _id: req.body.serviceId });
+    console.log(service);
+  }
+);
+
 
 app.get("/tickets", async (req: Request, res: Response, next: NextFunction) => {
   const phone = req.query.phone
@@ -155,6 +166,7 @@ app.get("/tickets", async (req: Request, res: Response, next: NextFunction) => {
   console.log(tickets);
   return res.status(200).json(tickets);
 });
+
 
 
 

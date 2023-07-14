@@ -89,19 +89,28 @@ export const saveFlowMessages = async (ticket: ObjectId, node: ObjectId) => {
 };
 
 export const findConsumerFromWAID = async (consumerWAId: string) => {
-  const stages = await MongoService.collection(Collections.STAGE).find<iStage>({}).toArray();
-  const consumer = await MongoService.collection(Collections.CONSUMER).findOne<CONSUMER>({
+  const stages = await MongoService.collection(Collections.STAGE)
+    .find<iStage>({})
+    .toArray();
+  const consumer = await MongoService.collection(
+    Collections.CONSUMER
+  ).findOne<CONSUMER>({
     phone: consumerWAId,
   });
+  // console.log(consumer , " this is from consumerWaid");
   if (consumer === null) throw new ErrorHandler("No Consumer Found", 404);
   const tickets = await MongoService.collection(Collections.TICKET)
     .find<iTicket>({
       consumer: consumer._id,
     })
     .toArray();
+  // console.log(tickets,  " this from the ticker consumerWAID");
   const ticket = tickets.find(
-    (item) => stages.find((stage) => stage._id?.toString() === item.stage.toString())!.code < 8
+    (item) =>
+      stages.find((stage) => stage._id?.toString() === item.stage.toString())!
+        .code < 8
   );
+  // console.log(ticket , "this is ticlket fromm  flow ")
   if (!ticket) throw new ErrorHandler("No Ticket Found", 404);
   return { ticket: ticket._id!, consumer: consumer._id };
 };

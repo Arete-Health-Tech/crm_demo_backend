@@ -110,10 +110,10 @@ const generateEstimate = async (
                   estimate.icuDays > 0
                 ) {
                   roomCharge += icu.charges[1].roomRent * estimate.icuDays;
-                  // console.log(roomCharge , "this is icu")
+                  console.log(roomCharge , "this is icu")
                 }
                 if (item.charges) {
-                  roomCharge += item.charges.roomRent * estimate.wardDays;
+                  roomCharge += item.charges[1].roomRent * estimate.wardDays;
                   console.log(roomCharge, " this ward roomCharge");
                 }
 
@@ -246,8 +246,28 @@ const generateEstimate = async (
                         ? estimate.additionalAmount
                         : 0)
                   );
-                  //console.log(charges.total , " totalalalaalazaaz")
-                  // console.log(charges.service[0] , "above");
+                 
+                  console.log(servicePrice,"service Price");
+                  console.log(roomCharge, "roomCharge");
+                  console.log(investigationPrice, "investigationPrice Price");
+                  console.log(procedurePrice, "procedurePrice Price");
+                  console.log(
+                    estimate.medicineAmount,
+                    "estimate.medicineAmount Price"
+                  );
+                  console.log(
+                    estimate.bloodAmount,
+                    "estimate.bloodAmount Price"
+                  );
+                  console.log(
+                    estimate.equipmentAmount,
+                    "estimate.equipmentAmount Price"
+                  );
+                  console.log(
+                    estimate.additionalAmount,
+                    "estimate.additionalAmount Price"
+                  );
+                
                 }
               });
             // console.log(charges.service[0] , "below")
@@ -535,7 +555,7 @@ const generateEstimate = async (
                 BUCKET_NAME
               );
               await estimateTemplateMessage(
-                "916397401855",
+                consumer!.phone,
                 "patient_estimate",
                 "en",
                 Location

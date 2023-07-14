@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { ClientSession } from "mongodb";
+import { ClientSession, ObjectId } from "mongodb";
 import { page } from "pdfkit";
 import PromiseWrapper from "../../middleware/promiseWrapper";
 import {
@@ -24,6 +24,8 @@ import {
   getConnector,
   sendTextMessage,
 } from "./functions";
+import MongoService from "../../utils/mongo";
+import { createListPayload } from "./utils";
 
 export const createReplyNodeController = PromiseWrapper(
   async (
@@ -59,8 +61,11 @@ export const ConnectFlow = PromiseWrapper(
     session: ClientSession
   ) => {
     const service = await findOneService({ _id: req.body.serviceId });
+ 
     if (service === null) throw new ErrorHandler("Invalid Service Id", 400);
     const connector = await connectFlow(req.body, session);
+    console.log(connector.nodeId);
+   
     res.status(200).json(connector);
   }
 );
@@ -137,20 +142,26 @@ export const SendMessage = PromiseWrapper(
     session: ClientSession
   ) => {
     const { message, consumerId } = req.body;
+    console.log(req.body);
     const consumer = await findConsumerById(consumerId);
+    // console.log(consumer, "hello")
     if (consumer === null) throw new ErrorHandler("Consumer Not Found", 400);
-    const sender = req.user!.firstName + " " + req.user!.lastName;
+    // console.log(consumer, "World")
+    const sender = consumer.firstName;
+    // console.log(sender);
     await sendTextMessage(message, consumer.phone, sender);
     const { ticket } = await findConsumerFromWAID(consumer.phone);
+    // console.log(ticket  , " this is from controller");
+    // console.log(ticket  , " this is from controller djbsilfjmfknjzbdn");
     saveMessage(ticket.toString(), {
       consumer: consumer._id.toString(),
       messageType: "text",
-      sender: req.user!._id,
+      sender: consumer!._id,
       text: message,
       ticket: ticket.toString(),
       type: "sent",
     });
-
+    // console.log("this is runing or not ")
     return res.status(200).json({ message: "message sent." });
   }
 );
@@ -160,10 +171,11 @@ export const FindNode = PromiseWrapper(
     req: Request,
     res: Response,
     next: NextFunction,
-    session: ClientSession
+    session: ClientSession 
   ) => {
     const { flowQuery } = req.query as unknown as { flowQuery: string };
     const node = await findNodeByDiseaseId(flowQuery);
+console.log(node);
     return res.status(200).json(node);
   }
 );

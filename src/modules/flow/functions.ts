@@ -53,6 +53,7 @@ export const findAndSendNode = async (
   ticket: string
 ) => {
   let node = await findNodeWithId(nodeIdentifier);
+  console.log(node);
   if (node === null) {
     node = await findNodeWithId("DF");
   }
@@ -138,8 +139,8 @@ export const createNodeIndexes = async () => {
 };
 
 export const findNodeByDiseaseId = async (flowQuery: string) => {
-  return await MongoService.collection(Collections.FLOW)
-    .find<iReplyNode | iListNode>({ $text: { $search: flowQuery } })
+  return await MongoService.collection(Collections.FLOW)   
+    .find({ $text: { $search: flowQuery } })
     .toArray();
 };
 
