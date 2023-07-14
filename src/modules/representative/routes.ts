@@ -5,9 +5,11 @@ import * as controllers from "./controllers";
 import * as validations from "./validations";
 
 const router: Router = Router();
-router.route("/register").post(isLoggedIn, isAdmin, validations.create, controllers.register);
+router
+  .route("/register")
+  .post(isLoggedIn, isAdmin, validations.create, controllers.register);
 router.route("/login").post(validations.login, controllers.login);
 
-export default router;
+router.route("/all").get(controllers.getAllRepresentative);
 
-// isLoggedIn, isAdmin,
+export default router;

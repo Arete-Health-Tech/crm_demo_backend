@@ -70,6 +70,8 @@ const cron = require("node-cron");
 type ticketBody = iTicket & iPrescription;
 type tickeFollow = ifollowUp & iPrescription & iTicket & CONSUMER;
 
+export const UNDEFINED = "undefined";
+
 export const createTicket = PromiseWrapper(
   async (
     req: Request,
@@ -153,6 +155,7 @@ export const createTicket = PromiseWrapper(
             active: !!engagementConfirm,
             code: 1,
           },
+          modifiedDate: null,
         },
         session
       );
@@ -243,10 +246,39 @@ export const ticketsWithPrescription = PromiseWrapper(
 
 export const getRepresentativeTickets = PromiseWrapper(
   async (req: Request, res: Response, next: NextFunction) => {
-    console.log("query: ", req.query.name);
-    const query: any[] =
-      req.query?.name !== "undefined" ? [req.query.name] : [];
-    const tickets = await MongoService.collection(Collections.TICKET)
+    const requestQuery: any = req.query;
+    const download = requestQuery.downloadAll;
+    const pageNum: any = requestQuery?.page || 0;
+    const skipCount = download !== "true" ? (parseInt(pageNum) - 1) * 10 : 0;
+    const limitCount = download !== "true" ? 10 : Math.pow(10, 10); //  highest number
+    const stageList = requestQuery.stageList
+      ? requestQuery?.stageList
+          ?.split(",")
+          .map((id: string) => new ObjectId(id))
+      : [];
+    const representative = requestQuery?.representative;
+    let filters = {};
+
+    if (stageList?.length > 0) {
+      filters = { ...filters, stage: { $in: stageList } };
+    }
+
+    if (representative !== undefined && representative !== "null") {
+      filters = { ...filters, creator: new ObjectId(representative) };
+    }
+
+    // const dateAfterThreeDays = new Date();
+    // dateAfterThreeDays.setDate(dateAfterThreeDays.getDate() + 2); // Added 3 days to today's date
+    // const dateAfterFortyFiveDays = new Date();
+    // dateAfterFortyFiveDays.setDate(dateAfterFortyFiveDays.getDate() + 44); // Added 45 days to today's date
+    var today = new Date(); // Get today's date
+    today.setHours(0, 0, 0, 0);
+
+    console.log("query: ", requestQuery);
+    const searchQry: any[] =
+      requestQuery?.name !== UNDEFINED ? [requestQuery.name] : [];
+
+    let tickets: any = await MongoService.collection(Collections.TICKET)
       .aggregate([
         {
           $lookup: {
@@ -264,16 +296,64 @@ export const getRepresentativeTickets = PromiseWrapper(
         {
           $match: {
             $or:
-              query.length > 0
+              searchQry.length > 0
                 ? [
                     {
                       "consumer.firstName": {
-                        $all: query,
+                        $all: searchQry,
+                      },
+                    },
+                    {
+                      "consumer.lastName": {
+                        $all: searchQry,
+                      },
+                    },
+                    {
+                      "consumer.phone": {
+                        $all: searchQry,
                       },
                     },
                   ]
-                : [{}],
+                : [
+                    {
+                      modifiedDate: null,
+                    },
+
+                    {
+                      $and: [
+                        {
+                          $expr: {
+                            $gt: [
+                              today,
+                              {
+                                $add: [
+                                  "$modifiedDate",
+                                  3 * 24 * 60 * 60 * 1000,
+                                ],
+                              },
+                            ],
+                          },
+                        },
+                        {
+                          $expr: {
+                            $lt: [
+                              today,
+                              {
+                                $add: [
+                                  "$modifiedDate",
+                                  45 * 24 * 60 * 60 * 1000,
+                                ],
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  ],
           },
+        },
+        {
+          $match: filters,
         },
         {
           $lookup: {
@@ -314,10 +394,23 @@ export const getRepresentativeTickets = PromiseWrapper(
             as: "creator",
           },
         },
+
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+
+        {
+          $facet: {
+            count: [{ $count: "totalCount" }],
+            data: [{ $skip: skipCount }, { $limit: limitCount }],
+          },
+        },
       ])
       .toArray();
 
-    for await (const ticket of tickets) {
+    for await (const ticket of tickets[0].data) {
       ticket.prescription[0].image = getMedia(ticket.prescription[0].image);
       if (ticket.prescription[0].service) {
         const presService = await getServiceById(
@@ -334,7 +427,7 @@ export const getRepresentativeTickets = PromiseWrapper(
 
       if (ticket.estimate[0]) {
         const service = await findOneService({
-          _id: ticket.estimate[0].service[0].id,
+          _id: ticket.estimate[0].service[0]?._id,
         });
         ticket.estimate[0].service[0] = {
           ...ticket.estimate[0].service[0],
@@ -343,7 +436,11 @@ export const getRepresentativeTickets = PromiseWrapper(
         ticket.estimate[0].createdAt = getCreateDate(ticket.estimate[0]._id);
       }
     }
-    return res.status(200).json(tickets);
+
+    return res.status(200).json({
+      tickets: tickets[0]?.data,
+      count: tickets[0]?.count[0]?.totalCount || 0,
+    });
   }
 );
 
@@ -374,7 +471,7 @@ export const createEstimateController = PromiseWrapper(
     if (prescription === null) {
       throw new ErrorHandler("Invalid Prescription", 400);
     }
-    const consumer = await findConsumerById(prescription.consumer);
+    // const consumer = await findConsumerById(prescription.consumer);
     const estimate = await createEstimate(
       { ...estimateBody, creator: new ObjectId(req.user!._id) },
       session
@@ -383,8 +480,11 @@ export const createEstimateController = PromiseWrapper(
 
     const ticketData: iTicket | null = await findOneTicket(estimateBody.ticket);
 
+    console.log("ticket data", ticketData);
+
     if (ticketData !== null) {
       if (ticketData?.subStageCode.code < 2) {
+        console.log("Im in estimation");
         const result = await updateSubStage(
           estimateBody.ticket,
           {
@@ -464,10 +564,30 @@ export const updateTicketData = PromiseWrapper(
         {
           stage: stage._id!,
           subStageCode: req.body.subStageCode,
+          modifiedDate: new Date(),
         },
         session
       ); //update next ticket stage
-      res.status(200).json("Stage updated!");
+      res.status(200).json(`Stage updated to ${stage.name}!`);
+    } catch (e) {
+      res.status(500).json({ status: 500, error: e });
+    }
+  }
+);
+
+export const updateTicketSubStageCode = PromiseWrapper(
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    session: ClientSession
+  ) => {
+    try {
+      let ticketId = req.body?.ticket;
+      ticketId = new ObjectId(ticketId);
+      const subStageCode = req.body?.subStageCode;
+      const result = await updateSubStage(ticketId, subStageCode, session);
+      res.status(200).json({ message: `SubStage updated!`, result });
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
     }
@@ -516,4 +636,3 @@ function capitalizeFirstLetter(part: string): any {
 function capitalizeName(name: any): any {
   throw new Error("Function not implemented.");
 }
-  
