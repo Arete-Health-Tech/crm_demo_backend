@@ -532,7 +532,7 @@ const generateEstimate = async (
                 BUCKET_NAME
               );
               await estimateTemplateMessage(
-                "916397401855",
+                consumer!.phone,
                 "patient_estimate",
                 "en",
                 Location
