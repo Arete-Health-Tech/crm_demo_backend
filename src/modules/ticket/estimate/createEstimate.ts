@@ -67,7 +67,6 @@ const generateEstimate = async (
         ]).then(
           async ([
             prescription,
-
             consumer,
             wards,
             services,
@@ -113,12 +112,11 @@ const generateEstimate = async (
                   console.log(roomCharge , "this is icu")
                 }
                 if (item.charges) {
-                  roomCharge += item.charges[1].roomRent * estimate.wardDays;
+                  roomCharge += item.charges[0].roomRent * estimate.wardDays;
                   console.log(roomCharge, " this ward roomCharge");
                 }
 
                 charges.room.push(roomCharge);
-
                 // console.log(charges.room , " this is Room charge s"); // this should now output the room charges array
 
                 if (estimate.type === 1) {
@@ -203,7 +201,6 @@ const generateEstimate = async (
                     // console.log('Adjusted minimum service price:', minPrice);
                   }
                   // console.log('Updated charges:', charges);
-
                   let investigationPrice = estimate.investigationAmount || 0;
                   investigations.forEach(
                     (investigation: Record<string, any>) => {

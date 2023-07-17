@@ -10,6 +10,7 @@ export interface iTicket {
   consumer: ObjectId;
   stage: ObjectId;
   subStageCode: subStageCodeType;
+  modifiedDate: Date | null;
   prescription: ObjectId;
   creator: ObjectId;
   assigned: ObjectId;
@@ -20,6 +21,7 @@ export interface iTicket {
 export interface iTicketUpdate {
   stage?: ObjectId;
   subStageCode?: subStageCodeType;
+  modifiedDate?: Date | null;
 }
 
 export interface iPrescription {

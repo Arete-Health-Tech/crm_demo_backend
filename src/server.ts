@@ -1,3 +1,4 @@
+
 import dotenv from "dotenv";
 import path from "path";
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
@@ -182,12 +183,8 @@ app.use(
   }
 );
 
-
-
-  // estimateTemplateMessage("919452760854", "patient_estimate", "en");
-
 //follow up Messages
-cron.schedule("50 11 * * *", () => {
+cron.schedule(" 30 04 * * *", () => {
   let todayDate = new Date()
     .toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata",
