@@ -29,6 +29,7 @@ import {
   getWardById,
 } from "../department/functions";
 import {
+  findAndSendNode,
   findFlowConnectorByService,
   sendTextMessage,
   startTemplateFlow,
@@ -65,6 +66,7 @@ import {
 } from "./functions";
 import Schedule from "node-schedule";
 import { CONSUMER } from "../../types/consumer/consumer";
+import { HandleWebhook } from "../flow/controller";
 const cron = require("node-cron");
 
 type ticketBody = iTicket & iPrescription;
@@ -159,7 +161,7 @@ export const createTicket = PromiseWrapper(
         },
         session
       );
-      if (req.body.admission !== null) {
+      if (req.body.admission!== null) {
         const components = [
           {
             type: "body",
@@ -556,6 +558,7 @@ export const updateTicketData = PromiseWrapper(
     res: Response,
     next: NextFunction,
     session: ClientSession
+  
   ) => {
     try {
       const stage = await findStageByCode(req.body.stageCode);
@@ -568,6 +571,10 @@ export const updateTicketData = PromiseWrapper(
         },
         session
       ); //update next ticket stage
+      
+     
+        
+
       res.status(200).json(`Stage updated to ${stage.name}!`);
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
@@ -629,10 +636,4 @@ export const EstimateUploadAndSend = PromiseWrapper(
   }
 );
 
-function capitalizeFirstLetter(part: string): any {
-  throw new Error("Function not implemented.");
-}
 
-function capitalizeName(name: any): any {
-  throw new Error("Function not implemented.");
-}

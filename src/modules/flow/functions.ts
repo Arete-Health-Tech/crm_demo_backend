@@ -36,15 +36,16 @@ export const createListNode = async (
   });
 };
 const findNodeWithId = async (nodeId: string) => {
+  console.log(nodeId);
   return await MongoService.collection(Collections.FLOW).findOne<
     iReplyNode | iListNode
   >({ nodeId });
 };
 
-const findNodeById = async (nodeId: ObjectId) => {
-  return await MongoService.collection(Collections.FLOW).findOne<
+const findNodeById = async (nodeId: string) => {
+  return await MongoService.collection(Collections.STAGE_FLOW).findOne<
     iReplyNode | iListNode
-  >({ _id: nodeId });
+  >({ nodeId });
 };
 
 export const findAndSendNode = async (
@@ -52,22 +53,38 @@ export const findAndSendNode = async (
   receiver: string,
   ticket: string
 ) => {
-  let node = await findNodeWithId(nodeIdentifier);
+  let node = await (findNodeById(nodeIdentifier) || findNodeWithId(nodeIdentifier))
   if (node === null) {
-    node = await findNodeWithId("DF");
+    node = await findNodeById("DF");
   }
+   
+
+
   if (node === null) throw new Error("Node not found");
   if (node.type === "reply") {
+   
     const replyPayload = createReplyPayload(node);
+
     await sendMessage(receiver, replyPayload);
-  } else if (node.type === "list") {
+  
+  } else if (node.type === "list" ) {
+   
     const listPayload = createListPayload(node);
+  
     await sendMessage(receiver, listPayload);
   }
   delete node._id;
   // await saveFlowMessages(ticket, node._id!);
   await saveSentFlowMessage(ticket, node);
 };
+
+
+
+
+
+
+
+
 
 export const saveSentFlowMessage = async (ticket: string, node: any) => {
   return await firestore

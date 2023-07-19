@@ -72,7 +72,10 @@ export const HandleWebhook = async (
   next: NextFunction
 ) => {
   try {
+  console.log(req.body,req.headers)
     const body: iWebhookPayload = req.body;
+   
+  
     //handling the responses
     body.entry.forEach((entry) => {
       entry.changes.forEach((changes) => {
@@ -82,6 +85,7 @@ export const HandleWebhook = async (
               const { prescription, ticket } =
                 await findTicketAndPrescriptionFromWAID(
                   changes.value.contacts[mi].wa_id
+                  
                 );
               const departmentSet = new Set([
                 "63ce58474dca242deb6a4d41",
@@ -92,6 +96,7 @@ export const HandleWebhook = async (
                 if (!departmentSet.has(prescription?.departments[0].toString()))
                   return;
                 if (message.button) {
+                  console.log("Button")
                   await findAndSendNode(
                     prescription.service
                       ? prescription.service.toString()
@@ -139,13 +144,14 @@ export const SendMessage = PromiseWrapper(
     const { message, consumerId } = req.body;
     const consumer = await findConsumerById(consumerId);
     if (consumer === null) throw new ErrorHandler("Consumer Not Found", 400);
-    const sender = req.user!.firstName + " " + req.user!.lastName;
+    const sender = consumer.firstName + " " + consumer.lastName;
     await sendTextMessage(message, consumer.phone, sender);
     const { ticket } = await findConsumerFromWAID(consumer.phone);
+   
     saveMessage(ticket.toString(), {
       consumer: consumer._id.toString(),
       messageType: "text",
-      sender: req.user!._id,
+      sender: consumer._id.toString(),
       text: message,
       ticket: ticket.toString(),
       type: "sent",
@@ -157,7 +163,7 @@ export const SendMessage = PromiseWrapper(
 
 export const FindNode = PromiseWrapper(
   async (
-    req: Request,
+    req: Request, 
     res: Response,
     next: NextFunction,
     session: ClientSession

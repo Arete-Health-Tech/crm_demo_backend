@@ -77,7 +77,7 @@ export const createListPayload = (node: iListNode) => {
               {
                 id: node.listId0,
                 title: node.listTitle0,
-                description: node.listDesc0 ? node.listDesc0 : node.listTitle0,
+                description: node.listDesc0? node.listDesc0 : node.listTitle0,
               },
             ],
           },

@@ -12,6 +12,7 @@ export const Collections = {
   ESTIMATE: "estimate",
   FLOW: "flow",
   Note: "note",
+  STAGE_FLOW:"stageflow",
   FLOW_CONNECT: "flow_connect",
   MESSAGES: "messages",
   SCRIPT: "script",
