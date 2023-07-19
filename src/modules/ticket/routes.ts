@@ -36,6 +36,10 @@ router.route("/note").post(validations.create_note, controllers.CreateNote);
 router
   .route("/note/:ticketId")
   .get(validations.get_notes, controllers.GetTicketNotes);
+
+  router
+  .route("/patientStatus")
+  .post(upload.single("image"),validations.patientStatusValidate ,controllers.createPatientStatus)
 // router.route("/search/:key").get(async (req, resp) => {
 //   const query = { firstName: { $regex: /name-to-search/i } };
 //   const consumers = await MongoService.collection("consumer")

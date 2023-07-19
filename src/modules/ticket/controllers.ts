@@ -45,6 +45,7 @@ import {
   findPrescriptionById,
   findTicket,
   findTicketById,
+  insertPatientStatusDetail,
 } from "./crud";
 import generateEstimate from "./estimate/createEstimate";
 import { whatsappEstimatePayload } from "./estimate/utils";
@@ -277,6 +278,70 @@ export const getRepresentativeTickets = PromiseWrapper(
     console.log("query: ", requestQuery);
     const searchQry: any[] =
       requestQuery?.name !== UNDEFINED ? [requestQuery.name] : [];
+    const modificationDateQuery = {
+      $or: [
+        {
+          modifiedDate: null,
+        },
+
+        {
+          $and: [
+            {
+              $expr: {
+                $gt: [
+                  today,
+                  {
+                    $add: ["$modifiedDate", 3 * 24 * 60 * 60 * 1000],
+                  },
+                ],
+              },
+            },
+            {
+              $expr: {
+                $lt: [
+                  today,
+                  {
+                    $add: ["$modifiedDate", 45 * 24 * 60 * 60 * 1000],
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    };
+    const nameSearchQuery = {
+      $or: [
+        {
+          "consumer.firstName": {
+            $all: searchQry,
+          },
+        },
+        {
+          "consumer.lastName": {
+            $all: searchQry,
+          },
+        },
+        {
+          "consumer.phone": {
+            $all: searchQry,
+          },
+        },
+      ],
+    };
+    const filterFlag = Object.keys(filters).length > 0;
+    const ticketId = requestQuery.ticketId;
+
+    const matchCondition =
+      ticketId !== UNDEFINED
+        ? {
+            _id: new ObjectId(ticketId),
+          }
+        : searchQry.length > 0
+        ? nameSearchQuery
+        : filterFlag
+        ? {}
+        : modificationDateQuery;
 
     let tickets: any = await MongoService.collection(Collections.TICKET)
       .aggregate([
@@ -294,63 +359,7 @@ export const getRepresentativeTickets = PromiseWrapper(
           },
         },
         {
-          $match: {
-            $or:
-              searchQry.length > 0
-                ? [
-                    {
-                      "consumer.firstName": {
-                        $all: searchQry,
-                      },
-                    },
-                    {
-                      "consumer.lastName": {
-                        $all: searchQry,
-                      },
-                    },
-                    {
-                      "consumer.phone": {
-                        $all: searchQry,
-                      },
-                    },
-                  ]
-                : [
-                    {
-                      modifiedDate: null,
-                    },
-
-                    {
-                      $and: [
-                        {
-                          $expr: {
-                            $gt: [
-                              today,
-                              {
-                                $add: [
-                                  "$modifiedDate",
-                                  3 * 24 * 60 * 60 * 1000,
-                                ],
-                              },
-                            ],
-                          },
-                        },
-                        {
-                          $expr: {
-                            $lt: [
-                              today,
-                              {
-                                $add: [
-                                  "$modifiedDate",
-                                  45 * 24 * 60 * 60 * 1000,
-                                ],
-                              },
-                            ],
-                          },
-                        },
-                      ],
-                    },
-                  ],
-          },
+          $match: matchCondition,
         },
         {
           $match: filters,
@@ -636,3 +645,32 @@ function capitalizeFirstLetter(part: string): any {
 function capitalizeName(name: any): any {
   throw new Error("Function not implemented.");
 }
+
+export const createPatientStatus = PromiseWrapper(
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    session: ClientSession
+  ) => {
+    const requsetBody = req.body;
+    let imageKey: string | null = null;
+    if (req.file) {
+      const { Key } = await putMedia(
+        req.file,
+        `patients/${requsetBody.consumer}/patientStatus`
+      );
+      imageKey = Key;
+    }
+    const payload = {
+      parentTicketId: requsetBody.ticket,
+      consumer: requsetBody?.consumer,
+      note: requsetBody?.note || "",
+      dropReason: requsetBody?.dropReason || "",
+      paymentRefId: requsetBody?.paymentRefId || "",
+      image: imageKey,
+    };
+    const result = await insertPatientStatusDetail(payload, session);
+    res.status(200).json({ result, status: "Success" });
+  }
+);
