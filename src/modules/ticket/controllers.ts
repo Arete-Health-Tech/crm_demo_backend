@@ -277,9 +277,73 @@ export const getRepresentativeTickets = PromiseWrapper(
     console.log("query: ", requestQuery);
     const searchQry: any[] =
       requestQuery?.name !== UNDEFINED ? [requestQuery.name] : [];
+    const modificationDateQuery = {
+      $or: [
+        {
+          modifiedDate: null,
+        },
+
+        {
+          $and: [
+            {
+              $expr: {
+                $gt: [
+                  today,
+                  {
+                    $add: ["$modifiedDate", 3 * 24 * 60 * 60 * 1000],
+                  },
+                ],
+              },
+            },
+            {
+              $expr: {
+                $lt: [
+                  today,
+                  {
+                    $add: ["$modifiedDate", 45 * 24 * 60 * 60 * 1000],
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    };
+    const nameSearchQuery = {
+      $or: [
+        {
+          "consumer.firstName": {
+            $all: searchQry,
+          },
+        },
+        {
+          "consumer.lastName": {
+            $all: searchQry,
+          },
+        },
+        {
+          "consumer.phone": {
+            $all: searchQry,
+          },
+        },
+      ],
+    };
+    const filterFlag = Object.keys(filters).length > 0;
+    const ticketId = requestQuery.ticketId;
+
+
+    const matchCondition =
+    ticketId!==UNDEFINED ? {
+      _id : new ObjectId(ticketId)
+    } : 
+      (searchQry.length > 0
+        ? nameSearchQuery
+        : filterFlag
+        ? {}
+        : modificationDateQuery);
 
     let tickets: any = await MongoService.collection(Collections.TICKET)
-      .aggregate([
+      .aggregate([       
         {
           $lookup: {
             from: Collections.CONSUMER,
@@ -294,63 +358,7 @@ export const getRepresentativeTickets = PromiseWrapper(
           },
         },
         {
-          $match: {
-            $or:
-              searchQry.length > 0
-                ? [
-                    {
-                      "consumer.firstName": {
-                        $all: searchQry,
-                      },
-                    },
-                    {
-                      "consumer.lastName": {
-                        $all: searchQry,
-                      },
-                    },
-                    {
-                      "consumer.phone": {
-                        $all: searchQry,
-                      },
-                    },
-                  ]
-                : [
-                    {
-                      modifiedDate: null,
-                    },
-
-                    {
-                      $and: [
-                        {
-                          $expr: {
-                            $gt: [
-                              today,
-                              {
-                                $add: [
-                                  "$modifiedDate",
-                                  3 * 24 * 60 * 60 * 1000,
-                                ],
-                              },
-                            ],
-                          },
-                        },
-                        {
-                          $expr: {
-                            $lt: [
-                              today,
-                              {
-                                $add: [
-                                  "$modifiedDate",
-                                  45 * 24 * 60 * 60 * 1000,
-                                ],
-                              },
-                            ],
-                          },
-                        },
-                      ],
-                    },
-                  ],
-          },
+          $match: matchCondition,
         },
         {
           $match: filters,
@@ -569,6 +577,7 @@ export const updateTicketData = PromiseWrapper(
         session
       ); //update next ticket stage
       res.status(200).json(`Stage updated to ${stage.name}!`);
+      
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
     }
