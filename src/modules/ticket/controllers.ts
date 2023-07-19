@@ -45,6 +45,7 @@ import {
   findPrescriptionById,
   findTicket,
   findTicketById,
+  insertPatientStatusDetail,
 } from "./crud";
 import generateEstimate from "./estimate/createEstimate";
 import { whatsappEstimatePayload } from "./estimate/utils";
@@ -331,19 +332,19 @@ export const getRepresentativeTickets = PromiseWrapper(
     const filterFlag = Object.keys(filters).length > 0;
     const ticketId = requestQuery.ticketId;
 
-
     const matchCondition =
-    ticketId!==UNDEFINED ? {
-      _id : new ObjectId(ticketId)
-    } : 
-      (searchQry.length > 0
+      ticketId !== UNDEFINED
+        ? {
+            _id: new ObjectId(ticketId),
+          }
+        : searchQry.length > 0
         ? nameSearchQuery
         : filterFlag
         ? {}
-        : modificationDateQuery);
+        : modificationDateQuery;
 
     let tickets: any = await MongoService.collection(Collections.TICKET)
-      .aggregate([       
+      .aggregate([
         {
           $lookup: {
             from: Collections.CONSUMER,
@@ -577,7 +578,6 @@ export const updateTicketData = PromiseWrapper(
         session
       ); //update next ticket stage
       res.status(200).json(`Stage updated to ${stage.name}!`);
-      
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
     }
@@ -645,3 +645,32 @@ function capitalizeFirstLetter(part: string): any {
 function capitalizeName(name: any): any {
   throw new Error("Function not implemented.");
 }
+
+export const createPatientStatus = PromiseWrapper(
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    session: ClientSession
+  ) => {
+    const requsetBody = req.body;
+    let imageKey: string | null = null;
+    if (req.file) {
+      const { Key } = await putMedia(
+        req.file,
+        `patients/${requsetBody.consumer}/patientStatus`
+      );
+      imageKey = Key;
+    }
+    const payload = {
+      parentTicketId: requsetBody.ticket,
+      consumer: requsetBody?.consumer,
+      note: requsetBody?.note || "",
+      dropReason: requsetBody?.dropReason || "",
+      paymentRefId: requsetBody?.paymentRefId || "",
+      image: imageKey,
+    };
+    const result = await insertPatientStatusDetail(payload, session);
+    res.status(200).json({ result, status: "Success" });
+  }
+);

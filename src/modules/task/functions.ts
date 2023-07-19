@@ -35,9 +35,9 @@ export const findCreatorReminders = async (creator: ObjectId) => {
     .toArray();
 };
 
-export const findTicketReminders = async (ticket: ObjectId) => {
+export const findTicketReminders = async (ticket: ObjectId, currentUnixTimestamp: number | Date) => {
   return await MongoService.collection(Collections.REMINDER)
-    .find({ ticket })
+    .find({ date: {$gte: currentUnixTimestamp} })
     .toArray();
 };
 

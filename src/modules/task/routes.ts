@@ -11,7 +11,7 @@ router
   .route("/reminder")
   .post(validations.create_reminder, controllers.CreateReminder)
   .get(controllers.GetReminder);
-router.route("/reminder/:ticketId").get(controllers.GetTicketReminders);
+router.route("/allReminder").get(controllers.GetTicketReminders);
 router.route("/todo").post(validations.create_todo, controllers.CreateTodo)
   .get(controllers.GetCreatorTodo)
   .put(validations.update_todo_status, controllers.UpdateTodoStatus);
