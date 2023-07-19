@@ -8,6 +8,7 @@ export const FOLLOWUP = "followUp";
 
 export const TICKET_DB = "ticket";
 export const PRESCRIPTION_DB = "prescription";
+export const PATIENTSTATUS_DB = "patientStatus"
 
 const createSearchIndex = async () => {
   await MongoService.collection(TICKET_DB).createIndex({
@@ -95,4 +96,14 @@ export const findPrescription = async (query: any) => {
 export const createOneFollowUp = async (followUp: ifollowUp) => {
   await MongoService.collection(FOLLOWUP).insertOne(followUp);
   return followUp;
+};
+
+export const insertPatientStatusDetail = async (
+  statusDetail: any,
+  session: ClientSession
+) => {
+  await MongoService.collection(PATIENTSTATUS_DB).insertOne(statusDetail, {
+    session,
+  });
+  return statusDetail;
 };

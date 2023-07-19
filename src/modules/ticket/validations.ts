@@ -133,3 +133,16 @@ export const create_note = [
 export const get_notes = [param("ticketId").notEmpty()];
 
 export const upload_estimate = [param("ticketId").notEmpty().isHexadecimal()];
+
+export const patientStatusValidate = [body("paymentRefId").isString().optional(),
+body("ticket")
+  .notEmpty()
+  .isString()
+  .customSanitizer((value) => new ObjectId(value)),
+body("consumer")
+  .notEmpty()
+  .isString(),
+  body("note").isString().optional(),
+  body("dropReason").isString().optional(),
+  body("paymentRefId").isString().optional(),
+];

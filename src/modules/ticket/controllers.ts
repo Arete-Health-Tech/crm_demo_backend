@@ -46,6 +46,7 @@ import {
   findPrescriptionById,
   findTicket,
   findTicketById,
+  insertPatientStatusDetail,
 } from "./crud";
 import generateEstimate from "./estimate/createEstimate";
 import { whatsappEstimatePayload } from "./estimate/utils";
@@ -279,6 +280,70 @@ export const getRepresentativeTickets = PromiseWrapper(
     console.log("query: ", requestQuery);
     const searchQry: any[] =
       requestQuery?.name !== UNDEFINED ? [requestQuery.name] : [];
+    const modificationDateQuery = {
+      $or: [
+        {
+          modifiedDate: null,
+        },
+
+        {
+          $and: [
+            {
+              $expr: {
+                $gt: [
+                  today,
+                  {
+                    $add: ["$modifiedDate", 3 * 24 * 60 * 60 * 1000],
+                  },
+                ],
+              },
+            },
+            {
+              $expr: {
+                $lt: [
+                  today,
+                  {
+                    $add: ["$modifiedDate", 45 * 24 * 60 * 60 * 1000],
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    };
+    const nameSearchQuery = {
+      $or: [
+        {
+          "consumer.firstName": {
+            $all: searchQry,
+          },
+        },
+        {
+          "consumer.lastName": {
+            $all: searchQry,
+          },
+        },
+        {
+          "consumer.phone": {
+            $all: searchQry,
+          },
+        },
+      ],
+    };
+    const filterFlag = Object.keys(filters).length > 0;
+    const ticketId = requestQuery.ticketId;
+
+    const matchCondition =
+      ticketId !== UNDEFINED
+        ? {
+            _id: new ObjectId(ticketId),
+          }
+        : searchQry.length > 0
+        ? nameSearchQuery
+        : filterFlag
+        ? {}
+        : modificationDateQuery;
 
     let tickets: any = await MongoService.collection(Collections.TICKET)
       .aggregate([
@@ -296,63 +361,7 @@ export const getRepresentativeTickets = PromiseWrapper(
           },
         },
         {
-          $match: {
-            $or:
-              searchQry.length > 0
-                ? [
-                    {
-                      "consumer.firstName": {
-                        $all: searchQry,
-                      },
-                    },
-                    {
-                      "consumer.lastName": {
-                        $all: searchQry,
-                      },
-                    },
-                    {
-                      "consumer.phone": {
-                        $all: searchQry,
-                      },
-                    },
-                  ]
-                : [
-                    {
-                      modifiedDate: null,
-                    },
-
-                    {
-                      $and: [
-                        {
-                          $expr: {
-                            $gt: [
-                              today,
-                              {
-                                $add: [
-                                  "$modifiedDate",
-                                  3 * 24 * 60 * 60 * 1000,
-                                ],
-                              },
-                            ],
-                          },
-                        },
-                        {
-                          $expr: {
-                            $lt: [
-                              today,
-                              {
-                                $add: [
-                                  "$modifiedDate",
-                                  45 * 24 * 60 * 60 * 1000,
-                                ],
-                              },
-                            ],
-                          },
-                        },
-                      ],
-                    },
-                  ],
-          },
+          $match: matchCondition,
         },
         {
           $match: filters,
@@ -637,3 +646,6 @@ export const EstimateUploadAndSend = PromiseWrapper(
 );
 
 
+function capitalizeName(name: any): any {
+  throw new Error("Function not implemented.");
+}
