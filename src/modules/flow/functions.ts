@@ -35,10 +35,11 @@ export const createListNode = async (
     session,
   });
 };
-const findNodeWithId = async (nodeId: string) => {
-  return await MongoService.collection(Collections.FLOW).findOne<
+const findNodeWithId = async (nodeId: string, nodeName?: string | null) => {
+  const payload = nodeName ? { nodeId, nodeName } : { nodeId };
+  return await MongoService.collection(Collections.STAGEFLOW).findOne<
     iReplyNode | iListNode
-  >({ nodeId });
+  >(payload);
 };
 
 const findNodeById = async (nodeId: ObjectId) => {
@@ -50,9 +51,22 @@ const findNodeById = async (nodeId: ObjectId) => {
 export const findAndSendNode = async (
   nodeIdentifier: string,
   receiver: string,
-  ticket: string
+  ticket: string,
+  stageCode?: number | undefined
 ) => {
-  let node = await findNodeWithId(nodeIdentifier);
+  console.log("stagecode",stageCode);
+  let nodeName = null;
+  if (stageCode === 2) {
+    nodeName = "How";
+  }
+  if (stageCode === 3) {
+    nodeName = "Recovery";
+  }
+  if (stageCode === 4) {
+    nodeName = "Untreated";
+  }
+
+  let node = await findNodeWithId(nodeIdentifier, nodeName);
   if (node === null) {
     node = await findNodeWithId("DF");
   }

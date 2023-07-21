@@ -31,6 +31,7 @@ export interface iWebhookPayload {
       field: "messages";
     }[];
   }[];
+  stageCode?: number | undefined;
 }
 
 interface iButtonMessagePayload {

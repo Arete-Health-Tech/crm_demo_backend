@@ -19,7 +19,7 @@ const PromiseWrapper =
       } else if (error.errors) {
         return res.status(400).json(error.errors);
       } else {
-        next(new ErrorHandler("SOMETHING WENT WRONG", 500));
+        next(new ErrorHandler(error, 500));
       }
     }
   };
