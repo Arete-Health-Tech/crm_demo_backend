@@ -65,6 +65,39 @@ export const ConnectFlow = PromiseWrapper(
   }
 );
 
+// const myPayload = {
+//   object: "whatsapp_business_account";
+//   entry: {
+//     id: "112652028162194";
+//     changes: {
+//       value: {
+//         messaging_product: "whatsapp";
+//         metadata: {
+//           display_phone_number: "917355576551";
+//           phone_number_id: string;
+//         };
+//         contacts: {
+//           wa_id: string;
+//           profile: {
+//             name: string;
+//           };
+//         }[];
+//         errors: {
+//           code: number;
+//           title: string;
+//         }[];
+//         messages: {
+//           button?: iButtonMessagePayload;
+//           interactive?: iReplyMessagePayload | iListMessagePayload;
+//           text?: iTextMessagePayload;
+//         }[];
+//         statuses: [];
+//       };
+//       field: "messages";
+//     }[];
+//   }[];
+// }
+
 // webhook
 export const HandleWebhook = async (
   req: Request,
@@ -73,6 +106,7 @@ export const HandleWebhook = async (
 ) => {
   try {
     const body: iWebhookPayload = req.body;
+    console.log("web hook body", JSON.stringify(req.body));
     //handling the responses
     body.entry.forEach((entry) => {
       entry.changes.forEach((changes) => {
@@ -97,7 +131,8 @@ export const HandleWebhook = async (
                       ? prescription.service.toString()
                       : "DF",
                     changes.value.contacts[mi].wa_id,
-                    ticket._id.toString()
+                    ticket._id.toString(),
+                    body.stageCode
                   );
                 } else if (message.interactive) {
                   const nodeIdentifier =
@@ -107,7 +142,8 @@ export const HandleWebhook = async (
                   await findAndSendNode(
                     nodeIdentifier,
                     changes.value.contacts[mi].wa_id,
-                    ticket._id.toString()
+                    ticket._id.toString(),
+                    body.stageCode
                   );
                 }
                 await saveMessageFromWebhook(
@@ -123,9 +159,11 @@ export const HandleWebhook = async (
         });
       });
     });
-    return res.sendStatus(200);
+    // return res.sendStatus(200);
+    return "webhook message sent";
   } catch (error: any) {
-    return res.sendStatus(200);
+    // return res.sendStatus(200);
+    return { err: "error occured", error };
   }
 };
 
