@@ -74,7 +74,7 @@ export const HandleWebhook = async (
   try {
   console.log(req.body,req.headers)
     const body: iWebhookPayload = req.body;
-   
+   console.log("webhook patyload",req.body)
   
     //handling the responses
     body.entry.forEach((entry) => {

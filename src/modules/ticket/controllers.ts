@@ -9,6 +9,7 @@ import {
 } from "../../services/whatsapp/webhook";
 import {
   followUpMessage,
+  herniaHow,
   sendMessage,
   sendTemplateMessage,
 } from "../../services/whatsapp/whatsapp";
@@ -579,10 +580,10 @@ export const updateTicketData = PromiseWrapper(
           modifiedDate: new Date(),
         },
         session
-      ); //update next ticket stage
+      ); 
       
      
-        
+        // herniaHow("917355576551", "octa_msg", "en");
 
       res.status(200).json(`Stage updated to ${stage.name}!`);
     } catch (e) {
@@ -592,7 +593,7 @@ export const updateTicketData = PromiseWrapper(
 );
 
 export const updateTicketSubStageCode = PromiseWrapper(
-  async (
+  async ( 
     req: Request,
     res: Response,
     next: NextFunction,
@@ -649,3 +650,34 @@ export const EstimateUploadAndSend = PromiseWrapper(
 function capitalizeName(name: any): any {
   throw new Error("Function not implemented.");
 }
+
+
+
+export const createPatientStatus = PromiseWrapper(
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    session: ClientSession
+  ) => {
+    const requsetBody = req.body;
+    let imageKey: string | null = null;
+    if (req.file) {
+      const { Key } = await putMedia(
+        req.file,
+        `patients/${requsetBody.consumer}/patientStatus`
+      );
+      imageKey = Key;
+    }
+    const payload = {
+      parentTicketId: requsetBody.ticket,
+      consumer: requsetBody?.consumer,
+      note: requsetBody?.note || "",
+      dropReason: requsetBody?.dropReason || "",
+      paymentRefId: requsetBody?.paymentRefId || "",
+      image: imageKey,
+    };
+    const result = await insertPatientStatusDetail(payload, session);
+    res.status(200).json({ result, status: "Success" });
+  }
+);

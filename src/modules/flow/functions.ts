@@ -64,6 +64,7 @@ export const findAndSendNode = async (
   if (node.type === "reply") {
    
     const replyPayload = createReplyPayload(node);
+    console.log(replyPayload);
 
     await sendMessage(receiver, replyPayload);
   
