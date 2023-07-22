@@ -22,7 +22,7 @@ import {
 } from "../../types/ticket/ticket";
 import ErrorHandler from "../../utils/errorHandler";
 import MongoService, { Collections, getCreateDate } from "../../utils/mongo";
-import { findConsumer } from "../consumer/crud";
+import { findConsumer, findOneConsumer } from "../consumer/crud";
 import { findConsumerById } from "../consumer/functions";
 import {
   findDoctorById,
@@ -479,10 +479,10 @@ export const createEstimateController = PromiseWrapper(
         return res.status(400).json({ message: "Invalid Service Id" });
       }
     });
-    const prescription = await getPrescriptionById(estimateBody.prescription);
-    if (prescription === null) {
-      throw new ErrorHandler("Invalid Prescription", 400);
-    }
+    // const prescription = await getPrescriptionById(estimateBody.prescription);
+    // if (prescription === null) {
+    //   throw new ErrorHandler("Invalid Prescription", 400);
+    // }
     // const consumer = await findConsumerById(prescription.consumer);
     const estimate = await createEstimate(
       { ...estimateBody, creator: new ObjectId(req.user!._id) },
@@ -571,7 +571,10 @@ export const updateTicketData = PromiseWrapper(
   
   ) => {
     try {
-      const stage = await findStageByCode(req.body.stageCode);
+      const stageCode:  number = req.body.stageCode
+      console.log("stage code in update", stageCode)
+      const stage = await findStageByCode(stageCode);
+      console.log("SStage in update", stage.code)
       const result = await updateTicket(
         req.body.ticket,
         {
@@ -580,12 +583,57 @@ export const updateTicketData = PromiseWrapper(
           modifiedDate: new Date(),
         },
         session
-      ); 
-      
+      ); //update next ticket stage
+      const ticketData = await findTicketById(new ObjectId(req.body.ticket));
+      // console.log("ticketData:",ticketData)
+      if (!ticketData?.consumer) {
+        throw new ErrorHandler("couldn't find ticket", 500);
+      }
+      const consumerData = await findOneConsumer(
+        new ObjectId(ticketData.consumer)
+      );
      
-        // herniaHow("917355576551", "octa_msg", "en");
+      if (!consumerData) {
+        throw new ErrorHandler("couldn't find consumer", 500);
+      }
 
-      res.status(200).json(`Stage updated to ${stage.name}!`);
+      const whatsNumber = consumerData.phone;
+
+      let webHookResult = null;
+      let Req: any = {};
+
+      if (stageCode<5) {
+        Req.body = {
+          entry: [
+            {
+              changes: [
+                {
+                  value: {
+                    contacts: [
+                      {
+                        wa_id: whatsNumber,
+                      },
+                    ],
+                    messages: [
+                      {
+                        button: {
+                          text: "reply",
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+          stageCode,
+        };
+
+        webHookResult = await HandleWebhook(Req, res, next);
+      }
+      res
+        .status(200)
+        .json({ result: `Stage updated to ${stage.name}!`, webHookResult });
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
     }
