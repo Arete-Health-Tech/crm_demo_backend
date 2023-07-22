@@ -53,10 +53,8 @@ export const findAndSendNode = async (
   receiver: string,
   ticket: string
 ) => {
-  let node = await (findNodeById(nodeIdentifier) || findNodeWithId(nodeIdentifier))
-  if (node === null) {
-    node = await findNodeById("DF");
-  }
+  let node = await ( findNodeWithId(nodeIdentifier))
+  
    
 
 
