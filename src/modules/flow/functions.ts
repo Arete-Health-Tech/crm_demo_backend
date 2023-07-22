@@ -35,11 +35,11 @@ export const createListNode = async (
     session,
   });
 };
-const findNodeWithId = async (nodeId: string, nodeName?: string | null) => {
-  const payload = nodeName ? { nodeId, nodeName } : { nodeId };
-  return await MongoService.collection(Collections.STAGEFLOW).findOne<
+const findNodeWithId = async (nodeId: string) => {
+  console.log(nodeId);
+  return await MongoService.collection(Collections.FLOW).findOne<
     iReplyNode | iListNode
-  >(payload);
+  >({ nodeId });
 };
 
 const findNodeById = async (nodeId: string) => {
@@ -51,22 +51,9 @@ const findNodeById = async (nodeId: string) => {
 export const findAndSendNode = async (
   nodeIdentifier: string,
   receiver: string,
-  ticket: string,
-  stageCode?: number | undefined
+  ticket: string
 ) => {
-  console.log("stagecode",stageCode);
-  let nodeName = null;
-  if (stageCode === 2) {
-    nodeName = "How";
-  }
-  if (stageCode === 3) {
-    nodeName = "Recovery";
-  }
-  if (stageCode === 4) {
-    nodeName = "Untreated";
-  }
-
-  let node = await findNodeWithId(nodeIdentifier, nodeName);
+  let node = await (findNodeById(nodeIdentifier) || findNodeWithId(nodeIdentifier))
   if (node === null) {
     node = await findNodeById("DF");
   }
@@ -77,7 +64,6 @@ export const findAndSendNode = async (
   if (node.type === "reply") {
    
     const replyPayload = createReplyPayload(node);
-    console.log(replyPayload);
 
     await sendMessage(receiver, replyPayload);
   
