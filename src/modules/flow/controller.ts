@@ -24,7 +24,6 @@ import {
   getConnector,
   sendTextMessage,
 } from "./functions";
-
 export const createReplyNodeController = PromiseWrapper(
   async (
     req: Request,
@@ -36,7 +35,6 @@ export const createReplyNodeController = PromiseWrapper(
     res.status(200).json(data);
   }
 );
-
 export const createListNodeController = PromiseWrapper(
   async (
     req: Request,
@@ -48,9 +46,7 @@ export const createListNodeController = PromiseWrapper(
     res.status(200).json(data);
   }
 );
-
 // flow connector
-
 export const ConnectFlow = PromiseWrapper(
   async (
     req: Request,
@@ -64,7 +60,38 @@ export const ConnectFlow = PromiseWrapper(
     res.status(200).json(connector);
   }
 );
-
+// const myPayload = {
+//   object: "whatsapp_business_account";
+//   entry: {
+//     id: "112652028162194";
+//     changes: {
+//       value: {
+//         messaging_product: "whatsapp";
+//         metadata: {
+//           display_phone_number: "917355576551";
+//           phone_number_id: string;
+//         };
+//         contacts: {
+//           wa_id: string;
+//           profile: {
+//             name: string;
+//           };
+//         }[];
+//         errors: {
+//           code: number;
+//           title: string;
+//         }[];
+//         messages: {
+//           button?: iButtonMessagePayload;
+//           interactive?: iReplyMessagePayload | iListMessagePayload;
+//           text?: iTextMessagePayload;
+//         }[];
+//         statuses: [];
+//       };
+//       field: "messages";
+//     }[];
+//   }[];
+// }
 // webhook
 export const HandleWebhook = async (
   req: Request,
@@ -72,10 +99,8 @@ export const HandleWebhook = async (
   next: NextFunction
 ) => {
   try {
-  console.log(req.body,req.headers)
     const body: iWebhookPayload = req.body;
-   
-  
+    console.log("web hook body", JSON.stringify(req.body));
     //handling the responses
     body.entry.forEach((entry) => {
       entry.changes.forEach((changes) => {
@@ -85,7 +110,6 @@ export const HandleWebhook = async (
               const { prescription, ticket } =
                 await findTicketAndPrescriptionFromWAID(
                   changes.value.contacts[mi].wa_id
-                  
                 );
               const departmentSet = new Set([
                 "63ce58474dca242deb6a4d41",
@@ -96,13 +120,13 @@ export const HandleWebhook = async (
                 if (!departmentSet.has(prescription?.departments[0].toString()))
                   return;
                 if (message.button) {
-                  console.log("Button")
                   await findAndSendNode(
                     prescription.service
                       ? prescription.service.toString()
                       : "DF",
                     changes.value.contacts[mi].wa_id,
-                    ticket._id.toString()
+                    ticket._id.toString(),
+                    body.stageCode
                   );
                 } else if (message.interactive) {
                   const nodeIdentifier =
@@ -112,7 +136,8 @@ export const HandleWebhook = async (
                   await findAndSendNode(
                     nodeIdentifier,
                     changes.value.contacts[mi].wa_id,
-                    ticket._id.toString()
+                    ticket._id.toString(),
+                    body.stageCode
                   );
                 }
                 await saveMessageFromWebhook(
@@ -128,12 +153,13 @@ export const HandleWebhook = async (
         });
       });
     });
-    return res.sendStatus(200);
+    // return res.sendStatus(200);
+    return "webhook message sent";
   } catch (error: any) {
-    return res.sendStatus(200);
+    // return res.sendStatus(200);
+    return { err: "error occured", error };
   }
 };
-
 export const SendMessage = PromiseWrapper(
   async (
     req: Request,
@@ -142,28 +168,27 @@ export const SendMessage = PromiseWrapper(
     session: ClientSession
   ) => {
     const { message, consumerId } = req.body;
+    console.log(req.body,"req body")
     const consumer = await findConsumerById(consumerId);
     if (consumer === null) throw new ErrorHandler("Consumer Not Found", 400);
-    const sender = consumer.firstName + " " + consumer.lastName;
+    const sender = consumer.firstName
+    console.log(sender ,"sender ")
     await sendTextMessage(message, consumer.phone, sender);
     const { ticket } = await findConsumerFromWAID(consumer.phone);
-   
     saveMessage(ticket.toString(), {
       consumer: consumer._id.toString(),
       messageType: "text",
-      sender: consumer._id.toString(),
+      sender: consumer!._id.toString(),
       text: message,
       ticket: ticket.toString(),
       type: "sent",
     });
-
     return res.status(200).json({ message: "message sent." });
   }
 );
-
 export const FindNode = PromiseWrapper(
   async (
-    req: Request, 
+    req: Request,
     res: Response,
     next: NextFunction,
     session: ClientSession
@@ -173,7 +198,6 @@ export const FindNode = PromiseWrapper(
     return res.status(200).json(node);
   }
 );
-
 export const GetConnector = PromiseWrapper(
   async (
     req: Request,
@@ -191,5 +215,3 @@ export const GetConnector = PromiseWrapper(
     return res.status(200).json(connectors);
   }
 );
-
-//follow up

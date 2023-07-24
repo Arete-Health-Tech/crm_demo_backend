@@ -17,7 +17,6 @@ import {
   createReplyPayload,
   createTextPayload,
 } from "./utils";
-
 export const createReplyNode = async (
   nodes: iReplyNode[],
   session: ClientSession
@@ -26,7 +25,6 @@ export const createReplyNode = async (
     session,
   });
 };
-
 export const createListNode = async (
   nodes: iListNode[],
   session: ClientSession
@@ -35,15 +33,21 @@ export const createListNode = async (
     session,
   });
 };
-const findNodeWithId = async (nodeId: string) => {
-  console.log(nodeId);
+const findNodeWithId = async (
+  nodeId: string,
+  nodeName?: string | null,
+  stageCode?: number | null
+) => {
+  const payload = { nodeId, nodeName };
+  if (stageCode && stageCode > 4) {
+    return;
+  }
+  if (nodeName) {
+    return await MongoService.collection(Collections.STAGEFLOW).findOne<
+      iReplyNode | iListNode
+    >(payload);
+  }
   return await MongoService.collection(Collections.FLOW).findOne<
-    iReplyNode | iListNode
-  >({ nodeId });
-};
-
-const findNodeById = async (nodeId: string) => {
-  return await MongoService.collection(Collections.STAGE_FLOW).findOne<
     iReplyNode | iListNode
   >({ nodeId });
 };
@@ -51,39 +55,39 @@ const findNodeById = async (nodeId: string) => {
 export const findAndSendNode = async (
   nodeIdentifier: string,
   receiver: string,
-  ticket: string
+  ticket: string,
+  stageCode: number | null = null
 ) => {
-  let node = await ( findNodeWithId(nodeIdentifier))
-  
-   
-
-
+  console.log("stagecode", stageCode);
+  let nodeName = null;
+  if (stageCode === 2) {
+    nodeName = "How";
+  }
+  if (stageCode === 3) {
+    nodeName = "Recovery";
+  }
+  if (stageCode === 4) {
+    nodeName = "Untreated";
+  }
+  let node = await findNodeWithId(nodeIdentifier, nodeName, stageCode);
+  // if (node === null) {
+  //   node = await findNodeWithId("DF");
+  // }
+  if (node === undefined) {
+    return;
+  }
   if (node === null) throw new Error("Node not found");
   if (node.type === "reply") {
-   
     const replyPayload = createReplyPayload(node);
-
     await sendMessage(receiver, replyPayload);
-  
-  } else if (node.type === "list" ) {
-   
+  } else if (node.type === "list") {
     const listPayload = createListPayload(node);
-  
     await sendMessage(receiver, listPayload);
   }
   delete node._id;
   // await saveFlowMessages(ticket, node._id!);
   await saveSentFlowMessage(ticket, node);
 };
-
-
-
-
-
-
-
-
-
 export const saveSentFlowMessage = async (ticket: string, node: any) => {
   return await firestore
     .collection(fsCollections.TICKET)
@@ -92,7 +96,6 @@ export const saveSentFlowMessage = async (ticket: string, node: any) => {
     .doc()
     .set({ ...node, createdAt: Date.now(), type: "sent" });
 };
-
 export const startTemplateFlow = async (
   templateName: string,
   templateLanguage: string,
@@ -106,9 +109,7 @@ export const startTemplateFlow = async (
     components
   );
 };
-
 // connect flow
-
 export const connectFlow = async (
   connector: iFlowConnect,
   session: ClientSession
@@ -118,13 +119,11 @@ export const connectFlow = async (
   });
   return connector;
 };
-
 export const findFlowConnectorByService = async (serviceId: ObjectId) => {
   return await MongoService.collection(
     Collections.FLOW_CONNECT
   ).findOne<iFlowConnect>({ serviceId });
 };
-
 export const findFlowConnectorByTemplateIdentifier = async (
   templateIdentifier: string
 ) => {
@@ -134,7 +133,6 @@ export const findFlowConnectorByTemplateIdentifier = async (
     templateIdentifier,
   });
 };
-
 export const sendTextMessage = async (
   message: string,
   receiver: string,
@@ -143,7 +141,6 @@ export const sendTextMessage = async (
   const textPayload = createTextPayload(message, sender);
   await sendMessage(receiver, textPayload);
 };
-
 export const createNodeIndexes = async () => {
   await MongoService.collection(Collections.FLOW).createIndex({
     nodeId: "text",
@@ -151,15 +148,12 @@ export const createNodeIndexes = async () => {
     templateName: "text",
   });
 };
-
 export const findNodeByDiseaseId = async (flowQuery: string) => {
   return await MongoService.collection(Collections.FLOW)
     .find<iReplyNode | iListNode>({ $text: { $search: flowQuery } })
     .toArray();
 };
-
 // connector
-
 export const getConnector = async (pageLength: number, page: number) => {
   return await MongoService.collection(Collections.FLOW_CONNECT)
     .find<iFlowConnect>({})
@@ -167,5 +161,3 @@ export const getConnector = async (pageLength: number, page: number) => {
     .skip(pageLength * page)
     .toArray();
 };
-
-//follow Up

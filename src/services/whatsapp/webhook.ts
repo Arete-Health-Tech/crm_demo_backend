@@ -106,7 +106,7 @@ export const findConsumerFromWAID = async (consumerWAId: string) => {
       consumer: consumer._id,
     })
     .toArray();
-    console.log(tickets)
+    console.log(tickets, "ticket found")
   // const ticket = tickets.find(
   //   (item) => stages.find((stage) => stage._id?.toString() === item.stage.toString())?.code
   // );
@@ -115,7 +115,7 @@ export const findConsumerFromWAID = async (consumerWAId: string) => {
   const ticket = tickets.find(
     (item) => prescription.find((prescription) => prescription._id?.toString() === item.prescription.toString())?.consumer
   );
-  console.log(ticket)
+  console.log(ticket,"secomd")
   if (!ticket)
   throw new ErrorHandler("No Ticket Found", 404);
   return { ticket: ticket._id!, consumer: consumer._id };
