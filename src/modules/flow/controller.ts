@@ -122,11 +122,11 @@ export const HandleWebhook = async (
         });
       });
     });
-    // return res.sendStatus(200);
-    return "webhook message sent";
+    return res.sendStatus(200);
+   
   } catch (error: any) {
-    // return res.sendStatus(200);
-    return { err: "error occured", error };
+    return res.sendStatus(200);
+  
   }
 };
 export const SendMessage = PromiseWrapper(
