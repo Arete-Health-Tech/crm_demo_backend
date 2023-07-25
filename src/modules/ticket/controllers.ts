@@ -626,7 +626,7 @@ export const updateTicketData = PromiseWrapper(
           stageCode,
         };
 
-        webHookResult = await HandleWebhook(Req, res, next);
+        // webHookResult = await HandleWebhook(Req, res, next);
       }
       res
         .status(200)
