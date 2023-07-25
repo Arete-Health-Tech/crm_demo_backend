@@ -25,6 +25,9 @@ export const createReplyNode = async (
     session,
   });
 };
+
+
+
 export const createListNode = async (
   nodes: iListNode[],
   session: ClientSession
@@ -33,20 +36,10 @@ export const createListNode = async (
     session,
   });
 };
-const findNodeWithId = async (
-  nodeId: string,
-  nodeName?: string | null,
-  stageCode?: number | null
-) => {
-  const payload = { nodeId, nodeName };
-  if (stageCode && stageCode > 4) {
-    return;
-  }
-  if (nodeName) {
-    return await MongoService.collection(Collections.STAGEFLOW).findOne<
-      iReplyNode | iListNode
-    >(payload);
-  }
+
+
+
+const findNodeWithId = async (nodeId: string) => {
   return await MongoService.collection(Collections.FLOW).findOne<
     iReplyNode | iListNode
   >({ nodeId });
@@ -55,26 +48,11 @@ const findNodeWithId = async (
 export const findAndSendNode = async (
   nodeIdentifier: string,
   receiver: string,
-  ticket: string,
-  stageCode: number | null = null
+  ticket: string
 ) => {
-  console.log("stagecode", stageCode);
-  let nodeName = null;
-  if (stageCode === 2) {
-    nodeName = "How";
-  }
-  if (stageCode === 3) {
-    nodeName = "Recovery";
-  }
-  if (stageCode === 4) {
-    nodeName = "Untreated";
-  }
-  let node = await findNodeWithId(nodeIdentifier, nodeName, stageCode);
-  // if (node === null) {
-  //   node = await findNodeWithId("DF");
-  // }
-  if (node === undefined) {
-    return;
+  let node = await findNodeWithId(nodeIdentifier);
+  if (node === null) {
+    node = await findNodeWithId("DF");
   }
   if (node === null) throw new Error("Node not found");
   if (node.type === "reply") {
@@ -88,6 +66,8 @@ export const findAndSendNode = async (
   // await saveFlowMessages(ticket, node._id!);
   await saveSentFlowMessage(ticket, node);
 };
+
+
 export const saveSentFlowMessage = async (ticket: string, node: any) => {
   return await firestore
     .collection(fsCollections.TICKET)
@@ -96,6 +76,10 @@ export const saveSentFlowMessage = async (ticket: string, node: any) => {
     .doc()
     .set({ ...node, createdAt: Date.now(), type: "sent" });
 };
+
+
+
+
 export const startTemplateFlow = async (
   templateName: string,
   templateLanguage: string,
@@ -110,6 +94,8 @@ export const startTemplateFlow = async (
   );
 };
 // connect flow
+
+
 export const connectFlow = async (
   connector: iFlowConnect,
   session: ClientSession

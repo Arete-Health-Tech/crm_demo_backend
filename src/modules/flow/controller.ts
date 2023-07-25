@@ -60,39 +60,7 @@ export const ConnectFlow = PromiseWrapper(
     res.status(200).json(connector);
   }
 );
-// const myPayload = {
-//   object: "whatsapp_business_account";
-//   entry: {
-//     id: "112652028162194";
-//     changes: {
-//       value: {
-//         messaging_product: "whatsapp";
-//         metadata: {
-//           display_phone_number: "917355576551";
-//           phone_number_id: string;
-//         };
-//         contacts: {
-//           wa_id: string;
-//           profile: {
-//             name: string;
-//           };
-//         }[];
-//         errors: {
-//           code: number;
-//           title: string;
-//         }[];
-//         messages: {
-//           button?: iButtonMessagePayload;
-//           interactive?: iReplyMessagePayload | iListMessagePayload;
-//           text?: iTextMessagePayload;
-//         }[];
-//         statuses: [];
-//       };
-//       field: "messages";
-//     }[];
-//   }[];
-// }
-// webhook
+
 export const HandleWebhook = async (
   req: Request,
   res: Response,
@@ -126,7 +94,7 @@ export const HandleWebhook = async (
                       : "DF",
                     changes.value.contacts[mi].wa_id,
                     ticket._id.toString(),
-                    body.stageCode
+                   
                   );
                 } else if (message.interactive) {
                   const nodeIdentifier =
@@ -137,7 +105,7 @@ export const HandleWebhook = async (
                     nodeIdentifier,
                     changes.value.contacts[mi].wa_id,
                     ticket._id.toString(),
-                    body.stageCode
+                   
                   );
                 }
                 await saveMessageFromWebhook(

@@ -87,6 +87,7 @@ export const createTicket = PromiseWrapper(
     const ticket: ticketBody = req.body;
 
     const consumer = await findConsumerById(ticket.consumer);
+    console.log(consumer)
     if (consumer === null) {
       throw new ErrorHandler("consumer doesn't exist", 404);
     }
@@ -581,56 +582,56 @@ export const updateTicketData = PromiseWrapper(
         },
         session
       ); //update next ticket stage
-      const ticketData = await findTicketById(new ObjectId(req.body.ticket));
-      // console.log("ticketData:",ticketData)
-      if (!ticketData?.consumer) {
-        throw new ErrorHandler("couldn't find ticket", 500);
-      }
-      const consumerData = await findOneConsumer(
-        new ObjectId(ticketData.consumer)
-      );
+      // const ticketData = await findTicketById(new ObjectId(req.body.ticket));
+      // // console.log("ticketData:",ticketData)
+      // if (!ticketData?.consumer) {
+      //   throw new ErrorHandler("couldn't find ticket", 500);
+      // }
+      // const consumerData = await findOneConsumer(
+      //   new ObjectId(ticketData.consumer)
+      // );
      
-      if (!consumerData) {
-        throw new ErrorHandler("couldn't find consumer", 500);
-      }
+      // if (!consumerData) {
+      //   throw new ErrorHandler("couldn't find consumer", 500);
+      // }
 
-      const whatsNumber = consumerData.phone;
+      // const whatsNumber = consumerData.phone;
 
-      let webHookResult = null;
-      let Req: any = {};
+      // let webHookResult = null;
+      // let Req: any = {};
 
-      if (stageCode<5) {
-        Req.body = {
-          entry: [
-            {
-              changes: [
-                {
-                  value: {
-                    contacts: [
-                      {
-                        wa_id: whatsNumber,
-                      },
-                    ],
-                    messages: [
-                      {
-                        button: {
-                          text: "reply",
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          ],
-          stageCode,
-        };
+      // if (stageCode<5) {
+      //   Req.body = {
+      //     entry: [
+      //       {
+      //         changes: [
+      //           {
+      //             value: {
+      //               contacts: [
+      //                 {
+      //                   wa_id: whatsNumber,
+      //                 },
+      //               ],
+      //               messages: [
+      //                 {
+      //                   button: {
+      //                     text: "reply",
+      //                   },
+      //                 },
+      //               ],
+      //             },
+      //           },
+      //         ],
+      //       },
+      //     ],
+      //     stageCode,
+      //   };
 
-        // webHookResult = await HandleWebhook(Req, res, next);
-      }
+      //   // webHookResult = await HandleWebhook(Req, res, next);
+      // }
       res
         .status(200)
-        .json({ result: `Stage updated to ${stage.name}!`, webHookResult });
+        .json({ result: `Stage updated to ${stage.name}!`});
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
     }
