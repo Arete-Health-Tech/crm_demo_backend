@@ -51,9 +51,7 @@ export const findAndSendNode = async (
   ticket: string
 ) => {
   let node = await findNodeWithId(nodeIdentifier);
-  if (node === null) {
-    node = await findNodeWithId("DF");
-  }
+  
   if (node === null) throw new Error("Node not found");
   if (node.type === "reply") {
     const replyPayload = createReplyPayload(node);
