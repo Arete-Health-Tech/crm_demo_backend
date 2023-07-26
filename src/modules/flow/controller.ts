@@ -144,7 +144,7 @@ export const SendMessage = PromiseWrapper(
     console.log(sender ,"sender ",(consumer._id).toString(),"\n",consumer)
     await sendTextMessage(message, consumer.phone, sender);
     const { ticket } = await findConsumerFromWAID(consumer.phone);
-    saveMessage(ticketID, {
+    await saveMessage(ticketID, {
       consumer: (consumer._id).toString(),
       messageType: "text",
       sender: consumer.phone,
