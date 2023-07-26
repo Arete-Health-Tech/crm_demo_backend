@@ -136,21 +136,22 @@ export const SendMessage = PromiseWrapper(
     next: NextFunction,
     session: ClientSession
   ) => {
-    const { message, consumerId } = req.body;
+    const { message, consumerId, ticketID} = req.body;
     console.log(req.body,"req body")
     const consumer = await findConsumerById(consumerId);
     if (consumer === null) throw new ErrorHandler("Consumer Not Found", 400);
     const sender = consumer.firstName
-    console.log(sender ,"sender ")
+    console.log(sender ,"sender ",(consumer._id).toString(),"\n",consumer)
     await sendTextMessage(message, consumer.phone, sender);
     const { ticket } = await findConsumerFromWAID(consumer.phone);
-    saveMessage(ticket.toString(), {
-      consumer: consumer._id.toString(),
+    saveMessage(ticketID, {
+      consumer: (consumer._id).toString(),
       messageType: "text",
-      sender: consumer!._id.toString(),
+      sender: consumer.phone,
       text: message,
-      ticket: ticket.toString(),
+      ticket: ticketID,
       type: "sent",
+      createdAt: Date.now(),
     });
     return res.status(200).json({ message: "message sent." });
   }
