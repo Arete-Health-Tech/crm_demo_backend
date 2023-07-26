@@ -68,6 +68,8 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
 };
 
 export const saveMessage = async (ticket: string, message: any) => {
+
+  console.log("message payload", message);
   return await firestore
     .collection(fsCollections.TICKET)
     .doc(ticket)
