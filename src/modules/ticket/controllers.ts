@@ -9,6 +9,41 @@ import {
 } from "../../services/whatsapp/webhook";
 import {
   followUpMessage,
+ 
+  herniaHowText,
+  herniaHowVideo,
+ 
+
+  herniaRecoveryImage,
+ 
+
+  herniaRecoveryText,
+ 
+
+  herniaUntreatedImage,
+ 
+
+  herniaUntreatedText,
+ 
+
+  hysterectomyHowText,
+ 
+
+  hysterectomyHowVideo,
+ 
+
+  hysterectomyRecoveryImage,
+ 
+
+  hysterectomyRecoveryText,
+ 
+
+  hysterectomyUntreatedImage,
+ 
+
+  hysterectomyUntreatedText,
+ 
+
   sendMessage,
   sendTemplateMessage,
 } from "../../services/whatsapp/whatsapp";
@@ -41,6 +76,7 @@ import { createReminder } from "../task/functions";
 import {
   createOneFollowUp,
   createOnePrescription,
+  findOnePrescription,
   findPrescription,
   findPrescriptionById,
   findTicket,
@@ -178,7 +214,11 @@ export const createTicket = PromiseWrapper(
           },
         ];
         await startTemplateFlow("flow", "en", consumer.phone, components);
+
+       
+       
       }
+     
       if (ticket.followUp !== null) {
         await createOneFollowUp({
           firstName: consumer.firstName,
@@ -478,10 +518,10 @@ export const createEstimateController = PromiseWrapper(
         return res.status(400).json({ message: "Invalid Service Id" });
       }
     });
-    const prescription = await getPrescriptionById(estimateBody.prescription);
-    if (prescription === null) {
-      throw new ErrorHandler("Invalid Prescription", 400);
-    }
+    // const prescription = await getPrescriptionById(estimateBody.prescription);
+    // if (prescription === null) {
+    //   throw new ErrorHandler("Invalid Prescription", 400);
+    // }
     // const consumer = await findConsumerById(prescription.consumer);
     const estimate = await createEstimate(
       { ...estimateBody, creator: new ObjectId(req.user!._id) },
@@ -569,10 +609,19 @@ export const updateTicketData = PromiseWrapper(
     session: ClientSession
   ) => {
     try {
-      const stageCode:  number = req.body.stageCode
-      console.log("stage code in update", stageCode)
+      const stageCode: number = req.body.stageCode;
+      console.log("stage code in update", stageCode);
       const stage = await findStageByCode(stageCode);
-      console.log("SStage in update", stage.code)
+      console.log("SStage in update", stage.code);
+      // const result = await updateTicket(
+      //   req.body.ticket,
+      //   {
+      //     stage: stage._id!,
+      //     subStageCode: req.body.subStageCode,
+      //     modifiedDate: new Date(),
+      //   },
+      //   session
+      // ); //update next ticket stage
       const result = await updateTicket(
         req.body.ticket,
         {
@@ -581,26 +630,28 @@ export const updateTicketData = PromiseWrapper(
           modifiedDate: new Date(),
         },
         session
-      ); //update next ticket stage
-      // const ticketData = await findTicketById(new ObjectId(req.body.ticket));
-      // // console.log("ticketData:",ticketData)
-      // if (!ticketData?.consumer) {
-      //   throw new ErrorHandler("couldn't find ticket", 500);
-      // }
-      // const consumerData = await findOneConsumer(
-      //   new ObjectId(ticketData.consumer)
-      // );
-     
-      // if (!consumerData) {
-      //   throw new ErrorHandler("couldn't find consumer", 500);
-      // }
+      );
+      const ticketData = await findTicketById(new ObjectId(req.body.ticket));
+      // console.log("ticketData:",ticketData)
+      if (!ticketData?.consumer) {
+        throw new ErrorHandler("couldn't find ticket", 500);
+      }
+      const consumerData = await findOneConsumer(
+        new ObjectId(ticketData.consumer)
+      );
 
-      // const whatsNumber = consumerData.phone;
+      if (!consumerData) {
+        throw new ErrorHandler("couldn't find consumer", 500);
+      }
+
+      const whatsNumber = consumerData.phone;
+      console.log(whatsNumber, "this is whats up number");
 
       // let webHookResult = null;
       // let Req: any = {};
 
-      // if (stageCode<5) {
+      // if (stageCode<2 ) {
+      //   console.log("entered")
       //   Req.body = {
       //     entry: [
       //       {
@@ -627,11 +678,52 @@ export const updateTicketData = PromiseWrapper(
       //     stageCode,
       //   };
 
-      //   // webHookResult = await HandleWebhook(Req, res, next);
+      //   webHookResult = await HandleWebhook(Req, res , next);
+
+      //   console.log(webHookResult , " this is webhookresult");
       // }
-      res
-        .status(200)
-        .json({ result: `Stage updated to ${stage.name}!`});
+      setTimeout(async () => {
+        const serviceIDS = await findOnePrescription(ticketData.prescription);
+        console.log(serviceIDS, " bdyufgdhw body of pre");
+        console.log(serviceIDS?.service?.toString(), "this is id ");
+        if (serviceIDS?.service?.toString() === "63d2391f6a681dfcc1742e3d") {
+          if (stageCode === 2) {
+            console.log("write message here");
+            await herniaHowVideo(whatsNumber);
+            await herniaHowText(whatsNumber);
+          }
+          if (stageCode === 3) {
+            console.log("2  how are the 3rd stage ");
+            await herniaRecoveryImage(whatsNumber);
+            await herniaRecoveryText(whatsNumber);
+          }
+          if (stageCode === 4) {
+            console.log("2  how are the 3rd stage ");
+            await herniaUntreatedImage(whatsNumber);
+            await herniaUntreatedText(whatsNumber);
+          }
+        } else if (
+          serviceIDS?.service?.toString() === "64b7c899c8eeebac28df612f"
+        ) {
+          if (stageCode === 2) {
+            console.log("write message here");
+            await hysterectomyHowVideo(whatsNumber);
+            await hysterectomyHowText(whatsNumber);
+          }
+          if (stageCode === 3) {
+            console.log("2  how are the 3rd stage ");
+            await hysterectomyRecoveryText(whatsNumber);
+            await hysterectomyRecoveryImage(whatsNumber);
+          }
+          if (stageCode === 4) {
+            console.log("2  how are the 3rd stage ");
+            await hysterectomyUntreatedImage(whatsNumber);
+            await hysterectomyUntreatedText(whatsNumber);
+          }
+        }
+      }, 3000);
+
+      res.status(200).json({ result: `Stage updated to ${stage.name}!` });
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
     }

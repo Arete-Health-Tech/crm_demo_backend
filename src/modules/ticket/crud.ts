@@ -107,3 +107,9 @@ export const insertPatientStatusDetail = async (
   });
   return statusDetail;
 };
+
+export const findOnePrescription = async (query: any) => {
+  return await MongoService.collection(
+    Collections.PRESCRIPTION
+  ).findOne<iPrescription>(query);
+};

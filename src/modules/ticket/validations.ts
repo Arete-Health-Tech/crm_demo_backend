@@ -66,7 +66,7 @@ export const createEstimate = [
     .customSanitizer((value) => new ObjectId(value))
     .notEmpty(),
   body("prescription")
-    .notEmpty()
+   
     .customSanitizer((value) => new ObjectId(value)),
   body("ticket")
     .notEmpty()
