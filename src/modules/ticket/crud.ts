@@ -111,5 +111,5 @@ export const insertPatientStatusDetail = async (
 export const findOnePrescription = async (query: any) => {
   return await MongoService.collection(
     Collections.PRESCRIPTION
-  ).findOne<iPrescription |  null>(query);
+  ).findOne<iPrescription>(query);
 };
