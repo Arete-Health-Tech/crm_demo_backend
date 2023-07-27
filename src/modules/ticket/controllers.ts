@@ -67,6 +67,16 @@ import {
 import Schedule from "node-schedule";
 import { CONSUMER } from "../../types/consumer/consumer";
 import { HandleWebhook } from "../flow/controller";
+import { redisClient } from "../../server";
+import {
+  TICKET_CACHE_OBJECT,
+  iTicketsResultJSON,
+  modificationDateQuery,
+} from "./ticketUtils/Constants";
+import {
+  RedisUpdateSingleTicketLookUp,
+  applyPagination,
+} from "./ticketUtils/utilFunctions";
 const cron = require("node-cron");
 
 type ticketBody = iTicket & iPrescription;
@@ -87,7 +97,7 @@ export const createTicket = PromiseWrapper(
     const ticket: ticketBody = req.body;
 
     const consumer = await findConsumerById(ticket.consumer);
-    console.log(consumer)
+    console.log(consumer);
     if (consumer === null) {
       throw new ErrorHandler("consumer doesn't exist", 404);
     }
@@ -197,6 +207,11 @@ export const createTicket = PromiseWrapper(
         });
       }
 
+      const ticketObjId = body._id?.toString();
+
+      if (ticketObjId) {
+        await RedisUpdateSingleTicketLookUp(ticketObjId);
+      }
       return res.status(status).json(body);
     }
   }
@@ -251,7 +266,7 @@ export const getRepresentativeTickets = PromiseWrapper(
   async (req: Request, res: Response, next: NextFunction) => {
     const requestQuery: any = req.query;
     const download = requestQuery.downloadAll;
-    const pageNum: any = requestQuery?.page || 0;
+    const pageNum: any = parseInt(requestQuery?.page) || 0;
     const skipCount = download !== "true" ? (parseInt(pageNum) - 1) * 10 : 0;
     const limitCount = download !== "true" ? 10 : Math.pow(10, 10); //  highest number
     const stageList = requestQuery.stageList
@@ -269,49 +284,80 @@ export const getRepresentativeTickets = PromiseWrapper(
     if (representative !== undefined && representative !== "null") {
       filters = { ...filters, creator: new ObjectId(representative) };
     }
+    const filterFlag = Object.keys(filters).length > 0;
+    const ticketId = requestQuery.ticketId;
+
+    console.log("query: ", requestQuery);
+
+    await (await redisClient).SET("name", "sohel");
+
+    if (requestQuery.name === UNDEFINED && !filterFlag) {
+      if (ticketId !== UNDEFINED) {
+        const result = await createTicketLookUps(ticketId);
+        return res.json(result);
+      }
+
+      try {
+        const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
+        // console.log("cache: data", data);
+
+        if (data === null) {
+          const ticketsResult = await createTicketLookUps();
+          const listOfTicketObjects = ticketsResult?.tickets;
+
+          if (listOfTicketObjects.length < 1)
+            return res
+              .status(200)
+              .json({ message: "NO Tickets Found in DB", ...ticketsResult });
+
+          let TicketCacheObj: any = {};
+          listOfTicketObjects.forEach((currentTicket: any) => {
+            let ticket_ID: string = currentTicket._id.toString();
+            TicketCacheObj[ticket_ID] = currentTicket;
+          }); // setting {id: ticketdata} pair
+
+          const finalTicketCaches = JSON.stringify(TicketCacheObj);
+
+          await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
+
+          const sortedData = applyPagination(listOfTicketObjects, 1, 10);
+
+          const ticketsJson: iTicketsResultJSON = {
+            tickets: sortedData,
+            count: listOfTicketObjects.length,
+          };
+
+          return res.status(200).json(ticketsJson);
+        } else {
+          const ticketObjCache = JSON.parse(data);
+          const listOfTicketsObj = Object.values(ticketObjCache);
+          const sortedTicketData = applyPagination(
+            listOfTicketsObj,
+            pageNum,
+            10
+          );
+          console.log("page", pageNum, "\n");
+          const ticketsResultJson: iTicketsResultJSON = {
+            tickets: sortedTicketData,
+            count: listOfTicketsObj.length,
+          };
+
+          return res.status(200).json(ticketsResultJson);
+        }
+      } catch (err: any) {
+        console.log("error : cacahe data", err);
+        return res.status(500).json("Error occurred while fetching from DB");
+      }
+    }
 
     // const dateAfterThreeDays = new Date();
     // dateAfterThreeDays.setDate(dateAfterThreeDays.getDate() + 2); // Added 3 days to today's date
     // const dateAfterFortyFiveDays = new Date();
     // dateAfterFortyFiveDays.setDate(dateAfterFortyFiveDays.getDate() + 44); // Added 45 days to today's date
-    var today = new Date(); // Get today's date
-    today.setHours(0, 0, 0, 0);
 
-    console.log("query: ", requestQuery);
     const searchQry: any[] =
       requestQuery?.name !== UNDEFINED ? [requestQuery.name] : [];
-    const modificationDateQuery = {
-      $or: [
-        {
-          modifiedDate: null,
-        },
 
-        {
-          $and: [
-            {
-              $expr: {
-                $gt: [
-                  today,
-                  {
-                    $add: ["$modifiedDate", 3 * 24 * 60 * 60 * 1000],
-                  },
-                ],
-              },
-            },
-            {
-              $expr: {
-                $lt: [
-                  today,
-                  {
-                    $add: ["$modifiedDate", 45 * 24 * 60 * 60 * 1000],
-                  },
-                ],
-              },
-            },
-          ],
-        },
-      ],
-    };
     const nameSearchQuery = {
       $or: [
         {
@@ -331,8 +377,6 @@ export const getRepresentativeTickets = PromiseWrapper(
         },
       ],
     };
-    const filterFlag = Object.keys(filters).length > 0;
-    const ticketId = requestQuery.ticketId;
 
     const matchCondition =
       ticketId !== UNDEFINED
@@ -491,7 +535,7 @@ export const createEstimateController = PromiseWrapper(
 
     const ticketData: iTicket | null = await findOneTicket(estimateBody.ticket);
 
-    console.log("ticket data", ticketData);
+    console.log("ticket data", estimateBody.ticket);
 
     if (ticketData !== null) {
       if (ticketData?.subStageCode.code < 2) {
@@ -504,6 +548,8 @@ export const createEstimateController = PromiseWrapper(
           },
           session
         ); //update estimation substage
+        if (estimateBody.ticket)
+          await RedisUpdateSingleTicketLookUp(estimateBody.ticket?.toString());
       }
     } else {
       throw new ErrorHandler("couldn't find ticket Id", 400);
@@ -554,6 +600,7 @@ export const CreateNote = PromiseWrapper(
           session
         ); //update ticket substage
       }
+      await RedisUpdateSingleTicketLookUp(req.body.ticket);
     } else {
       throw new ErrorHandler("couldn't find ticket Id", 400);
     }
@@ -569,12 +616,16 @@ export const updateTicketData = PromiseWrapper(
     session: ClientSession
   ) => {
     try {
-      const stageCode:  number = req.body.stageCode
-      console.log("stage code in update", stageCode)
+      const ticketId = req.body.ticket;
+      if (ticketId) {
+        throw new ErrorHandler("TicketID not found in Query", ticketId);
+      }
+      const stageCode: number = req.body.stageCode;
+      console.log("stage code in update", stageCode);
       const stage = await findStageByCode(stageCode);
-      console.log("SStage in update", stage.code)
+      console.log("SStage in update", stage.code);
       const result = await updateTicket(
-        req.body.ticket,
+        ticketId,
         {
           stage: stage._id!,
           subStageCode: req.body.subStageCode,
@@ -590,7 +641,7 @@ export const updateTicketData = PromiseWrapper(
       // const consumerData = await findOneConsumer(
       //   new ObjectId(ticketData.consumer)
       // );
-     
+
       // if (!consumerData) {
       //   throw new ErrorHandler("couldn't find consumer", 500);
       // }
@@ -629,9 +680,8 @@ export const updateTicketData = PromiseWrapper(
 
       //   // webHookResult = await HandleWebhook(Req, res, next);
       // }
-      res
-        .status(200)
-        .json({ result: `Stage updated to ${stage.name}!`});
+      await RedisUpdateSingleTicketLookUp(ticketId);
+      res.status(200).json({ result: `Stage updated to ${stage.name}!` });
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
     }
@@ -650,6 +700,7 @@ export const updateTicketSubStageCode = PromiseWrapper(
       ticketId = new ObjectId(ticketId);
       const subStageCode = req.body?.subStageCode;
       const result = await updateSubStage(ticketId, subStageCode, session);
+      await RedisUpdateSingleTicketLookUp(ticketId);
       res.status(200).json({ message: `SubStage updated!`, result });
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
@@ -728,3 +779,117 @@ export const createPatientStatus = PromiseWrapper(
     res.status(200).json({ result, status: "Success" });
   }
 );
+
+export async function createTicketLookUps(ticketId?: string) {
+  const filterTicket = ticketId
+    ? {
+        _id: new ObjectId(ticketId),
+      }
+    : {};
+
+  const dateFilter = ticketId ? {} : modificationDateQuery;
+
+  console.log("Tid", ticketId);
+
+  let tickets: any = await MongoService.collection(Collections.TICKET)
+    .aggregate([
+      {
+        $match: filterTicket,
+      },
+      {
+        $match: dateFilter,
+      },
+      {
+        $lookup: {
+          from: Collections.CONSUMER,
+          localField: "consumer",
+          foreignField: "_id",
+          let: { consumer: "$consumer" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$consumer"] } } },
+            { $limit: 1 },
+          ],
+          as: "consumer",
+        },
+      },
+
+      {
+        $lookup: {
+          from: Collections.PRESCRIPTION,
+          localField: "prescription",
+          let: { prescription: "$prescription" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$prescription"] } } },
+            { $limit: 1 },
+          ],
+          foreignField: "_id",
+          as: "prescription",
+        },
+      },
+      {
+        $lookup: {
+          from: Collections.ESTIMATE,
+          let: { id: "$_id" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$$id", "$ticket"] } } },
+            { $sort: { _id: -1 } },
+            { $limit: 1 },
+          ],
+          as: "estimate",
+        },
+      },
+      {
+        $lookup: {
+          from: Collections.REPRESENTATIVE,
+          localField: "creator",
+          let: { creator: "$creator" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$creator"] } } },
+            { $limit: 1 },
+            { $project: { firstName: 1, lastName: 1, email: 1, phone: 1 } },
+          ],
+          foreignField: "_id",
+          as: "creator",
+        },
+      },
+
+      {
+        $sort: {
+          _id: -1,
+        },
+      },
+    ])
+    .toArray();
+
+  // console.log("aaray of tic", tickets[0]);
+
+  for await (const ticket of tickets) {
+    ticket.prescription[0].image = getMedia(ticket.prescription[0].image);
+    if (ticket.prescription[0].service) {
+      const presService = await getServiceById(ticket.prescription[0].service);
+      if (presService) {
+        ticket.prescription[0].service = presService;
+      }
+    }
+    ticket.createdAt = getCreateDate(ticket._id);
+    ticket.prescription[0].createdAt = getCreateDate(
+      ticket.prescription[0]._id
+    );
+
+    if (ticket.estimate[0]) {
+      const service = await findOneService({
+        _id: ticket.estimate[0].service[0]?._id,
+      });
+      ticket.estimate[0].service[0] = {
+        ...ticket.estimate[0].service[0],
+        ...service,
+      };
+      ticket.estimate[0].createdAt = getCreateDate(ticket.estimate[0]._id);
+    }
+  }
+  const result: iTicketsResultJSON = {
+    tickets: tickets,
+    count: tickets.length,
+  };
+  return result;
+}
