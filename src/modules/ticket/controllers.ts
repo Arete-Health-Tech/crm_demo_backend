@@ -104,6 +104,10 @@ import Schedule from "node-schedule";
 import { CONSUMER } from "../../types/consumer/consumer";
 import { HandleWebhook } from "../flow/controller";
 const cron = require("node-cron");
+interface ServiceIDS {
+  service: string | undefined;
+}
+
 
 type ticketBody = iTicket & iPrescription;
 type tickeFollow = ifollowUp & iPrescription & iTicket & CONSUMER;
@@ -683,7 +687,9 @@ export const updateTicketData = PromiseWrapper(
       //   console.log(webHookResult , " this is webhookresult");
       // }
       setTimeout(async () => {
-        const serviceIDS = await findOnePrescription(ticketData.prescription);
+        const serviceIDS: ServiceIDS = await findOnePrescription(
+          ticketData.prescription
+        );
         console.log(serviceIDS, " bdyufgdhw body of pre");
         console.log(serviceIDS?.service?.toString(), "this is id ");
         if (serviceIDS?.service?.toString() === "63d2391f6a681dfcc1742e3d") {
