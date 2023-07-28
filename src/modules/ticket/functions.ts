@@ -1,4 +1,4 @@
-import { ClientSession, Collection, ObjectId } from "mongodb";
+import { ChangeStreamDocument, ClientSession, Collection, ObjectId } from "mongodb";
 import { findConsumerFromWAID } from "../../services/whatsapp/webhook";
 import {
   sendMessage,
@@ -23,6 +23,7 @@ import {
   findServices,
   findTicket,
 } from "./crud";
+import { RedisUpdateSingleTicketLookUp } from "./ticketUtils/utilFunctions";
 
 export const createTicketHandler = async (
   ticket: iTicket,
@@ -59,6 +60,28 @@ export const updateTicket = async (
     },
     { $set: body },
     { session }
+  );
+};
+
+export const triggerTicketChanges = async (
+  event: ChangeStreamDocument<any>,
+) => {
+  console.log("tkt event", event);
+  const { operationType} = event;
+  if (operationType === "insert") {
+    // New ticket created
+    await RedisUpdateSingleTicketLookUp(event?.documentKey._id.toString());
+  } else if (operationType === "update") {
+    // Ticket updated
+    await RedisUpdateSingleTicketLookUp(event?.documentKey._id.toString());
+  }
+};
+
+export const watchTicketChangesEvent = async () => {
+  const changeStream = MongoService.collection(Collections.TICKET).watch();
+  // console.log("stream", changeStream);
+  return changeStream.on("change", (event) =>
+    triggerTicketChanges(event)
   );
 };
 

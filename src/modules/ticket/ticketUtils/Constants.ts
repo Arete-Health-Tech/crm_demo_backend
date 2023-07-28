@@ -5,7 +5,7 @@ export interface iTicketsResultJSON {
     count: number,
 }
 
-var today = new Date(); // Get today's date
+const today = new Date(); // Get today's date
     today.setHours(0, 0, 0, 0);
 
 export const modificationDateQuery = {

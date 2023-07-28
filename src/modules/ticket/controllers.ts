@@ -3,16 +3,13 @@ import { ClientSession, Collection, ObjectId } from "mongodb";
 
 import PromiseWrapper from "../../middleware/promiseWrapper";
 import { getMedia, putMedia } from "../../services/aws/s3";
-import {
-  findConsumerFromWAID,
-  saveMessage,
-} from "../../services/whatsapp/webhook";
+
 import {
   followUpMessage,
   sendMessage,
   sendTemplateMessage,
 } from "../../services/whatsapp/whatsapp";
-import { iReminder } from "../../types/task/task";
+
 import {
   iEstimate,
   ifollowUp,
@@ -21,7 +18,7 @@ import {
 } from "../../types/ticket/ticket";
 import ErrorHandler from "../../utils/errorHandler";
 import MongoService, { Collections, getCreateDate } from "../../utils/mongo";
-import { findConsumer, findOneConsumer } from "../consumer/crud";
+
 import { findConsumerById } from "../consumer/functions";
 import {
   findDoctorById,
@@ -63,8 +60,9 @@ import {
   searchService,
   updateSubStage,
   updateTicket,
+  watchTicketChangesEvent,
 } from "./functions";
-import Schedule from "node-schedule";
+
 import { CONSUMER } from "../../types/consumer/consumer";
 import { HandleWebhook } from "../flow/controller";
 import { redisClient } from "../../server";
@@ -76,6 +74,7 @@ import {
 import {
   RedisUpdateSingleTicketLookUp,
   applyPagination,
+  createTicketLookUps,
 } from "./ticketUtils/utilFunctions";
 const cron = require("node-cron");
 
@@ -207,11 +206,6 @@ export const createTicket = PromiseWrapper(
         });
       }
 
-      const ticketObjId = body._id?.toString();
-
-      if (ticketObjId) {
-        await RedisUpdateSingleTicketLookUp(ticketObjId);
-      }
       return res.status(status).json(body);
     }
   }
@@ -286,39 +280,47 @@ export const getRepresentativeTickets = PromiseWrapper(
     }
     const filterFlag = Object.keys(filters).length > 0;
     const ticketId = requestQuery.ticketId;
+    const fetchUpdated = requestQuery.fetchUpdated;
 
     console.log("query: ", requestQuery);
 
-    await (await redisClient).SET("name", "sohel");
-
     if (requestQuery.name === UNDEFINED && !filterFlag) {
+      // let tempTicketcache = null;
       if (ticketId !== UNDEFINED) {
-        const result = await createTicketLookUps(ticketId);
-        return res.json(result);
+        // if (fetchUpdated === "true") {
+        //   console.log("cache updating...")
+        //   //HERE TICKET WILL UPDATED IN CACHE IF MONGODB DATA HAS CHANGED
+        //   tempTicketcache = await RedisUpdateSingleTicketLookUp(ticketId);
+        // } else {
+          const result = await createTicketLookUps(ticketId);
+          return res.json(result);
+        // }
       }
 
       try {
+        console.log("Checking tikcet-Lookup cache in redis...")
         const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
-        // console.log("cache: data", data);
-
         if (data === null) {
+          console.log("No cache in redis!")
           const ticketsResult = await createTicketLookUps();
           const listOfTicketObjects = ticketsResult?.tickets;
 
           if (listOfTicketObjects.length < 1)
             return res
-              .status(200)
-              .json({ message: "NO Tickets Found in DB", ...ticketsResult });
+              .status(500)
+              .json({ message: "NO Tickets Found In DB", ...ticketsResult });
 
           let TicketCacheObj: any = {};
           listOfTicketObjects.forEach((currentTicket: any) => {
             let ticket_ID: string = currentTicket._id.toString();
             TicketCacheObj[ticket_ID] = currentTicket;
           }); // setting {id: ticketdata} pair
-
+          
           const finalTicketCaches = JSON.stringify(TicketCacheObj);
 
           await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
+
+          console.log("final tickets cache stored...")
 
           const sortedData = applyPagination(listOfTicketObjects, 1, 10);
 
@@ -327,9 +329,13 @@ export const getRepresentativeTickets = PromiseWrapper(
             count: listOfTicketObjects.length,
           };
 
+          console.log("sending to client...")
+
           return res.status(200).json(ticketsJson);
         } else {
-          const ticketObjCache = JSON.parse(data);
+          console.log("Cache being fetch from redis...")
+          const ticketObjCache = JSON.parse(data)
+            // tempTicketcache === null ? JSON.parse(data) : tempTicketcache;
           const listOfTicketsObj = Object.values(ticketObjCache);
           const sortedTicketData = applyPagination(
             listOfTicketsObj,
@@ -342,18 +348,15 @@ export const getRepresentativeTickets = PromiseWrapper(
             count: listOfTicketsObj.length,
           };
 
+          console.log("Cache data sent to client!")
+
           return res.status(200).json(ticketsResultJson);
         }
       } catch (err: any) {
-        console.log("error : cacahe data", err);
+        console.log("error : cache data", err);
         return res.status(500).json("Error occurred while fetching from DB");
       }
     }
-
-    // const dateAfterThreeDays = new Date();
-    // dateAfterThreeDays.setDate(dateAfterThreeDays.getDate() + 2); // Added 3 days to today's date
-    // const dateAfterFortyFiveDays = new Date();
-    // dateAfterFortyFiveDays.setDate(dateAfterFortyFiveDays.getDate() + 44); // Added 45 days to today's date
 
     const searchQry: any[] =
       requestQuery?.name !== UNDEFINED ? [requestQuery.name] : [];
@@ -548,8 +551,6 @@ export const createEstimateController = PromiseWrapper(
           },
           session
         ); //update estimation substage
-        if (estimateBody.ticket)
-          await RedisUpdateSingleTicketLookUp(estimateBody.ticket?.toString());
       }
     } else {
       throw new ErrorHandler("couldn't find ticket Id", 400);
@@ -600,7 +601,6 @@ export const CreateNote = PromiseWrapper(
           session
         ); //update ticket substage
       }
-      await RedisUpdateSingleTicketLookUp(req.body.ticket);
     } else {
       throw new ErrorHandler("couldn't find ticket Id", 400);
     }
@@ -617,7 +617,7 @@ export const updateTicketData = PromiseWrapper(
   ) => {
     try {
       const ticketId = req.body.ticket;
-      if (ticketId) {
+      if (!ticketId && ticketId===UNDEFINED) {
         throw new ErrorHandler("TicketID not found in Query", ticketId);
       }
       const stageCode: number = req.body.stageCode;
@@ -680,7 +680,6 @@ export const updateTicketData = PromiseWrapper(
 
       //   // webHookResult = await HandleWebhook(Req, res, next);
       // }
-      await RedisUpdateSingleTicketLookUp(ticketId);
       res.status(200).json({ result: `Stage updated to ${stage.name}!` });
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
@@ -700,7 +699,6 @@ export const updateTicketSubStageCode = PromiseWrapper(
       ticketId = new ObjectId(ticketId);
       const subStageCode = req.body?.subStageCode;
       const result = await updateSubStage(ticketId, subStageCode, session);
-      await RedisUpdateSingleTicketLookUp(ticketId);
       res.status(200).json({ message: `SubStage updated!`, result });
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
@@ -779,117 +777,3 @@ export const createPatientStatus = PromiseWrapper(
     res.status(200).json({ result, status: "Success" });
   }
 );
-
-export async function createTicketLookUps(ticketId?: string) {
-  const filterTicket = ticketId
-    ? {
-        _id: new ObjectId(ticketId),
-      }
-    : {};
-
-  const dateFilter = ticketId ? {} : modificationDateQuery;
-
-  console.log("Tid", ticketId);
-
-  let tickets: any = await MongoService.collection(Collections.TICKET)
-    .aggregate([
-      {
-        $match: filterTicket,
-      },
-      {
-        $match: dateFilter,
-      },
-      {
-        $lookup: {
-          from: Collections.CONSUMER,
-          localField: "consumer",
-          foreignField: "_id",
-          let: { consumer: "$consumer" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$consumer"] } } },
-            { $limit: 1 },
-          ],
-          as: "consumer",
-        },
-      },
-
-      {
-        $lookup: {
-          from: Collections.PRESCRIPTION,
-          localField: "prescription",
-          let: { prescription: "$prescription" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$prescription"] } } },
-            { $limit: 1 },
-          ],
-          foreignField: "_id",
-          as: "prescription",
-        },
-      },
-      {
-        $lookup: {
-          from: Collections.ESTIMATE,
-          let: { id: "$_id" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$$id", "$ticket"] } } },
-            { $sort: { _id: -1 } },
-            { $limit: 1 },
-          ],
-          as: "estimate",
-        },
-      },
-      {
-        $lookup: {
-          from: Collections.REPRESENTATIVE,
-          localField: "creator",
-          let: { creator: "$creator" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$creator"] } } },
-            { $limit: 1 },
-            { $project: { firstName: 1, lastName: 1, email: 1, phone: 1 } },
-          ],
-          foreignField: "_id",
-          as: "creator",
-        },
-      },
-
-      {
-        $sort: {
-          _id: -1,
-        },
-      },
-    ])
-    .toArray();
-
-  // console.log("aaray of tic", tickets[0]);
-
-  for await (const ticket of tickets) {
-    ticket.prescription[0].image = getMedia(ticket.prescription[0].image);
-    if (ticket.prescription[0].service) {
-      const presService = await getServiceById(ticket.prescription[0].service);
-      if (presService) {
-        ticket.prescription[0].service = presService;
-      }
-    }
-    ticket.createdAt = getCreateDate(ticket._id);
-    ticket.prescription[0].createdAt = getCreateDate(
-      ticket.prescription[0]._id
-    );
-
-    if (ticket.estimate[0]) {
-      const service = await findOneService({
-        _id: ticket.estimate[0].service[0]?._id,
-      });
-      ticket.estimate[0].service[0] = {
-        ...ticket.estimate[0].service[0],
-        ...service,
-      };
-      ticket.estimate[0].createdAt = getCreateDate(ticket.estimate[0]._id);
-    }
-  }
-  const result: iTicketsResultJSON = {
-    tickets: tickets,
-    count: tickets.length,
-  };
-  return result;
-}
