@@ -284,7 +284,7 @@ export const getRepresentativeTickets = PromiseWrapper(
 
     console.log("query: ", requestQuery);
 
-    if (requestQuery.name === UNDEFINED && !filterFlag) {
+    if (requestQuery.name === UNDEFINED && !filterFlag && download !== "true") {
       // let tempTicketcache = null;
       if (ticketId !== UNDEFINED && fetchUpdated !== "true") {
         // if (fetchUpdated === "true") {
@@ -392,15 +392,17 @@ export const getRepresentativeTickets = PromiseWrapper(
     };
 
     const matchCondition =
-      ticketId !== UNDEFINED
-        ? {
-            _id: new ObjectId(ticketId),
-          }
-        : searchQry.length > 0
-        ? nameSearchQuery
-        : filterFlag
-        ? {}
-        : modificationDateQuery;
+      download !== "true"
+        ? ticketId !== UNDEFINED
+          ? {
+              _id: new ObjectId(ticketId),
+            }
+          : searchQry.length > 0
+          ? nameSearchQuery
+          : filterFlag
+          ? {}
+          : modificationDateQuery
+        : {};
 
     let tickets: any = await MongoService.collection(Collections.TICKET)
       .aggregate([
