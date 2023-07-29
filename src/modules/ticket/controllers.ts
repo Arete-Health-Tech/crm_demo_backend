@@ -260,7 +260,7 @@ export const getRepresentativeTickets = PromiseWrapper(
   async (req: Request, res: Response, next: NextFunction) => {
     const requestQuery: any = req.query;
     const download = requestQuery.downloadAll;
-    const pageNum: any = parseInt(requestQuery?.page) || 0;
+    const pageNum: any = parseInt(requestQuery?.page) || 1;
     const skipCount = download !== "true" ? (parseInt(pageNum) - 1) * 10 : 0;
     const limitCount = download !== "true" ? 10 : Math.pow(10, 10); //  highest number
     const stageList = requestQuery.stageList
@@ -286,22 +286,22 @@ export const getRepresentativeTickets = PromiseWrapper(
 
     if (requestQuery.name === UNDEFINED && !filterFlag) {
       // let tempTicketcache = null;
-      if (ticketId !== UNDEFINED) {
+      if (ticketId !== UNDEFINED && fetchUpdated !== "true") {
         // if (fetchUpdated === "true") {
         //   console.log("cache updating...")
         //   //HERE TICKET WILL UPDATED IN CACHE IF MONGODB DATA HAS CHANGED
         //   tempTicketcache = await RedisUpdateSingleTicketLookUp(ticketId);
         // } else {
-          const result = await createTicketLookUps(ticketId);
-          return res.json(result);
+        const result = await createTicketLookUps(ticketId);
+        return res.json(result);
         // }
       }
 
       try {
-        console.log("Checking tikcet-Lookup cache in redis...")
+        console.log("Checking Ticket-Lookup-Data Cache In Redis...");
         const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
         if (data === null) {
-          console.log("No cache in redis!")
+          console.log("No cache in redis!");
           const ticketsResult = await createTicketLookUps();
           const listOfTicketObjects = ticketsResult?.tickets;
 
@@ -315,12 +315,12 @@ export const getRepresentativeTickets = PromiseWrapper(
             let ticket_ID: string = currentTicket._id.toString();
             TicketCacheObj[ticket_ID] = currentTicket;
           }); // setting {id: ticketdata} pair
-          
+
           const finalTicketCaches = JSON.stringify(TicketCacheObj);
 
           await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
 
-          console.log("final tickets cache stored...")
+          console.log("final tickets cache being saved to redis!");
 
           const sortedData = applyPagination(listOfTicketObjects, 1, 10);
 
@@ -329,13 +329,23 @@ export const getRepresentativeTickets = PromiseWrapper(
             count: listOfTicketObjects.length,
           };
 
-          console.log("sending to client...")
-
-          return res.status(200).json(ticketsJson);
+          console.log("sending to client...");
+          return res.status(200).json(ticketsJson) && console.log("DONE!");
         } else {
-          console.log("Cache being fetch from redis...")
-          const ticketObjCache = JSON.parse(data)
-            // tempTicketcache === null ? JSON.parse(data) : tempTicketcache;
+          console.log("Cache being fetched from redis...");
+          let ticketObjCache = JSON.parse(data);
+          if (fetchUpdated === "true") {
+            const fetchSingleTicket = await createTicketLookUps(ticketId);
+            delete ticketObjCache[ticketId];
+            ticketObjCache = {
+              [ticketId]: fetchSingleTicket?.tickets[0],
+              ...ticketObjCache,
+            };
+            await (
+              await redisClient
+            ).SET(TICKET_CACHE_OBJECT, JSON.stringify(ticketObjCache));
+          }
+          // tempTicketcache === null ? JSON.parse(data) : tempTicketcache;
           const listOfTicketsObj = Object.values(ticketObjCache);
           const sortedTicketData = applyPagination(
             listOfTicketsObj,
@@ -348,7 +358,7 @@ export const getRepresentativeTickets = PromiseWrapper(
             count: listOfTicketsObj.length,
           };
 
-          console.log("Cache data sent to client!")
+          console.log("Cache data sent to client!");
 
           return res.status(200).json(ticketsResultJson);
         }
@@ -617,7 +627,7 @@ export const updateTicketData = PromiseWrapper(
   ) => {
     try {
       const ticketId = req.body.ticket;
-      if (!ticketId && ticketId===UNDEFINED) {
+      if (!ticketId && ticketId === UNDEFINED) {
         throw new ErrorHandler("TicketID not found in Query", ticketId);
       }
       const stageCode: number = req.body.stageCode;
