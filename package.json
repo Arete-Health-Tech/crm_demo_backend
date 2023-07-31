@@ -37,6 +37,7 @@
     "node-cron": "^3.0.2",
     "node-schedule": "^2.1.0",
     "pdfkit": "^0.13.0",
+    "redis": "^4.6.7",
     "ts-node": "^10.9.1",
     "uuid": "^9.0.0"
   },

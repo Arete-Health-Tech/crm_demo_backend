@@ -1,4 +1,3 @@
-
 import dotenv from "dotenv";
 import path from "path";
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
@@ -7,14 +6,10 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import moduleRoutes from "./modules/routes";
 import ErrorHandler from "./utils/errorHandler";
-import MongoService, { Collections, getCreateDate } from "./utils/mongo";
+import MongoService, { Collections } from "./utils/mongo";
 import seed from "./seed/seed";
-import {  followUpMessage } from "./services/whatsapp/whatsapp";
-import { getMedia } from "./services/aws/s3";
-import { getServiceById } from "./modules/service/functions";
-import { findOneService } from "./modules/service/crud";
-import { ConnectFlow } from "./modules/flow/controller";
-
+import { followUpMessage } from "./services/whatsapp/whatsapp";
+import redisConnectionStart from "./utils/redis";
 
 const cron = require("node-cron");
 
@@ -38,141 +33,6 @@ app.get("/prod/", async (req: Request, res: Response) => {
 });
 
 app.use("/prod/api/v1/", moduleRoutes);
-
-
-app.get(
-  "/prod/api/v1/messanger",
-  async (req: Request, res: Response, next: NextFunction) => {
-    const service = await findOneService({ _id: req.body.serviceId });
-    console.log(service);
-  }
-);
-
-
-app.get("/tickets", async (req: Request, res: Response, next: NextFunction) => {
-  const phone = req.query.phone
-    ? String(req.query.phone).split(",")
-    : [];
-  const firstName = req.query.firstName
-    ? String(req.query.firstName).split(",")
-    : [];
-  const uid = req.query.uid ? String(req.query.uid).split(",") : [];
-
-  console.log(phone);
-
-  const tickets = await MongoService.collection(Collections.TICKET)
-    .aggregate([
-      // matchStage,/
-      {
-        $lookup: {
-          from: Collections.CONSUMER,
-          localField: "consumer",
-          foreignField: "_id",
-          let: { consumer: "$consumer" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$consumer"] } } },
-            { $limit: 1 },
-          ],
-          as: "consumer",
-        },
-      },
-      {
-        $match: {
-          $or: [
-            {
-              "consumer.phone": {
-                $all: phone,
-              },
-            },
-            {
-              "consumer.firstName": {
-                $all: firstName,
-              },
-            },
-            {
-              "consumer.uid": {
-                $all: uid,
-              },
-            },
-          ],
-        },
-      },
-      {
-        $lookup: {
-          from: Collections.PRESCRIPTION,
-          localField: "prescription",
-          let: { prescription: "$prescription" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$prescription"] } } },
-            { $limit: 1 },
-          ],
-          foreignField: "_id",
-          as: "prescription",
-        },
-      },
-
-      {
-        $lookup: {
-          from: Collections.ESTIMATE,
-          let: { id: "$_id" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$$id", "$ticket"] } } },
-            { $sort: { _id: -1 } },
-            { $limit: 1 },
-          ],
-          as: "estimate",
-        },
-      },
-      {
-        $lookup: {
-          from: Collections.REPRESENTATIVE,
-          localField: "creator",
-          let: { creator: "$creator" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$creator"] } } },
-            { $limit: 1 },
-            { $project: { firstName: 1, lastName: 1, email: 1, phone: 1 } },
-          ],
-          foreignField: "_id",
-          as: "creator",
-        },
-      },
-    ])
-    .toArray();
-
-  for await (const ticket of tickets) {
-    ticket.prescription[0].image = getMedia(ticket.prescription[0].image);
-    if (ticket.prescription[0].service) {
-      const presService = await getServiceById(ticket.prescription[0].service);
-      if (presService) {
-        ticket.prescription[0].service = presService;
-      }
-    }
-    ticket.createdAt = getCreateDate(ticket._id);
-    ticket.prescription[0].createdAt = getCreateDate(
-      ticket.prescription[0]._id
-    );
-
-    if (ticket.estimate[0]) {
-      const service = await findOneService({
-        _id: ticket.estimate[0].service[0].id,
-      });
-      ticket.estimate[0].service[0] = {
-        ...ticket.estimate[0].service[0],
-        ...service,
-      };
-      ticket.estimate[0].createdAt = getCreateDate(ticket.estimate[0]._id);
-    }
-  }
-  console.log(tickets);
-  return res.status(200).json(tickets);
-});
-
-
-
-
-
-
 
 app.use(
   (err: ErrorHandler, req: Request, res: Response, next: NextFunction) => {
@@ -244,6 +104,8 @@ cron.schedule(" 30 04 * * *", () => {
     console.log(error);
   }
 });
+
+export const redisClient = redisConnectionStart();
 
 MongoService.init().then(() => {
   app.listen(PORT, async () => {

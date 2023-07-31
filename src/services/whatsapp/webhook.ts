@@ -2,7 +2,7 @@ import { ClientSession, ObjectId } from "mongodb";
 import { CONSUMER } from "../../types/consumer/consumer";
 import { iTextMessage, iWebhookPayload } from "../../types/flow/webhook";
 import { iStage } from "../../types/stages/stages";
-import { iTicket } from "../../types/ticket/ticket";
+import { iPrescription, iTicket } from "../../types/ticket/ticket";
 import ErrorHandler from "../../utils/errorHandler";
 import MongoService, { Collections } from "../../utils/mongo";
 import firestore, { fsCollections } from "../firebase/firebase";
@@ -68,6 +68,8 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
 };
 
 export const saveMessage = async (ticket: string, message: any) => {
+
+  console.log("message payload", message);
   return await firestore
     .collection(fsCollections.TICKET)
     .doc(ticket)
@@ -89,28 +91,34 @@ export const saveFlowMessages = async (ticket: ObjectId, node: ObjectId) => {
 };
 
 export const findConsumerFromWAID = async (consumerWAId: string) => {
-  const stages = await MongoService.collection(Collections.STAGE)
-    .find<iStage>({})
+  // const stages = await MongoService.collection(Collections.STAGE).find<iStage>({}).toArray();
+  const prescription = await MongoService.collection(Collections.PRESCRIPTION)
+    .find<iPrescription>({})
     .toArray();
+
   const consumer = await MongoService.collection(
     Collections.CONSUMER
   ).findOne<CONSUMER>({
     phone: consumerWAId,
   });
-  // console.log(consumer , " this is from consumerWaid");
+  console.log(consumer)
   if (consumer === null) throw new ErrorHandler("No Consumer Found", 404);
   const tickets = await MongoService.collection(Collections.TICKET)
     .find<iTicket>({
       consumer: consumer._id,
     })
     .toArray();
-  // console.log(tickets,  " this from the ticker consumerWAID");
+    console.log(tickets, "ticket found")
+  // const ticket = tickets.find(
+  //   (item) => stages.find((stage) => stage._id?.toString() === item.stage.toString())?.code
+  // );
+  // if (!ticket)
+  // throw new ErrorHandler("No Ticket Found", 404);
   const ticket = tickets.find(
-    (item) =>
-      stages.find((stage) => stage._id?.toString() === item.stage.toString())!
-        .code < 8
+    (item) => prescription.find((prescription) => prescription._id?.toString() === item.prescription.toString())?.consumer
   );
-  // console.log(ticket , "this is ticlket fromm  flow ")
-  if (!ticket) throw new ErrorHandler("No Ticket Found", 404);
+  console.log(ticket,"secomd")
+  if (!ticket)
+  throw new ErrorHandler("No Ticket Found", 404);
   return { ticket: ticket._id!, consumer: consumer._id };
 };

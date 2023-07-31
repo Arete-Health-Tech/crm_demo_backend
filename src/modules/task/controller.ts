@@ -34,9 +34,10 @@ export const GetReminder = PromiseWrapper(
 );
 
 export const GetTicketReminders = PromiseWrapper(async (req: Request, res: Response, next: NextFunction) => {
-  const ticket = await findTicketById(new ObjectId(req.params.ticketId));
-  if (ticket === null) throw new ErrorHandler("No Ticket Found", 400);
-  const reminders = await findTicketReminders(new ObjectId(req.params.ticketId));
+  // const ticket = await findTicketById(new ObjectId(req.params.ticketId));
+  // if (ticket === null) throw new ErrorHandler("No Ticket Found", 400);
+  const currentUnixTimestamp = Math.floor(Date.now());
+  const reminders = await findTicketReminders(new ObjectId(req.params.ticketId), currentUnixTimestamp);
   res.status(200).json(reminders);
 });
 

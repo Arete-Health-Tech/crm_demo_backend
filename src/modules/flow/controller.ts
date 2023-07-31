@@ -24,9 +24,6 @@ import {
   getConnector,
   sendTextMessage,
 } from "./functions";
-import MongoService from "../../utils/mongo";
-import { createListPayload } from "./utils";
-
 export const createReplyNodeController = PromiseWrapper(
   async (
     req: Request,
@@ -38,7 +35,6 @@ export const createReplyNodeController = PromiseWrapper(
     res.status(200).json(data);
   }
 );
-
 export const createListNodeController = PromiseWrapper(
   async (
     req: Request,
@@ -50,9 +46,7 @@ export const createListNodeController = PromiseWrapper(
     res.status(200).json(data);
   }
 );
-
 // flow connector
-
 export const ConnectFlow = PromiseWrapper(
   async (
     req: Request,
@@ -70,7 +64,6 @@ export const ConnectFlow = PromiseWrapper(
   }
 );
 
-// webhook
 export const HandleWebhook = async (
   req: Request,
   res: Response,
@@ -78,6 +71,7 @@ export const HandleWebhook = async (
 ) => {
   try {
     const body: iWebhookPayload = req.body;
+    console.log("web hook body yahi hai", JSON.stringify(req.body));
     //handling the responses
     body.entry.forEach((entry) => {
       entry.changes.forEach((changes) => {
@@ -98,11 +92,13 @@ export const HandleWebhook = async (
                   return;
                 if (message.button) {
                   await findAndSendNode(
+                    
                     prescription.service
                       ? prescription.service.toString()
                       : "DF",
                     changes.value.contacts[mi].wa_id,
-                    ticket._id.toString()
+                    ticket._id.toString(),
+                   
                   );
                 } else if (message.interactive) {
                   const nodeIdentifier =
@@ -112,7 +108,8 @@ export const HandleWebhook = async (
                   await findAndSendNode(
                     nodeIdentifier,
                     changes.value.contacts[mi].wa_id,
-                    ticket._id.toString()
+                    ticket._id.toString(),
+                   
                   );
                 }
                 await saveMessageFromWebhook(
@@ -129,11 +126,12 @@ export const HandleWebhook = async (
       });
     });
     return res.sendStatus(200);
+   
   } catch (error: any) {
     return res.sendStatus(200);
+  
   }
 };
-
 export const SendMessage = PromiseWrapper(
   async (
     req: Request,
@@ -141,31 +139,27 @@ export const SendMessage = PromiseWrapper(
     next: NextFunction,
     session: ClientSession
   ) => {
-    const { message, consumerId } = req.body;
-    console.log(req.body);
+    const { message, consumerId, ticketID} = req.body;
+    console.log(req.body,"req body")
     const consumer = await findConsumerById(consumerId);
     // console.log(consumer, "hello")
     if (consumer === null) throw new ErrorHandler("Consumer Not Found", 400);
-    // console.log(consumer, "World")
-    const sender = consumer.firstName;
-    // console.log(sender);
+    const sender = consumer.firstName
+    console.log(sender ,"sender ",(consumer._id).toString(),"\n",consumer)
     await sendTextMessage(message, consumer.phone, sender);
     const { ticket } = await findConsumerFromWAID(consumer.phone);
-    // console.log(ticket  , " this is from controller");
-    // console.log(ticket  , " this is from controller djbsilfjmfknjzbdn");
-    saveMessage(ticket.toString(), {
-      consumer: consumer._id.toString(),
+    await saveMessage(ticketID, {
+      consumer: (consumer._id).toString(),
       messageType: "text",
-      sender: consumer!._id,
+      sender: consumer.phone,
       text: message,
-      ticket: ticket.toString(),
+      ticket: ticketID,
       type: "sent",
+      createdAt: Date.now(),
     });
-    // console.log("this is runing or not ")
     return res.status(200).json({ message: "message sent." });
   }
 );
-
 export const FindNode = PromiseWrapper(
   async (
     req: Request,
@@ -179,7 +173,6 @@ console.log(node);
     return res.status(200).json(node);
   }
 );
-
 export const GetConnector = PromiseWrapper(
   async (
     req: Request,
@@ -197,5 +190,3 @@ export const GetConnector = PromiseWrapper(
     return res.status(200).json(connectors);
   }
 );
-
-//follow up

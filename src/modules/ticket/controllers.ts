@@ -3,16 +3,25 @@ import { ClientSession, Collection, ObjectId } from "mongodb";
 
 import PromiseWrapper from "../../middleware/promiseWrapper";
 import { getMedia, putMedia } from "../../services/aws/s3";
-import {
-  findConsumerFromWAID,
-  saveMessage,
-} from "../../services/whatsapp/webhook";
+
 import {
   followUpMessage,
+  herniaHowText,
+  herniaHowVideo,
+  herniaRecoveryImage,
+  herniaRecoveryText,
+  herniaUntreatedImage,
+  herniaUntreatedText,
+  hysterectomyHowText,
+  hysterectomyHowVideo,
+  hysterectomyRecoveryImage,
+  hysterectomyRecoveryText,
+  hysterectomyUntreatedImage,
+  hysterectomyUntreatedText,
   sendMessage,
   sendTemplateMessage,
 } from "../../services/whatsapp/whatsapp";
-import { iReminder } from "../../types/task/task";
+
 import {
   iEstimate,
   ifollowUp,
@@ -21,7 +30,7 @@ import {
 } from "../../types/ticket/ticket";
 import ErrorHandler from "../../utils/errorHandler";
 import MongoService, { Collections, getCreateDate } from "../../utils/mongo";
-import { findConsumer } from "../consumer/crud";
+
 import { findConsumerById } from "../consumer/functions";
 import {
   findDoctorById,
@@ -41,10 +50,12 @@ import { createReminder } from "../task/functions";
 import {
   createOneFollowUp,
   createOnePrescription,
+  findOnePrescription,
   findPrescription,
   findPrescriptionById,
   findTicket,
   findTicketById,
+  insertPatientStatusDetail,
 } from "./crud";
 import generateEstimate from "./estimate/createEstimate";
 import { whatsappEstimatePayload } from "./estimate/utils";
@@ -62,9 +73,23 @@ import {
   searchService,
   updateSubStage,
   updateTicket,
+  watchTicketChangesEvent,
 } from "./functions";
-import Schedule from "node-schedule";
+
 import { CONSUMER } from "../../types/consumer/consumer";
+import { HandleWebhook } from "../flow/controller";
+import { redisClient } from "../../server";
+import {
+  TICKET_CACHE_OBJECT,
+  iTicketsResultJSON,
+  modificationDateQuery,
+} from "./ticketUtils/Constants";
+import {
+  RedisUpdateSingleTicketLookUp,
+  applyPagination,
+  createTicketLookUps,
+} from "./ticketUtils/utilFunctions";
+import { findOneConsumer } from "../consumer/crud";
 const cron = require("node-cron");
 
 type ticketBody = iTicket & iPrescription;
@@ -85,6 +110,7 @@ export const createTicket = PromiseWrapper(
     const ticket: ticketBody = req.body;
 
     const consumer = await findConsumerById(ticket.consumer);
+    console.log(consumer);
     if (consumer === null) {
       throw new ErrorHandler("consumer doesn't exist", 404);
     }
@@ -176,6 +202,7 @@ export const createTicket = PromiseWrapper(
         ];
         await startTemplateFlow("flow", "en", consumer.phone, components);
       }
+
       if (ticket.followUp !== null) {
         await createOneFollowUp({
           firstName: consumer.firstName,
@@ -248,7 +275,7 @@ export const getRepresentativeTickets = PromiseWrapper(
   async (req: Request, res: Response, next: NextFunction) => {
     const requestQuery: any = req.query;
     const download = requestQuery.downloadAll;
-    const pageNum: any = requestQuery?.page || 0;
+    const pageNum: any = parseInt(requestQuery?.page) || 1;
     const skipCount = download !== "true" ? (parseInt(pageNum) - 1) * 10 : 0;
     const limitCount = download !== "true" ? 10 : Math.pow(10, 10); //  highest number
     const stageList = requestQuery.stageList
@@ -266,17 +293,131 @@ export const getRepresentativeTickets = PromiseWrapper(
     if (representative !== undefined && representative !== "null") {
       filters = { ...filters, creator: new ObjectId(representative) };
     }
+    const filterFlag = Object.keys(filters).length > 0;
+    const ticketId = requestQuery.ticketId;
+    const fetchUpdated = requestQuery.fetchUpdated;
 
-    // const dateAfterThreeDays = new Date();
-    // dateAfterThreeDays.setDate(dateAfterThreeDays.getDate() + 2); // Added 3 days to today's date
-    // const dateAfterFortyFiveDays = new Date();
-    // dateAfterFortyFiveDays.setDate(dateAfterFortyFiveDays.getDate() + 44); // Added 45 days to today's date
-    var today = new Date(); // Get today's date
-    today.setHours(0, 0, 0, 0);
+    console.log("query: ", requestQuery);
 
-  
+    if (requestQuery.name === UNDEFINED && !filterFlag && download !== "true") {
+      // let tempTicketcache = null;
+      if (ticketId !== UNDEFINED && fetchUpdated !== "true") {
+        // if (fetchUpdated === "true") {
+        //   console.log("cache updating...")
+        //   //HERE TICKET WILL UPDATED IN CACHE IF MONGODB DATA HAS CHANGED
+        //   tempTicketcache = await RedisUpdateSingleTicketLookUp(ticketId);
+        // } else {
+        const result = await createTicketLookUps(ticketId);
+        return res.json(result);
+        // }
+      }
+
+      try {
+        console.log("Checking Ticket-Lookup-Data Cache In Redis...");
+        const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
+        if (data === null) {
+          console.log("No cache in redis!");
+          const ticketsResult = await createTicketLookUps();
+          const listOfTicketObjects = ticketsResult?.tickets;
+
+          if (listOfTicketObjects.length < 1)
+            return res
+              .status(500)
+              .json({ message: "NO Tickets Found In DB", ...ticketsResult });
+
+          let TicketCacheObj: any = {};
+          listOfTicketObjects.forEach((currentTicket: any) => {
+            let ticket_ID: string = currentTicket._id.toString();
+            TicketCacheObj[ticket_ID] = currentTicket;
+          }); // setting {id: ticketdata} pair
+
+          const finalTicketCaches = JSON.stringify(TicketCacheObj);
+
+          await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
+
+          console.log("final tickets cache being saved to redis!");
+
+          const sortedData = applyPagination(listOfTicketObjects, 1, 10);
+
+          const ticketsJson: iTicketsResultJSON = {
+            tickets: sortedData,
+            count: listOfTicketObjects.length,
+          };
+
+          console.log("sending to client...");
+          return res.status(200).json(ticketsJson) && console.log("DONE!");
+        } else {
+          console.log("Cache being fetched from redis...");
+          let ticketObjCache = JSON.parse(data);
+          if (fetchUpdated === "true") {
+            const fetchSingleTicket = await createTicketLookUps(ticketId);
+            delete ticketObjCache[ticketId];
+            ticketObjCache = {
+              [ticketId]: fetchSingleTicket?.tickets[0],
+              ...ticketObjCache,
+            };
+            await (
+              await redisClient
+            ).SET(TICKET_CACHE_OBJECT, JSON.stringify(ticketObjCache));
+          }
+          // tempTicketcache === null ? JSON.parse(data) : tempTicketcache;
+          const listOfTicketsObj = Object.values(ticketObjCache);
+          const sortedTicketData = applyPagination(
+            listOfTicketsObj,
+            pageNum,
+            10
+          );
+          console.log("page", pageNum, "\n");
+          const ticketsResultJson: iTicketsResultJSON = {
+            tickets: sortedTicketData,
+            count: listOfTicketsObj.length,
+          };
+
+          console.log("Cache data sent to client!");
+
+          return res.status(200).json(ticketsResultJson);
+        }
+      } catch (err: any) {
+        console.log("error : cache data", err);
+        return res.status(500).json("Error occurred while fetching from DB");
+      }
+    }
+
     const searchQry: any[] =
       requestQuery?.name !== UNDEFINED ? [requestQuery.name] : [];
+
+    const nameSearchQuery = {
+      $or: [
+        {
+          "consumer.firstName": {
+            $all: searchQry,
+          },
+        },
+        {
+          "consumer.lastName": {
+            $all: searchQry,
+          },
+        },
+        {
+          "consumer.phone": {
+            $all: searchQry,
+          },
+        },
+      ],
+    };
+
+    const matchCondition =
+      download !== "true"
+        ? ticketId !== UNDEFINED
+          ? {
+              _id: new ObjectId(ticketId),
+            }
+          : searchQry.length > 0
+          ? nameSearchQuery
+          : filterFlag
+          ? {}
+          : modificationDateQuery
+        : {};
 
     let tickets: any = await MongoService.collection(Collections.TICKET)
       .aggregate([
@@ -294,63 +435,7 @@ export const getRepresentativeTickets = PromiseWrapper(
           },
         },
         {
-          $match: {
-            $or:
-              searchQry.length > 0
-                ? [
-                    {
-                      "consumer.firstName": {
-                        $all: searchQry,
-                      },
-                    },
-                    {
-                      "consumer.lastName": {
-                        $all: searchQry,
-                      },
-                    },
-                    {
-                      "consumer.phone": {
-                        $all: searchQry,
-                      },
-                    },
-                  ]
-                : [
-                    {
-                      modifiedDate: null,
-                    },
-
-                    {
-                      $and: [
-                        {
-                          $expr: {
-                            $gt: [
-                              today,
-                              {
-                                $add: [
-                                  "$modifiedDate",
-                                  3 * 24 * 60 * 60 * 1000,
-                                ],
-                              },
-                            ],
-                          },
-                        },
-                        {
-                          $expr: {
-                            $lt: [
-                              today,
-                              {
-                                $add: [
-                                  "$modifiedDate",
-                                  45 * 24 * 60 * 60 * 1000,
-                                ],
-                              },
-                            ],
-                          },
-                        },
-                      ],
-                    },
-                  ],
-          },
+          $match: matchCondition,
         },
         {
           $match: filters,
@@ -467,10 +552,10 @@ export const createEstimateController = PromiseWrapper(
         return res.status(400).json({ message: "Invalid Service Id" });
       }
     });
-    const prescription = await getPrescriptionById(estimateBody.prescription);
-    if (prescription === null) {
-      throw new ErrorHandler("Invalid Prescription", 400);
-    }
+    // const prescription = await getPrescriptionById(estimateBody.prescription);
+    // if (prescription === null) {
+    //   throw new ErrorHandler("Invalid Prescription", 400);
+    // }
     // const consumer = await findConsumerById(prescription.consumer);
     const estimate = await createEstimate(
       { ...estimateBody, creator: new ObjectId(req.user!._id) },
@@ -480,7 +565,7 @@ export const createEstimateController = PromiseWrapper(
 
     const ticketData: iTicket | null = await findOneTicket(estimateBody.ticket);
 
-    console.log("ticket data", ticketData);
+    console.log("ticket data", estimateBody.ticket);
 
     if (ticketData !== null) {
       if (ticketData?.subStageCode.code < 2) {
@@ -558,7 +643,19 @@ export const updateTicketData = PromiseWrapper(
     session: ClientSession
   ) => {
     try {
-      const stage = await findStageByCode(req.body.stageCode);
+      const stageCode: number = req.body.stageCode;
+      console.log("stage code in update", stageCode);
+      const stage = await findStageByCode(stageCode);
+      console.log("SStage in update", stage.code);
+      // const result = await updateTicket(
+      //   req.body.ticket,
+      //   {
+      //     stage: stage._id!,
+      //     subStageCode: req.body.subStageCode,
+      //     modifiedDate: new Date(),
+      //   },
+      //   session
+      // ); //update next ticket stage
       const result = await updateTicket(
         req.body.ticket,
         {
@@ -567,8 +664,102 @@ export const updateTicketData = PromiseWrapper(
           modifiedDate: new Date(),
         },
         session
-      ); //update next ticket stage
-      res.status(200).json(`Stage updated to ${stage.name}!`);
+      );
+      const ticketData = await findTicketById(new ObjectId(req.body.ticket));
+      // console.log("ticketData:",ticketData)
+      if (!ticketData?.consumer) {
+        throw new ErrorHandler("couldn't find ticket", 500);
+      }
+      const consumerData = await findOneConsumer(
+        new ObjectId(ticketData.consumer)
+      );
+
+      if (!consumerData) {
+        throw new ErrorHandler("couldn't find consumer", 500);
+      }
+
+      const whatsNumber = consumerData.phone;
+      console.log(whatsNumber, "this is whats up number");
+
+      // let webHookResult = null;
+      // let Req: any = {};
+
+      // if (stageCode<2 ) {
+      //   console.log("entered")
+      //   Req.body = {
+      //     entry: [
+      //       {
+      //         changes: [
+      //           {
+      //             value: {
+      //               contacts: [
+      //                 {
+      //                   wa_id: whatsNumber,
+      //                 },
+      //               ],
+      //               messages: [
+      //                 {
+      //                   button: {
+      //                     text: "reply",
+      //                   },
+      //                 },
+      //               ],
+      //             },
+      //           },
+      //         ],
+      //       },
+      //     ],
+      //     stageCode,
+      //   };
+
+      //   webHookResult = await HandleWebhook(Req, res , next);
+
+      //   console.log(webHookResult , " this is webhookresult");
+      // }
+      setTimeout(async () => {
+        const serviceIDS: any = await findOnePrescription(
+          ticketData.prescription
+        );
+        console.log(serviceIDS, " bdyufgdhw body of pre");
+        console.log(serviceIDS?.service?.toString(), "this is id ");
+        if (serviceIDS?.service?.toString() === "63d2391f6a681dfcc1742e3d") {
+          if (stageCode === 2) {
+            console.log("write message here");
+            await herniaHowVideo(whatsNumber);
+            await herniaHowText(whatsNumber);
+          }
+          if (stageCode === 3) {
+            console.log("2  how are the 3rd stage ");
+            await herniaRecoveryImage(whatsNumber);
+            await herniaRecoveryText(whatsNumber);
+          }
+          if (stageCode === 4) {
+            console.log("2  how are the 3rd stage ");
+            await herniaUntreatedImage(whatsNumber);
+            await herniaUntreatedText(whatsNumber);
+          }
+        } else if (
+          serviceIDS?.service?.toString() === "64b7c899c8eeebac28df612f"
+        ) {
+          if (stageCode === 2) {
+            console.log("write message here");
+            await hysterectomyHowVideo(whatsNumber);
+            await hysterectomyHowText(whatsNumber);
+          }
+          if (stageCode === 3) {
+            console.log("2  how are the 3rd stage ");
+            await hysterectomyRecoveryText(whatsNumber);
+            await hysterectomyRecoveryImage(whatsNumber);
+          }
+          if (stageCode === 4) {
+            console.log("2  how are the 3rd stage ");
+            await hysterectomyUntreatedImage(whatsNumber);
+            await hysterectomyUntreatedText(whatsNumber);
+          }
+        }
+      }, 1000);
+
+      res.status(200).json({ result: `Stage updated to ${stage.name}!` });
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
     }
@@ -636,3 +827,32 @@ function capitalizeFirstLetter(part: string): any {
 function capitalizeName(name: any): any {
   throw new Error("Function not implemented.");
 }
+
+export const createPatientStatus = PromiseWrapper(
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    session: ClientSession
+  ) => {
+    const requsetBody = req.body;
+    let imageKey: string | null = null;
+    if (req.file) {
+      const { Key } = await putMedia(
+        req.file,
+        `patients/${requsetBody.consumer}/patientStatus`
+      );
+      imageKey = Key;
+    }
+    const payload = {
+      parentTicketId: requsetBody.ticket,
+      consumer: requsetBody?.consumer,
+      note: requsetBody?.note || "",
+      dropReason: requsetBody?.dropReason || "",
+      paymentRefId: requsetBody?.paymentRefId || "",
+      image: imageKey,
+    };
+    const result = await insertPatientStatusDetail(payload, session);
+    res.status(200).json({ result, status: "Success" });
+  }
+);
