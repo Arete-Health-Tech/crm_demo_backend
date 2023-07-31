@@ -109,7 +109,7 @@ const generateEstimate = async (
                   estimate.icuDays > 0
                 ) {
                   roomCharge += icu.charges[1].roomRent * estimate.icuDays;
-                  // console.log(roomCharge , "this is icu")
+                  console.log(roomCharge , "this is icu")
                 }
                 if (item.charges) {
                   roomCharge += item.charges[0].roomRent * estimate.wardDays;
@@ -243,8 +243,28 @@ const generateEstimate = async (
                         ? estimate.additionalAmount
                         : 0)
                   );
-                  //console.log(charges.total , " totalalalaalazaaz")
-                  // console.log(charges.service[0] , "above");
+                 
+                  console.log(servicePrice,"service Price");
+                  console.log(roomCharge, "roomCharge");
+                  console.log(investigationPrice, "investigationPrice Price");
+                  console.log(procedurePrice, "procedurePrice Price");
+                  console.log(
+                    estimate.medicineAmount,
+                    "estimate.medicineAmount Price"
+                  );
+                  console.log(
+                    estimate.bloodAmount,
+                    "estimate.bloodAmount Price"
+                  );
+                  console.log(
+                    estimate.equipmentAmount,
+                    "estimate.equipmentAmount Price"
+                  );
+                  console.log(
+                    estimate.additionalAmount,
+                    "estimate.additionalAmount Price"
+                  );
+                
                 }
               });
             // console.log(charges.service[0] , "below")

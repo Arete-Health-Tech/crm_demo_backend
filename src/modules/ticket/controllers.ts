@@ -6,41 +6,18 @@ import { getMedia, putMedia } from "../../services/aws/s3";
 
 import {
   followUpMessage,
- 
   herniaHowText,
   herniaHowVideo,
- 
-
   herniaRecoveryImage,
- 
-
   herniaRecoveryText,
- 
-
   herniaUntreatedImage,
- 
-
   herniaUntreatedText,
- 
-
   hysterectomyHowText,
- 
-
   hysterectomyHowVideo,
- 
-
   hysterectomyRecoveryImage,
- 
-
   hysterectomyRecoveryText,
- 
-
   hysterectomyUntreatedImage,
- 
-
   hysterectomyUntreatedText,
- 
-
   sendMessage,
   sendTemplateMessage,
 } from "../../services/whatsapp/whatsapp";
@@ -114,7 +91,6 @@ import {
 } from "./ticketUtils/utilFunctions";
 import { findOneConsumer } from "../consumer/crud";
 const cron = require("node-cron");
-
 
 type ticketBody = iTicket & iPrescription;
 type tickeFollow = ifollowUp & iPrescription & iTicket & CONSUMER;
@@ -225,11 +201,8 @@ export const createTicket = PromiseWrapper(
           },
         ];
         await startTemplateFlow("flow", "en", consumer.phone, components);
-
-       
-       
       }
-     
+
       if (ticket.followUp !== null) {
         await createOneFollowUp({
           firstName: consumer.firstName,
@@ -784,7 +757,7 @@ export const updateTicketData = PromiseWrapper(
             await hysterectomyUntreatedText(whatsNumber);
           }
         }
-      }, 1000);
+      }, 3000);
 
       res.status(200).json({ result: `Stage updated to ${stage.name}!` });
     } catch (e) {

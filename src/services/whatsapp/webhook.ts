@@ -92,33 +92,47 @@ export const saveFlowMessages = async (ticket: ObjectId, node: ObjectId) => {
 
 export const findConsumerFromWAID = async (consumerWAId: string) => {
   // const stages = await MongoService.collection(Collections.STAGE).find<iStage>({}).toArray();
+  console.log(consumerWAId, "consumer Id hai yeh ");
   const prescription = await MongoService.collection(Collections.PRESCRIPTION)
     .find<iPrescription>({})
     .toArray();
 
-  const consumer = await MongoService.collection(
-    Collections.CONSUMER
-  ).findOne<CONSUMER>({
-    phone: consumerWAId,
-  });
-  console.log(consumer)
+  // const consumer = await MongoService.collection(
+  //   Collections.CONSUMER
+  // ).findOne<CONSUMER>({
+  //   phone: consumerWAId,
+  // });
+
+  const consumer = await MongoService.collection(Collections.CONSUMER)
+    .find<CONSUMER>({
+      phone: consumerWAId,
+    })
+    .sort({ _id: -1 })
+
+    .toArray();
+
   if (consumer === null) throw new ErrorHandler("No Consumer Found", 404);
+
   const tickets = await MongoService.collection(Collections.TICKET)
     .find<iTicket>({
-      consumer: consumer._id,
+      consumer: consumer[0]._id,
     })
+
     .toArray();
-    console.log(tickets, "ticket found")
+
   // const ticket = tickets.find(
   //   (item) => stages.find((stage) => stage._id?.toString() === item.stage.toString())?.code
   // );
   // if (!ticket)
   // throw new ErrorHandler("No Ticket Found", 404);
   const ticket = tickets.find(
-    (item) => prescription.find((prescription) => prescription._id?.toString() === item.prescription.toString())?.consumer
+    (item) =>
+      prescription.find(
+        (prescription) =>
+          prescription._id?.toString() === item.prescription.toString()
+      )?.consumer
   );
-  console.log(ticket,"secomd")
-  if (!ticket)
-  throw new ErrorHandler("No Ticket Found", 404);
-  return { ticket: ticket._id!, consumer: consumer._id };
+
+  if (!ticket) throw new ErrorHandler("No Ticket Found", 404);
+  return { ticket: ticket._id!, consumer: consumer[0]._id };
 };
