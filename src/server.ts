@@ -10,6 +10,7 @@ import ErrorHandler from "./utils/errorHandler";
 import MongoService, { Collections } from "./utils/mongo";
 import seed from "./seed/seed";
 import { followUpMessage } from "./services/whatsapp/whatsapp";
+import redisConnectionStart from "./utils/redis";
 
 const cron = require("node-cron");
 
@@ -104,6 +105,8 @@ cron.schedule(" 30 04 * * *", () => {
     console.log(error);
   }
 });
+
+export const redisClient = redisConnectionStart();
 
 MongoService.init().then(() => {
   app.listen(PORT, async () => {
