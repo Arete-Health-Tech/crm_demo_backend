@@ -162,15 +162,17 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
     if (TicketId) {
       //FILTER TICKET BY MODIFIED DATE
       if (ticketDetail.modifiedDate) {
+    
         const modifiedDatePlus_3 =
           ticketDetail.modifiedDate + 3 * 24 * 60 * 60 * 1000;
         const modifiedDatePlus_45 =
           ticketDetail.modifiedDate + 45 * 24 * 60 * 60 * 1000;
 
-        if (today >= modifiedDatePlus_3 && today < modifiedDatePlus_45) {
+        if (ticketDetail.subStageCode.code>=4 && today >= modifiedDatePlus_3 && today < modifiedDatePlus_45) {
           ticketObjCache[TicketId] = result.tickets[0];
         } else {
           delete ticketObjCache[TicketId];
+          console.log("Ticjket is deleted");
         }
 
       } else {

@@ -757,7 +757,7 @@ export const updateTicketData = PromiseWrapper(
             await hysterectomyUntreatedText(whatsNumber);
           }
         }
-      }, 1000);
+      }, 3000);
 
       res.status(200).json({ result: `Stage updated to ${stage.name}!` });
     } catch (e) {
