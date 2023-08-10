@@ -8,7 +8,7 @@ const router: Router = Router();
 router.use(isLoggedIn);
 router
   .route("/")
-  .post(validations.create, isAdmin, controllers.createService)
+  .post( controllers.createService)
   .get(validations.get_services, controllers.GetServices);
 router.route("/search").get(controllers.search);
 

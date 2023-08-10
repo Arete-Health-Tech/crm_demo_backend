@@ -14,6 +14,7 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
         // finding consumer and ticket
         (async function () {
           if (message.text) {
+            console.log(message.text,"yeh received message hai")
             const messagePayload: iTextMessage = {
               consumer: consumer,
               sender: changes.value.contacts[mi].wa_id,
@@ -70,6 +71,7 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
 export const saveMessage = async (ticket: string, message: any) => {
 
   console.log("message payload", message);
+  console.log(fsCollections,"this is collections from firebase")
   return await firestore
     .collection(fsCollections.TICKET)
     .doc(ticket)
@@ -80,6 +82,7 @@ export const saveMessage = async (ticket: string, message: any) => {
 
 export const saveTextMessage = async (message: iTextMessage, session: ClientSession) => {
   await MongoService.collection(Collections.MESSAGES).insertOne(message, { session });
+  console.log(message, "saveTextMessage");
 };
 
 export const saveFlowMessages = async (ticket: ObjectId, node: ObjectId) => {
@@ -126,7 +129,11 @@ export const findConsumerFromWAID = async (consumerWAId: string) => {
   // if (!ticket)
   // throw new ErrorHandler("No Ticket Found", 404);
   const ticket = tickets.find(
-    (item) => prescription.find((prescription) => prescription._id?.toString() === item.prescription.toString())?.consumer
+    (item) =>
+      prescription.find(
+        (prescription) =>
+          prescription._id?.toString() === item.prescription.toString()
+      )?.consumer
   );
  
   if (!ticket)

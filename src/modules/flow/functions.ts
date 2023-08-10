@@ -134,8 +134,8 @@ export const createNodeIndexes = async () => {
   });
 };
 export const findNodeByDiseaseId = async (flowQuery: string) => {
-  return await MongoService.collection(Collections.FLOW)
-    .find<iReplyNode | iListNode>({ $text: { $search: flowQuery } })
+  return await MongoService.collection(Collections.FLOW)   
+    .find({ $text: { $search: flowQuery } })
     .toArray();
 };
 // connector

@@ -23,6 +23,7 @@ import {
 } from "../../../types/ticket/ticket";
 import { getDoctors } from "../../department/controllers";
 import { findOneDoctor } from "../../department/crud";
+import { findConsumerFromWAID, saveMessage } from "../../../services/whatsapp/webhook";
 
 const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
 
@@ -109,7 +110,7 @@ const generateEstimate = async (
                   estimate.icuDays > 0
                 ) {
                   roomCharge += icu.charges[1].roomRent * estimate.icuDays;
-                  // console.log(roomCharge , "this is icu")
+                  console.log(roomCharge , "this is icu")
                 }
                 if (item.charges) {
                   roomCharge += item.charges[0].roomRent * estimate.wardDays;
@@ -243,8 +244,28 @@ const generateEstimate = async (
                         ? estimate.additionalAmount
                         : 0)
                   );
-                  //console.log(charges.total , " totalalalaalazaaz")
-                  // console.log(charges.service[0] , "above");
+                 
+                  console.log(servicePrice,"service Price");
+                  console.log(roomCharge, "roomCharge");
+                  console.log(investigationPrice, "investigationPrice Price");
+                  console.log(procedurePrice, "procedurePrice Price");
+                  console.log(
+                    estimate.medicineAmount,
+                    "estimate.medicineAmount Price"
+                  );
+                  console.log(
+                    estimate.bloodAmount,
+                    "estimate.bloodAmount Price"
+                  );
+                  console.log(
+                    estimate.equipmentAmount,
+                    "estimate.equipmentAmount Price"
+                  );
+                  console.log(
+                    estimate.additionalAmount,
+                    "estimate.additionalAmount Price"
+                  );
+                
                 }
               });
             // console.log(charges.service[0] , "below")
@@ -537,6 +558,16 @@ const generateEstimate = async (
                 "en",
                 Location
               );
+              const { ticket } = await findConsumerFromWAID(consumer!.phone);
+              console.log("hello this is before ticket");
+              saveMessage(ticket.toString(), {
+                consumer: consumer!._id.toString(),
+                messageType: "file",
+                sender: consumer!._id.toString(),
+                ticket: ticket.toString(),
+                type: "sent",
+              });
+              console.log("hello this is after ticket");
               await updateEstimateTotal(estimateId, charges.total[0], session);
             });
           }

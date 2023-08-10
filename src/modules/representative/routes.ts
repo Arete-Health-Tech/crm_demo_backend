@@ -7,7 +7,7 @@ import * as validations from "./validations";
 const router: Router = Router();
 router
   .route("/register")
-  .post(isLoggedIn, isAdmin, validations.create, controllers.register);
+  .post( validations.create, controllers.register);
 router.route("/login").post(validations.login, controllers.login);
 
 router.route("/all").get(controllers.getAllRepresentative);

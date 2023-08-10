@@ -1,4 +1,5 @@
 import { Db, MongoClient, ObjectId } from "mongodb";
+import MONGODB_WATCH_COLLECTIONS from "./mongoWatcher";
 
 export const Collections = {
   PRESCRIPTION: "prescription",
@@ -30,6 +31,7 @@ abstract class MongoService {
   public static async init() {
     MongoService._client = await MongoClient.connect(MongoService._MONGO_URI);
     MongoService._db = MongoService._client.db(MongoService._MONGO_DB_NAME);
+    await MONGODB_WATCH_COLLECTIONS();
   }
 
   public static collection(collectionName: string) {

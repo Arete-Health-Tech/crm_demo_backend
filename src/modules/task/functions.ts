@@ -18,7 +18,7 @@ export const createReminder = async (
     );
     await sendTemplateMessage(
       phone.length === 10 ? "91" + phone : phone,
-      "remainder",
+      "reminder",
       "en",
       components
     );

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { ClientSession } from "mongodb";
+import { ClientSession, ObjectId } from "mongodb";
 import { page } from "pdfkit";
 import PromiseWrapper from "../../middleware/promiseWrapper";
 import {
@@ -55,8 +55,11 @@ export const ConnectFlow = PromiseWrapper(
     session: ClientSession
   ) => {
     const service = await findOneService({ _id: req.body.serviceId });
+ 
     if (service === null) throw new ErrorHandler("Invalid Service Id", 400);
     const connector = await connectFlow(req.body, session);
+    console.log(connector.nodeId);
+   
     res.status(200).json(connector);
   }
 );
@@ -139,6 +142,7 @@ export const SendMessage = PromiseWrapper(
     const { message, consumerId, ticketID} = req.body;
     console.log(req.body,"req body")
     const consumer = await findConsumerById(consumerId);
+    // console.log(consumer, "hello")
     if (consumer === null) throw new ErrorHandler("Consumer Not Found", 400);
     const sender = consumer.firstName
     console.log(sender ,"sender ",(consumer._id).toString(),"\n",consumer)
@@ -161,10 +165,11 @@ export const FindNode = PromiseWrapper(
     req: Request,
     res: Response,
     next: NextFunction,
-    session: ClientSession
+    session: ClientSession 
   ) => {
     const { flowQuery } = req.query as unknown as { flowQuery: string };
     const node = await findNodeByDiseaseId(flowQuery);
+console.log(node);
     return res.status(200).json(node);
   }
 );
