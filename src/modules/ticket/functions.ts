@@ -66,7 +66,7 @@ export const updateTicket = async (
 export const triggerTicketChanges = async (
   event: ChangeStreamDocument<any>,
 ) => {
-  console.log("tkt event", event);
+  // console.log("tkt event", event);
   const { operationType} = event;
   if (operationType === "insert") {
     // New ticket created
