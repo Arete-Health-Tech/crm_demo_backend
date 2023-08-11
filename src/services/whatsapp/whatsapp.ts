@@ -497,7 +497,7 @@ export const cabgHowImage = async (receiver: string) => {
       recipient_type: "individual",
       to: receiver,
       type: "image",
-      video: {
+      image: {
         link: "https://aretewhatsappbucket.s3.amazonaws.com/CABG%20Medanta%20Demo/CABG_PROCEDURE.jpg",
       },
     };
