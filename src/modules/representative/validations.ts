@@ -7,9 +7,19 @@ export const create = [
   body("role")
     .notEmpty()
     .custom((value, { req }) => {
-      const index = ["SUPPORT", "REPRESENTATIVE", "LEADER", "MANAGER", "EXECUTIVE", "ADMIN"].findIndex(
-        (item) => item === value
-      );
+      const index = [
+        "SUPPORT",
+        "REPRESENTATIVE",
+        "LEADER",
+        "MANAGER",
+        "EXECUTIVE",
+        "ADMIN",
+        "REPRESENTATIVEONE",
+        "REPRESENTATIVETWO",
+        "REPRESENTATIVETHREE",
+        "REPRESENTATIVEFOUR",
+        "REPRESENTATIVEFIVE",
+      ].findIndex((item) => item === value);
       if (index === -1) throw new Error("Invalid Role");
       return value;
     }),

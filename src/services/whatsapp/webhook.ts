@@ -14,6 +14,7 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
         // finding consumer and ticket
         (async function () {
           if (message.text) {
+            console.log(message.text,"yeh received message hai")
             const messagePayload: iTextMessage = {
               consumer: consumer,
               sender: changes.value.contacts[mi].wa_id,
@@ -68,6 +69,8 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
 };
 
 export const saveMessage = async (ticket: string, message: any) => {
+
+  console.log("message payload", message);
   return await firestore
     .collection(fsCollections.TICKET)
     .doc(ticket)
@@ -78,6 +81,7 @@ export const saveMessage = async (ticket: string, message: any) => {
 
 export const saveTextMessage = async (message: iTextMessage, session: ClientSession) => {
   await MongoService.collection(Collections.MESSAGES).insertOne(message, { session });
+  console.log(message, "saveTextMessage");
 };
 
 export const saveFlowMessages = async (ticket: ObjectId, node: ObjectId) => {
@@ -90,10 +94,10 @@ export const saveFlowMessages = async (ticket: ObjectId, node: ObjectId) => {
 
 export const findConsumerFromWAID = async (consumerWAId: string) => {
   // const stages = await MongoService.collection(Collections.STAGE).find<iStage>({}).toArray();
-  console.log(consumerWAId, "consumer Id hai yeh ");
+  console.log(consumerWAId, "consumer Id hai yeh ")
   const prescription = await MongoService.collection(Collections.PRESCRIPTION)
-    .find<iPrescription>({})
-    .toArray();
+    .find<iPrescription>({}).toArray();
+   
 
   // const consumer = await MongoService.collection(
   //   Collections.CONSUMER
@@ -105,19 +109,19 @@ export const findConsumerFromWAID = async (consumerWAId: string) => {
     .find<CONSUMER>({
       phone: consumerWAId,
     })
-    .sort({ _id: -1 })
-
+    .sort({_id:-1 })
+   
     .toArray();
 
   if (consumer === null) throw new ErrorHandler("No Consumer Found", 404);
-
+ 
   const tickets = await MongoService.collection(Collections.TICKET)
     .find<iTicket>({
       consumer: consumer[0]._id,
     })
-
+   
     .toArray();
-
+   
   // const ticket = tickets.find(
   //   (item) => stages.find((stage) => stage._id?.toString() === item.stage.toString())?.code
   // );
@@ -130,7 +134,8 @@ export const findConsumerFromWAID = async (consumerWAId: string) => {
           prescription._id?.toString() === item.prescription.toString()
       )?.consumer
   );
-
-  if (!ticket) throw new ErrorHandler("No Ticket Found", 404);
+ 
+  if (!ticket)
+  throw new ErrorHandler("No Ticket Found", 404);
   return { ticket: ticket._id!, consumer: consumer[0]._id };
 };

@@ -578,11 +578,13 @@ export const createEstimateController = PromiseWrapper(
           },
           session
         ); //update estimation substage
+        
       }
     } else {
       throw new ErrorHandler("couldn't find ticket Id", 400);
     }
-
+ const ticketData1: iTicket | null = await findOneTicket(estimateBody.ticket);
+ console.log(ticketData1, "Estimation log is ");
     return res.status(200).json(estimate);
   }
 );

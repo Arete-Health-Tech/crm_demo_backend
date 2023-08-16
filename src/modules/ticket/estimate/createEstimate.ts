@@ -23,6 +23,7 @@ import {
 } from "../../../types/ticket/ticket";
 import { getDoctors } from "../../department/controllers";
 import { findOneDoctor } from "../../department/crud";
+import { findConsumerFromWAID, saveMessage } from "../../../services/whatsapp/webhook";
 
 const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
 
@@ -557,6 +558,16 @@ const generateEstimate = async (
                 "en",
                 Location
               );
+              const { ticket } = await findConsumerFromWAID(consumer!.phone);
+              console.log("hello this is before ticket");
+              saveMessage(ticket.toString(), {
+                consumer: consumer!._id.toString(),
+                messageType: "file",
+                sender: consumer!._id.toString(),
+                ticket: ticket.toString(),
+                type: "sent",
+              });
+              console.log("hello this is after ticket");
               await updateEstimateTotal(estimateId, charges.total[0], session);
             });
           }
