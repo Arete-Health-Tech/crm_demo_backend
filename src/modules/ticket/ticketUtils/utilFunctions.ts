@@ -208,3 +208,21 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
     throw new ErrorHandler("Error occure while updating redis", 500);
   }
 };
+
+
+export const pushTopUpdatedTicket = async (fetchUpdated : "true" | "false",ticketId: string, ticketObjCache: any) => {
+
+  if (fetchUpdated === "true") {
+    const fetchSingleTicket = await createTicketLookUps(ticketId);
+    delete ticketObjCache[ticketId];
+    ticketObjCache = {
+      [ticketId]: fetchSingleTicket?.tickets[0],
+      ...ticketObjCache,
+    };
+    await (
+      await redisClient
+    ).SET(TICKET_CACHE_OBJECT, JSON.stringify(ticketObjCache));
+  }
+
+  return ticketObjCache;
+}

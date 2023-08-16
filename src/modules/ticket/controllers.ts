@@ -94,6 +94,7 @@ import {
   RedisUpdateSingleTicketLookUp,
   applyPagination,
   createTicketLookUps,
+  pushTopUpdatedTicket,
 } from "./ticketUtils/utilFunctions";
 import { findOneConsumer } from "../consumer/crud";
 const cron = require("node-cron");
@@ -356,17 +357,12 @@ export const getRepresentativeTickets = PromiseWrapper(
           console.log("Cache being fetched from redis...");
           let ticketObjCache = JSON.parse(data);
           if (fetchUpdated === "true") {
-            const fetchSingleTicket = await createTicketLookUps(ticketId);
-            delete ticketObjCache[ticketId];
-            ticketObjCache = {
-              [ticketId]: fetchSingleTicket?.tickets[0],
-              ...ticketObjCache,
-            };
-            await (
-              await redisClient
-            ).SET(TICKET_CACHE_OBJECT, JSON.stringify(ticketObjCache));
-          }
-          // tempTicketcache === null ? JSON.parse(data) : tempTicketcache;
+            ticketObjCache = await pushTopUpdatedTicket(
+              fetchUpdated,
+              ticketId,
+              ticketObjCache
+            );
+          }          // tempTicketcache === null ? JSON.parse(data) : tempTicketcache;
           const listOfTicketsObj = Object.values(ticketObjCache);
           const sortedTicketData = applyPagination(
             listOfTicketsObj,
