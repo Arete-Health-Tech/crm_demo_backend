@@ -357,6 +357,7 @@ export const getRepresentativeTickets = PromiseWrapper(
             delete ticketObjCache[ticketId];
             ticketObjCache = {
               [ticketId]: fetchSingleTicket?.tickets[0],
+          
               ...ticketObjCache,
             };
             await (
