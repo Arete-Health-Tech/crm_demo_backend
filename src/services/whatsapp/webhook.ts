@@ -74,17 +74,6 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
 export const saveMessage = async (ticket: string, message: any) => {
 
   console.log("message payload", message);
-  if(message.type === "received"){
-    const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
-    if (data) {
-    let ticketObjCache = JSON.parse(data);
-            ticketObjCache = await pushTopUpdatedTicket(
-              "true",
-              message.ticket,
-              ticketObjCache
-            );          
-  }
-  }
   console.log(fsCollections,"this is collections from firebase")
   return await firestore
     .collection(fsCollections.TICKET)

@@ -32,7 +32,7 @@ export async function createTicketLookUps(ticketId?: string) {
     level: "majority",
     toJSON: () => ({ level: "majority" }),
   };
-  console.log("ticket lookup started...", ticketId);
+  // console.log("ticket lookup started...", ticketId);
 
   let tickets: any = await MongoService.collection(Collections.TICKET)
     .aggregate(
@@ -107,7 +107,7 @@ export async function createTicketLookUps(ticketId?: string) {
     )
     .toArray();
 
-  console.log(`ticket id updated for", ${tickets[0]?._id}`);
+  // console.log(`ticket id updated for", ${tickets[0]?._id}`);
 
   for await (const ticket of tickets) {
     ticket.prescription[0].image = getMedia(ticket.prescription[0].image);
@@ -137,7 +137,7 @@ export async function createTicketLookUps(ticketId?: string) {
     tickets: tickets,
     count: tickets.length,
   };
-  console.log("Ticket Lookup ready to store! ::  Totalcount:", result.count);
+  // console.log("Ticket Lookup ready to store! ::  Totalcount:", result.count);
   return result;
 }
 
@@ -152,7 +152,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
       );
     }
 
-    console.log("result of single ticket \n => ", result.tickets[0]);
+    // console.log("result of single ticket \n => ", result.tickets[0]);
     let ticketObjCache = JSON.parse(data);
 
     //SETTING UPDATED TICKET DATA TO REDIS TICKET CACHE BELOW
@@ -197,7 +197,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
       ticketObjCache = cacheObj;
     }
 
-    console.log("Cache Update done At", new Date());
+    // console.log("Cache Update done At", new Date());
 
     const finalTicketCaches = JSON.stringify(ticketObjCache);
 

@@ -5,12 +5,6 @@ import PromiseWrapper from "../../middleware/promiseWrapper";
 import { getMedia, putMedia } from "../../services/aws/s3";
 
 import {
-  cabgHowImage,
-  cabgHowText,
-  cabgRecoveryImage,
-  cabgRecoveryText,
-  cabgUntreatedImage,
-  cabgUntreatedText,
   followUpMessage,
   herniaHowText,
   herniaHowVideo,
@@ -94,7 +88,6 @@ import {
   RedisUpdateSingleTicketLookUp,
   applyPagination,
   createTicketLookUps,
-  pushTopUpdatedTicket,
 } from "./ticketUtils/utilFunctions";
 import { findOneConsumer } from "../consumer/crud";
 const cron = require("node-cron");
@@ -360,12 +353,17 @@ export const getRepresentativeTickets = PromiseWrapper(
           
           let ticketObjCache = JSON.parse(data);
           if (fetchUpdated === "true") {
-            ticketObjCache = await pushTopUpdatedTicket(
-              fetchUpdated,
-              ticketId,
-              ticketObjCache
-            );
-          }          // tempTicketcache === null ? JSON.parse(data) : tempTicketcache;
+            const fetchSingleTicket = await createTicketLookUps(ticketId);
+            delete ticketObjCache[ticketId];
+            ticketObjCache = {
+              [ticketId]: fetchSingleTicket?.tickets[0],
+              ...ticketObjCache,
+            };
+            await (
+              await redisClient
+            ).SET(TICKET_CACHE_OBJECT, JSON.stringify(ticketObjCache));
+          }
+          // tempTicketcache === null ? JSON.parse(data) : tempTicketcache;
           const listOfTicketsObj = Object.values(ticketObjCache);
           const sortedTicketData = applyPagination(
             listOfTicketsObj,
@@ -729,7 +727,7 @@ export const updateTicketData = PromiseWrapper(
         );
         console.log(serviceIDS, " bdyufgdhw body of pre");
         console.log(serviceIDS?.service?.toString(), "this is id ");
-        if (serviceIDS?.service?.toString() === "64d3512171bf84a64c1e6539") {
+        if (serviceIDS?.service?.toString() === "63d2391f6a681dfcc1742e3d") {
           if (stageCode === 2) {
             console.log("write message here");
             await herniaHowVideo(whatsNumber);
@@ -746,7 +744,7 @@ export const updateTicketData = PromiseWrapper(
             await herniaUntreatedText(whatsNumber);
           }
         } else if (
-          serviceIDS?.service?.toString() === "64d3516871bf84a64c1e653a"
+          serviceIDS?.service?.toString() === "64b7c899c8eeebac28df612f"
         ) {
           if (stageCode === 2) {
             console.log("write message here");
@@ -762,24 +760,6 @@ export const updateTicketData = PromiseWrapper(
             console.log("2  how are the 3rd stage ");
             await hysterectomyUntreatedImage(whatsNumber);
             await hysterectomyUntreatedText(whatsNumber);
-          }
-        } else if (
-          serviceIDS?.service?.toString() === "64d3518171bf84a64c1e653b"
-        ) {
-          if (stageCode === 2) {
-            console.log("write message here");
-            await cabgHowImage(whatsNumber);
-            await cabgHowText(whatsNumber);
-          }
-          if (stageCode === 3) {
-            console.log("2  how are the 3rd stage ");
-            await cabgRecoveryText(whatsNumber);
-            await cabgRecoveryImage(whatsNumber);
-          }
-          if (stageCode === 4) {
-            console.log("2  how are the 3rd stage ");
-            await cabgUntreatedImage(whatsNumber);
-            await cabgUntreatedText(whatsNumber);
           }
         }
       }, 3000);
@@ -881,7 +861,3 @@ export const createPatientStatus = PromiseWrapper(
     res.status(200).json({ result, status: "Success" });
   }
 );
-function herniaHowImage(whatsNumber: string) {
-  throw new Error("Function not implemented.");
-}
-
