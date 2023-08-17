@@ -152,6 +152,7 @@ export const createTicket = PromiseWrapper(
         medicines: ticket.medicines ? JSON.parse(req.body.medicines) : null,
         doctor: ticket.doctor,
         followUp: ticket.followUp,
+        isPharmacy:ticket.isPharmacy,
 
         image: Key,
         symptoms: ticket.symptoms,
@@ -322,6 +323,7 @@ export const getRepresentativeTickets = PromiseWrapper(
       try {
         console.log("Checking Ticket-Lookup-Data Cache In Redis...");
         const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
+       
         if (data === null) {
           console.log("No cache in redis!");
           const ticketsResult = await createTicketLookUps();
@@ -355,6 +357,7 @@ export const getRepresentativeTickets = PromiseWrapper(
           return res.status(200).json(ticketsJson) && console.log("DONE!");
         } else {
           console.log("Cache being fetched from redis...");
+          
           let ticketObjCache = JSON.parse(data);
           if (fetchUpdated === "true") {
             ticketObjCache = await pushTopUpdatedTicket(

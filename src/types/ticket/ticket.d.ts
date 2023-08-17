@@ -31,6 +31,7 @@ export interface iPrescription {
   condition: string; //-
   symptoms: string; //-
   followUp: Date;
+  isPharmacy:string;
   image: string;
   medicines: string[] | null; //-
   diagnostics: string[] | null;
