@@ -8,7 +8,7 @@ import MongoService, { Collections } from "../../utils/mongo";
 import firestore, { fsCollections } from "../firebase/firebase";
 import { redisClient } from "../../server";
 import { TICKET_CACHE_OBJECT } from "../../modules/ticket/ticketUtils/Constants";
-import { pushTopUpdatedTicket } from "../../modules/ticket/ticketUtils/utilFunctions";
+import { pushToUpdatedTicketTop } from "../../modules/ticket/ticketUtils/utilFunctions";
 
 export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer: string, ticket: string) => {
   payload.entry.map((entry) => {
@@ -78,7 +78,7 @@ export const saveMessage = async (ticket: string, message: any) => {
     const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
     if (data) {
     let ticketObjCache = JSON.parse(data);
-            ticketObjCache = await pushTopUpdatedTicket(
+            ticketObjCache = await pushToUpdatedTicketTop(
               "true",
               message.ticket,
               ticketObjCache

@@ -94,7 +94,7 @@ import {
   RedisUpdateSingleTicketLookUp,
   applyPagination,
   createTicketLookUps,
-  pushTopUpdatedTicket,
+  pushToUpdatedTicketTop,
 } from "./ticketUtils/utilFunctions";
 import { findOneConsumer } from "../consumer/crud";
 const cron = require("node-cron");
@@ -357,7 +357,7 @@ export const getRepresentativeTickets = PromiseWrapper(
           console.log("Cache being fetched from redis...");
           let ticketObjCache = JSON.parse(data);
           if (fetchUpdated === "true") {
-            ticketObjCache = await pushTopUpdatedTicket(
+            ticketObjCache = await pushToUpdatedTicketTop(
               fetchUpdated,
               ticketId,
               ticketObjCache

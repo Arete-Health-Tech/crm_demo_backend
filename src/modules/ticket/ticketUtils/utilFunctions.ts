@@ -1,4 +1,4 @@
-import { redisClient } from "../../../server";
+import { IO, redisClient } from "../../../server";
 import {
   TICKET_CACHE_OBJECT,
   iTicketsResultJSON,
@@ -10,7 +10,7 @@ import MongoService, { Collections, getCreateDate } from "../../../utils/mongo";
 import { getMedia } from "../../../services/aws/s3";
 import { getServiceById } from "../../service/functions";
 import { findOneService } from "../crud";
-
+import {REFETCH_TICKETS} from "../../../utils/socket/constants"
 export const applyPagination = (
   listOfData: any[],
   page: number,
@@ -172,7 +172,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
           ticketObjCache[TicketId] = result.tickets[0];
         } else {
           delete ticketObjCache[TicketId];
-          console.log("Ticjket is deleted");
+          console.log("Ticket is deleted");
         }
 
       } else {
@@ -210,7 +210,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
 };
 
 
-export const pushTopUpdatedTicket = async (fetchUpdated : "true" | "false",ticketId: string, ticketObjCache: any) => {
+export const pushToUpdatedTicketTop = async (fetchUpdated : "true" | "false",ticketId: string, ticketObjCache: any) => {
 
   if (fetchUpdated === "true") {
     const fetchSingleTicket = await createTicketLookUps(ticketId);
@@ -223,6 +223,8 @@ export const pushTopUpdatedTicket = async (fetchUpdated : "true" | "false",ticke
       await redisClient
     ).SET(TICKET_CACHE_OBJECT, JSON.stringify(ticketObjCache));
   }
+  console.log("\npushing ticket top of cache\n")
+  IO.emit(REFETCH_TICKETS); //trigger client side ticket re-fetch
 
   return ticketObjCache;
 }
