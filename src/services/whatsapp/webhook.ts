@@ -6,6 +6,9 @@ import { iPrescription, iTicket } from "../../types/ticket/ticket";
 import ErrorHandler from "../../utils/errorHandler";
 import MongoService, { Collections } from "../../utils/mongo";
 import firestore, { fsCollections } from "../firebase/firebase";
+import { redisClient } from "../../server";
+import { TICKET_CACHE_OBJECT } from "../../modules/ticket/ticketUtils/Constants";
+import { pushTopUpdatedTicket } from "../../modules/ticket/ticketUtils/utilFunctions";
 
 export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer: string, ticket: string) => {
   payload.entry.map((entry) => {
@@ -71,6 +74,7 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
 export const saveMessage = async (ticket: string, message: any) => {
 
   console.log("message payload", message);
+  console.log(fsCollections,"this is collections from firebase")
   return await firestore
     .collection(fsCollections.TICKET)
     .doc(ticket)

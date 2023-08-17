@@ -294,7 +294,7 @@ const generateEstimate = async (
             //   hospital informationl,ojao
             document
               .fontSize(10)
-              .text("Paras Healthcare", 200, 50, { align: "right" })
+              .text("Medanta", 200, 50, { align: "right" })
               .text("123 Main Street", 200, 65, { align: "right" })
               .text("New Delhi, India", 200, 80, { align: "right" })
               .text("ESTIMATE", 50, 80, { align: "left" })
@@ -327,8 +327,8 @@ const generateEstimate = async (
             document
               .strokeColor("#aaaaaa")
               .lineWidth(1)
-              .moveTo(50, 140)
-              .lineTo(550, 140)
+              .moveTo(50, 165)
+              .lineTo(650, 165)
               .stroke();
             document
               .fontSize(10)
@@ -342,14 +342,14 @@ const generateEstimate = async (
                     : "CGHS"
                 }`,
                 50,
-                150
+                170
               )
               .text(
                 `Insurance: ${
                   estimate.paymentType === 1 ? estimate.insuranceCompany : ""
                 }`,
                 50,
-                165
+                185
               )
               // .text(`Name of Surgery/Package: ${services[0].name}`, 50, 180)
               .text(
@@ -357,7 +357,7 @@ const generateEstimate = async (
                   estimate.type === 0 ? "Packaged" : "Surgery"
                 }`,
                 400,
-                150
+                170
               )
               .text(
                 `Est LOS: ${
@@ -366,7 +366,7 @@ const generateEstimate = async (
                     : ""
                 }`,
                 400,
-                165
+                185
               )
               .text(
                 `Policy Amount: ${
@@ -375,7 +375,7 @@ const generateEstimate = async (
                     : ""
                 }`,
                 400,
-                180
+                200
               );
 
             document
@@ -396,14 +396,14 @@ const generateEstimate = async (
             document
               .fontSize(10)
               .text("Surgery / Packages", 50, 240)
-              .text(`${charges.service[0]}`, 200, 240)
+              .text(`${charges.service[6]}`, 200, 240)
               .text(`${charges.service[1]}`, 284, 240)
-              .text(`${charges.service[2]}`, 368, 240)
-              .text(`${charges.service[3]}`, 450, 240)
-              .text(`${charges.service[4]}`, 450, 240)
-              .text(`${charges.service[9]}`, 450, 240)
-              .text(`${charges.service[6]}`, 450, 240)
-              .text(`${charges.service[7]}`, 0, 240, { align: "right" });
+              .text(`${charges.service[0]}`, 368, 240)
+              // .text(`${charges.service[3]}`, 450, 240)
+              // .text(`${charges.service[4]}`, 450, 240)
+              .text(`${charges.service[7]}`, 450, 240)
+              // .text(`${charges.service[6]}`, 450, 240)
+              .text(`${charges.service[9]}`, 0, 240, { align: "right" });
             document
               .strokeColor("#aaaaaa")
               .lineWidth(1)
@@ -414,13 +414,13 @@ const generateEstimate = async (
             document
               .fontSize(10)
               .text("Room", 50, 260)
-              .text(`${charges.room[0]}`, 200, 260)
+              .text(`${charges.room[3]}`, 200, 260)
               .text(`${charges.room[1]}`, 284, 260)
-              .text(`${charges.room[2]}`, 368, 260)
-              .text(`${charges.room[3]}`, 450, 260)
-              .text(`${charges.room[4]}`, 450, 260)
-              .text(`${charges.room[6]}`, 450, 260)
-              .text(`${charges.room[7]}`, 0, 260, { align: "right" });
+              .text(`${charges.room[0]}`, 368, 260)
+              // .text(`${charges.room[3]}`, 450, 260)
+              // .text(`${charges.room[4]}`, 450, 260)
+              .text(`${charges.room[7]}`, 450, 260)
+              .text(`${charges.room[6]}`, 0, 260, { align: "right" });
             document
               .strokeColor("#aaaaaa")
               .lineWidth(1)
