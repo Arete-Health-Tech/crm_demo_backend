@@ -109,11 +109,12 @@ cron.schedule(" 30 04 * * *", () => {
 });
 
 
-const server = http.createServer(app); // for local
-// const server = https.createServer(app); //for production
+const server = http.createServer(app);
+
 export const io = new socketIO.Server(server, {
   cors: {
-    origin: "https://crm-admin-eight.vercel.app",
+    origin: ["https://crm-admin-eight.vercel.app", "http://localhost:3000"],
+    credentials: true,
     methods: ["GET", "POST"],
   },
 });
