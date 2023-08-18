@@ -109,8 +109,8 @@ cron.schedule(" 30 04 * * *", () => {
 });
 
 
-// const server = http.createServer(app); // for local
-const server = https.createServer(app); //for production
+const server = http.createServer(app); // for local
+// const server = https.createServer(app); //for production
 export const io = new socketIO.Server(server, {
   cors: {
     origin: "*",
