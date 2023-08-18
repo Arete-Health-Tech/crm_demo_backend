@@ -113,7 +113,7 @@ const server = http.createServer(app); // for local
 // const server = https.createServer(app); //for production
 export const io = new socketIO.Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://crm-admin-eight.vercel.app",
     methods: ["GET", "POST"],
   },
 });
