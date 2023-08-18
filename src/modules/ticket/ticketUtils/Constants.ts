@@ -1,5 +1,4 @@
 export const  TICKET_CACHE_OBJECT = "TICKET_CACHE";
-
 export interface iTicketsResultJSON {
     tickets : any[],
     count: number,
