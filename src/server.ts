@@ -12,6 +12,7 @@ import { followUpMessage } from "./services/whatsapp/whatsapp";
 import redisConnectionStart from "./utils/redis";
 import { connectSocketIO } from "./utils/socket/socket_io";
 import http from 'http'
+import https from 'https'
 import socketIO from "socket.io";
 const cron = require("node-cron");
 
@@ -108,10 +109,11 @@ cron.schedule(" 30 04 * * *", () => {
 });
 
 
-const server = http.createServer(app);
+const server = http.createServer(app); // for local
+// const server = https.createServer(app); //for production
 export const io = new socketIO.Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
