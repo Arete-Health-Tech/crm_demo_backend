@@ -113,8 +113,7 @@ const server = http.createServer(app);
 
 export const io = new socketIO.Server(server, {
   cors: {
-    origin: ["https://crm-admin-eight.vercel.app", "http://localhost:3000"],
-    credentials: true,
+    origin: "*",  
     methods: ["GET", "POST"],
   },
 });
