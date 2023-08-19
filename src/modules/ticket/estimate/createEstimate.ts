@@ -9,7 +9,7 @@ import {
   getDepartmentById,
 } from "../../department/functions";
 import { findPrescriptionById, findServices, findTicketById } from "../crud";
-import { findEstimateById, updateEstimateTotal } from "../functions";
+import { findEstimateById, updateEstimateTotal, updateTicketLocation } from "../functions";
 import { putMedia } from "../../../services/aws/s3";
 import {
   estimateTemplateMessage,
@@ -541,35 +541,45 @@ const generateEstimate = async (
               .stroke();
 
             document.end();
-            document.on("end", async () => {
-              const file = {
-                originalname: "estimate",
-                buffer: Buffer.concat(buffers),
-                mimetype: "application/pdf",
-              };
-              const { Location } = await putMedia(
-                file,
-                `patients/${consumer!._id}/${estimate.ticket}/estimates`,
-                BUCKET_NAME
-              );
-              await estimateTemplateMessage(
-                consumer!.phone,
-                "patient_estimate",
-                "en",
-                Location
-              );
-              const { ticket } = await findConsumerFromWAID(consumer!.phone);
-              console.log("hello this is before ticket");
-              saveMessage(ticket.toString(), {
-                consumer: consumer!._id.toString(),
-                messageType: "file",
-                sender: consumer!._id.toString(),
-                ticket: ticket.toString(),
-                type: "sent",
-              });
-              console.log("hello this is after ticket");
-              await updateEstimateTotal(estimateId, charges.total[0], session);
-            });
+           document.on("end", async () => {
+             const file = {
+               originalname: "estimate",
+               buffer: Buffer.concat(buffers),
+               mimetype: "application/pdf",
+             };
+             const { Location } = await putMedia(
+               file,
+               `patients/${consumer!._id}/${estimate.ticket}/estimates`,
+               BUCKET_NAME
+             );
+             const uploadedPDFUrl = Location;
+             await estimateTemplateMessage(
+               consumer!.phone,
+               "patient_estimate",
+               "en",
+               uploadedPDFUrl
+             );
+
+             console.log(uploadedPDFUrl, " this is what is was founding 2 ");
+             // await updateTicketLocation(estimate.ticket ,uploadedPDFUrl , session );
+             const { ticket } = await findConsumerFromWAID(consumer!.phone);
+             console.log("hello this is before ticket");
+             saveMessage(ticket.toString(), {
+               consumer: consumer!._id.toString(),
+               messageType: "file",
+               sender: consumer!._id.toString(),
+               ticket: ticket.toString(),
+               type: "sent",
+             });
+             console.log("hello this is after ticket");
+
+             await updateEstimateTotal(estimateId, charges.total[0], session);
+             await updateTicketLocation(
+               estimate.ticket,
+               uploadedPDFUrl,
+               session
+             );
+           });
           }
         );
       });

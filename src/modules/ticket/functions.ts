@@ -212,3 +212,14 @@ export const getTicketNotes = async (ticketId: ObjectId) => {
 //   return await MongoService.collection()
 
 // }
+export const updateTicketLocation = async (
+  ticketId: ObjectId,
+  uploadedPDFUrl: string,
+  session?: ClientSession
+) => {
+  return await MongoService.collection(Collections.TICKET).findOneAndUpdate(
+    { _id: ticketId },
+    { $set: { location: uploadedPDFUrl } },
+    { session }
+  )
+}
