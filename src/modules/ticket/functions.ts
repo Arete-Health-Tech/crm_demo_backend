@@ -24,7 +24,8 @@ import {
   findTicket,
 } from "./crud";
 import { RedisUpdateSingleTicketLookUp } from "./ticketUtils/utilFunctions";
-
+import { IO } from "../../server";
+import { REFETCH_TICKETS } from "../../utils/socket/constants";
 export const createTicketHandler = async (
   ticket: iTicket,
   session: ClientSession
@@ -70,7 +71,8 @@ export const triggerTicketChanges = async (
   const { operationType} = event;
   if (operationType === "insert") {
     // New ticket created
-    await RedisUpdateSingleTicketLookUp(event?.documentKey._id.toString());
+    await RedisUpdateSingleTicketLookUp(event?.documentKey._id.toString());  
+    IO.emit(REFETCH_TICKETS); //trigger client side ticket re-fetch
   } else if (operationType === "update") {
     // Ticket updated
     await RedisUpdateSingleTicketLookUp(event?.documentKey._id.toString());

@@ -10,7 +10,10 @@ import MongoService, { Collections } from "./utils/mongo";
 import seed from "./seed/seed";
 import { followUpMessage } from "./services/whatsapp/whatsapp";
 import redisConnectionStart from "./utils/redis";
-
+import { connectSocketIO } from "./utils/socket/socket_io";
+import http from 'http'
+import https from 'https'
+import socketIO from "socket.io";
 const cron = require("node-cron");
 
 declare global {
@@ -105,10 +108,23 @@ cron.schedule(" 30 04 * * *", () => {
   }
 });
 
+
+const server = http.createServer(app);
+
+export const io = new socketIO.Server(server, {
+  cors: {
+    origin: "*",  
+    methods: ["GET", "POST"],
+  },
+});
+
+
+export const IO = connectSocketIO(); //connected socket
+
 export const redisClient = redisConnectionStart();
 
 MongoService.init().then(() => {
-  app.listen(PORT, async () => {
+  server.listen(PORT, async () => {
     await seed();
     console.log(`Server running at ${PORT}`);
   });
