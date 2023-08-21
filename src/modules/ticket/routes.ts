@@ -47,4 +47,5 @@ router
 //     .toArray();
 //   return consumers;
 // });
+router.route("/ticketResult").post(controllers.skipResult);
 export default router;

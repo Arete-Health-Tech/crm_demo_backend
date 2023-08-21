@@ -80,6 +80,7 @@ import {
   updateSubStage,
   updateTicket,
   watchTicketChangesEvent,
+  createResult,
 } from "./functions";
 
 import { CONSUMER } from "../../types/consumer/consumer";
@@ -879,5 +880,22 @@ export const createPatientStatus = PromiseWrapper(
     };
     const result = await insertPatientStatusDetail(payload, session);
     res.status(200).json({ result, status: "Success" });
+  }
+);
+
+export const skipResult = PromiseWrapper(
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    session: ClientSession
+  ) => {
+    const resultData = {
+      text: req.body.text,
+      ticket: req.body.ticket,
+      createdAt: Date.now(),
+      creator: req.user!._id,
+    };
+    const result = await createResult(resultData, session);
   }
 );

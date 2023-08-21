@@ -90,3 +90,10 @@ export interface ifollowUp {
   followUpDate1: Date | string | number | null;
   followUpDate2: Date | string | number | null;
 }
+
+export interface iSkip {
+  text: string;
+  ticket: ObjectId;
+  creator: ObjectId;
+  createdAt: string | number;
+}

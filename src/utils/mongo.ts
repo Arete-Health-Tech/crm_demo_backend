@@ -21,6 +21,7 @@ export const Collections = {
   REMINDER: "reminder",
   TODO: "todo",
   FOLLOWUP: "followup",
+  SKIP:"skip"
 };
 
 abstract class MongoService {

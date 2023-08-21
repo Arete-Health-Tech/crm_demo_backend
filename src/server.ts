@@ -116,8 +116,8 @@ export const io = new socketIO.Server(server, {
     origin: "*",  
     methods: ["GET", "POST"],
   },
-});
 
+})
 
 export const IO = connectSocketIO(); //connected socket
 

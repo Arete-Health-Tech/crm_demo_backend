@@ -11,6 +11,8 @@ import {
   ifollowUp,
   iNote,
   iPrescription,
+  
+  iSkip,
   iTicket,
   iTicketUpdate,
   subStageCodeType,
@@ -225,3 +227,10 @@ export const updateTicketLocation = async (
     { session }
   )
 }
+
+export const createResult = async (result: iSkip, session: ClientSession) => {
+  await MongoService.collection(Collections.SKIP).insertOne(result, {
+    session,
+  });
+  return result;
+};
