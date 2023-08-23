@@ -64,6 +64,29 @@ export const ConnectFlow = PromiseWrapper(
   }
 );
 
+export const verifyWhatsap = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+console.log("query web hook", req.query)
+    let mode=req.query["hub.mode"];
+    let challange=req.query["hub.challenge"];
+    let token=req.query["hub.verify_token"];
+ 
+ 
+     if(mode && token){
+ 
+         if(mode==="subscribe" && token==="arete-health-tech"){
+             res.status(200).send(challange);
+         }else{
+          console.log("credential not match");
+             res.status(403);
+         }
+ 
+     }
+}
+
 export const HandleWebhook = async (
   req: Request,
   res: Response,
