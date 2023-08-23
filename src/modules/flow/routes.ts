@@ -25,6 +25,7 @@ router
   .route("/connect")
   .post(isLoggedIn, isAdmin, validations.connect_flow, controllers.ConnectFlow)
   .get(validations.get_flow_connector, controllers.GetConnector);
+  router.route("/webhook").get(controllers.verifyWhatsap);
 router.route("/webhook").post(controllers.HandleWebhook);
 router
   .route("/message")
