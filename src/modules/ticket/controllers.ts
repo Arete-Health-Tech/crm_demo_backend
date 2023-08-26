@@ -85,7 +85,7 @@ import {
 
 import { CONSUMER } from "../../types/consumer/consumer";
 import { HandleWebhook } from "../flow/controller";
-import { redisClient } from "../../server";
+import { IO, redisClient } from "../../server";
 import {
   TICKET_CACHE_OBJECT,
   iTicketsResultJSON,
@@ -98,6 +98,7 @@ import {
   pushToUpdatedTicketTop,
 } from "./ticketUtils/utilFunctions";
 import { findOneConsumer } from "../consumer/crud";
+import { REFETCH_TICKETS } from "../../utils/socket/constants";
 const cron = require("node-cron");
 
 type ticketBody = iTicket & iPrescription;
@@ -899,3 +900,23 @@ export const skipResult = PromiseWrapper(
     const result = await createResult(resultData, session);
   }
 );
+
+export const validateTicket = PromiseWrapper(async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  session: ClientSession)=>{
+try{    const ticketId: string = req.body?.ticketId;
+    if(ticketId){
+     await RedisUpdateSingleTicketLookUp(ticketId);
+      IO.emit(REFETCH_TICKETS); //trigger client side ticket re-fetch
+      res.status(200).json("Done")
+
+    }else{
+      res.status(200).json({msg: "ticket not found"})
+    }}
+    catch (err){
+      res.status(400).json({error : err})
+    }
+
+  }) 

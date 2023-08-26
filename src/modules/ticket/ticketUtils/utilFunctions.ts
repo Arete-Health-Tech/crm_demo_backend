@@ -172,7 +172,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
           ticketObjCache[TicketId] = result.tickets[0];
         } else {
           delete ticketObjCache[TicketId];
-          console.log("Ticket is deleted");
+          console.log("modified Date invalidated. Ticket is being removed from current cache");
         }
 
       } else {
