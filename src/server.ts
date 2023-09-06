@@ -117,7 +117,8 @@ export const io = new socketIO.Server(server, {
     methods: ["GET", "POST"],
   },
 
-})
+}).listen(5050);
+
 
 export const IO = connectSocketIO(); //connected socket
 

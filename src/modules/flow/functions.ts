@@ -40,9 +40,11 @@ export const createListNode = async (
 
 
 const findNodeWithId = async (nodeId: string) => {
+  console.log(nodeId)
   return await MongoService.collection(Collections.FLOW).findOne<
     iReplyNode | iListNode
   >({ nodeId });
+
 };
 
 export const findAndSendNode = async (
@@ -51,7 +53,7 @@ export const findAndSendNode = async (
   ticket: string
 ) => {
   let node = await findNodeWithId(nodeIdentifier);
-  console.log(nodeIdentifier)
+  console.log(node);
   
   if (node === null) throw new Error("Node not found");
   if (node.type === "reply") {
