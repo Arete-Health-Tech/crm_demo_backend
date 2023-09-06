@@ -39,7 +39,9 @@ router
 
   router
   .route("/patientStatus")
-  .post(upload.single("image"),validations.patientStatusValidate ,controllers.createPatientStatus)
+  .post(upload.single("image"),validations.patientStatusValidate ,controllers.createPatientStatus);
+
+  router.route("/validateTicket").put(controllers.validateTicket)
 // router.route("/search/:key").get(async (req, resp) => {
 //   const query = { firstName: { $regex: /name-to-search/i } };
 //   const consumers = await MongoService.collection("consumer")

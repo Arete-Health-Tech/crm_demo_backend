@@ -11,8 +11,8 @@ import seed from "./seed/seed";
 import { followUpMessage } from "./services/whatsapp/whatsapp";
 import redisConnectionStart from "./utils/redis";
 import { connectSocketIO } from "./utils/socket/socket_io";
-import http from 'http'
-import https from 'https'
+import http from 'http';
+import morgan from 'morgan';
 import socketIO from "socket.io";
 const cron = require("node-cron");
 
@@ -30,6 +30,8 @@ const PORT = process.env.PORT;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: "1mb" }));
 app.use(cors());
+
+app.use(morgan('tiny'));
 
 app.get("/prod/", async (req: Request, res: Response) => {
   res.send("howdy!");
