@@ -25,13 +25,13 @@ export interface iWebhookPayload {
           button?: iButtonMessagePayload;
           interactive?: iReplyMessagePayload | iListMessagePayload;
           text?: iTextMessagePayload;
+          image?: iImageMessage;
         }[];
         statuses: [];
       };
       field: "messages";
     }[];
   }[];
- 
 }
 
 interface iButtonMessagePayload {
@@ -67,5 +67,16 @@ interface iTextMessage {
   ticket: string;
   consumer: string;
   messageType: "text";
+  createdAt: number;
+}
+
+interface iImageMessage {
+  imageUrl: string;
+
+  sender: string;
+  type: "received" | "sent";
+  ticket: string;
+  consumer: string;
+  messageType: "image";
   createdAt: number;
 }

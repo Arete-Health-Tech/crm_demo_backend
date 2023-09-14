@@ -1,6 +1,6 @@
 import { ClientSession, ObjectId } from "mongodb";
 import { CONSUMER } from "../../types/consumer/consumer";
-import { iTextMessage, iWebhookPayload } from "../../types/flow/webhook";
+import { iImageMessage, iTextMessage, iWebhookPayload } from "../../types/flow/webhook";
 import { iStage } from "../../types/stages/stages";
 import { iPrescription, iTicket } from "../../types/ticket/ticket";
 import ErrorHandler from "../../utils/errorHandler";
@@ -28,7 +28,24 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
               createdAt: Date.now(),
             };
             await saveMessage(ticket, messagePayload);
-          } else if (message.button) {
+          }else if(message.image){
+
+const messagePayload: iImageMessage = {
+  consumer: consumer,
+  sender: changes.value.contacts[mi].wa_id,
+  imageUrl: message.image.imageUrl,
+  ticket: ticket,
+  type: "received",
+  messageType: "image",
+  createdAt: Date.now(),
+};
+await saveMessage(ticket, messagePayload);
+          } 
+          
+          
+          
+          
+          else if (message.button) {
             const messagePayload: iTextMessage = {
               consumer: consumer,
               sender: changes.value.contacts[mi].wa_id,
