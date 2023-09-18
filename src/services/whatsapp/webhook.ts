@@ -109,6 +109,8 @@ export const saveMessage = async (ticket: string, message: any) => {
     .doc(ticket)
     .collection(fsCollections.MESSAGES)
     .doc()
+    .collection(fsCollections.IMAGES)
+    .doc()
     .set(message);
 };
 
