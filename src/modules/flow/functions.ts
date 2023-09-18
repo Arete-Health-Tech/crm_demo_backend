@@ -75,6 +75,7 @@ export const saveSentFlowMessage = async (ticket: string, node: any) => {
     .doc(ticket)
     .collection(fsCollections.MESSAGES)
     .doc()
+    
     .set({ ...node, createdAt: Date.now(), type: "sent" });
 };
 
@@ -145,6 +146,6 @@ export const getConnector = async (pageLength: number, page: number) => {
   return await MongoService.collection(Collections.FLOW_CONNECT)
     .find<iFlowConnect>({})
     .limit(pageLength)
-    .skip(pageLength * page)
+    .skip(pageLength * page) 
     .toArray();
 };

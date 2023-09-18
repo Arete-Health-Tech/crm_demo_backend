@@ -5,7 +5,7 @@ const serviceAccount = require("../../../areteSA.json");
 export const fsCollections = {
   TICKET: "ticket",
   MESSAGES: "messages",
-  IMAGES:"images"
+
 };
 
 initializeApp({

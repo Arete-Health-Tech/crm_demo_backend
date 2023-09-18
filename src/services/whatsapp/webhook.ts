@@ -103,7 +103,7 @@ export const saveMessage = async (ticket: string, message: any) => {
               message.ticket,
               ticketObjCache
             );          
-  }
+  } 
   }
   console.log(fsCollections,"this is collections from firebase")
   return await firestore
@@ -111,8 +111,7 @@ export const saveMessage = async (ticket: string, message: any) => {
     .doc(ticket)
     .collection(fsCollections.MESSAGES)
     .doc()
-    .collection(fsCollections.IMAGES)
-    .doc()
+   
     .set(message);
 };
 
