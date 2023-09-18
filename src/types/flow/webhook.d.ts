@@ -71,12 +71,17 @@ interface iTextMessage {
 }
 
 interface iImageMessage {
-  imageUrl: string;
+  image: {
+    caption: "CAPTION";
+    mime_type: "image/jpeg";
+    sha256: "IMAGE_HASH";
+    
+  };
 
   sender: string;
   type: "image";
   ticket: string;
   consumer: string;
- 
+
   createdAt: number;
 }

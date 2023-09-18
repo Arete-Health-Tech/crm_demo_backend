@@ -34,7 +34,7 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
 const messagePayload: iImageMessage = {
   consumer: consumer,
   sender: changes.value.contacts[mi].wa_id,
-  imageUrl: message.image.imageUrl,
+  image: message.image.image,
   ticket: ticket,
   type: "image",
  
