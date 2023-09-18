@@ -29,6 +29,7 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
             };
             await saveMessage(ticket, messagePayload);
           }else if(message.image){
+            console.log(message.image,"yeh wehook images hai")
 
 const messagePayload: iImageMessage = {
   consumer: consumer,
