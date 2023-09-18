@@ -74,9 +74,9 @@ interface iImageMessage {
   imageUrl: string;
 
   sender: string;
-  type: "received" | "sent";
+  type: "image";
   ticket: string;
   consumer: string;
-  messageType: "image";
+ 
   createdAt: number;
 }
