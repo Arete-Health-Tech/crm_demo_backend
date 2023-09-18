@@ -71,12 +71,7 @@ interface iTextMessage {
 }
 
 interface iImageMessage {
-  image: {
-    caption: "CAPTION";
-    mime_type: "image/jpeg";
-    sha256: "IMAGE_HASH";
-    
-  };
+ imageUrl:string;
 
   sender: string;
   type: "image";

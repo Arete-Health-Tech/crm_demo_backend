@@ -17,6 +17,7 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
         // finding consumer and ticket
         (async function () {
           if (message.text) {
+            
             console.log(message.text,"yeh received message hai")
             const messagePayload: iTextMessage = {
               consumer: consumer,
@@ -29,12 +30,13 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
             };
             await saveMessage(ticket, messagePayload);
           }else if(message.image){
+            console.log(message,"yeh webhook ka msg hai")
             console.log(message.image,"yeh wehook images hai")
 
 const messagePayload: iImageMessage = {
   consumer: consumer,
   sender: changes.value.contacts[mi].wa_id,
-  image: message.image.image,
+  imageUrl: message.image.imageUrl,
   ticket: ticket,
   type: "image",
  
