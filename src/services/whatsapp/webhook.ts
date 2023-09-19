@@ -35,7 +35,7 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
             console.log(message.image.id,"yeh wehook images hai")
             console.log(message.image.imageUrl,"this is image url")
             
-const imageUrl = `https://your-image-base-url.com/${message.image.id}`; // Replace with the actual base URL
+const imageUrl = `https://aretewhatsappbucket.s3.amazonaws.com/HERNIORRHAPHY/WHAT_HERNIORRHAPHY.jpg`; // Replace with the actual base URL
 
 console.log(imageUrl, "This is the image URL");
             
