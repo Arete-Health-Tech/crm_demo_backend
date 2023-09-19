@@ -38,7 +38,8 @@ const messagePayload: iImageMessage = {
   sender: changes.value.contacts[mi].wa_id,
   imageUrl: message.image.imageUrl,
   ticket: ticket,
-  type: "image",
+  type: "received",
+  messageType:"image",
  
   createdAt: Date.now(),
 };

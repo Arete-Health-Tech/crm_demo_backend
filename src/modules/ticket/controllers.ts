@@ -361,6 +361,8 @@ export const getRepresentativeTickets = PromiseWrapper(
           console.log("Cache being fetched from redis...");
           
           let ticketObjCache = JSON.parse(data);
+                    // let ticketObjCache = data;
+
           if (fetchUpdated === "true") {
             ticketObjCache = await pushToUpdatedTicketTop(
               fetchUpdated,

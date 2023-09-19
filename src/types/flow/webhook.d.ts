@@ -71,12 +71,12 @@ interface iTextMessage {
 }
 
 interface iImageMessage {
- imageUrl:string;
-
+  imageUrl: string;
+  caption?: string;
   sender: string;
-  type: "image";
+  type: "received";
   ticket: string;
   consumer: string;
-
+messageType:"image";
   createdAt: number;
 }
