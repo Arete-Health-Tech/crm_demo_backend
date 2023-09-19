@@ -71,6 +71,7 @@ interface iTextMessage {
 }
 
 interface iImageMessage {
+  id:string;
   imageUrl: string;
   caption?: string;
   sender: string;

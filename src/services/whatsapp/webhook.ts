@@ -11,6 +11,7 @@ import { TICKET_CACHE_OBJECT } from "../../modules/ticket/ticketUtils/Constants"
 import { pushToUpdatedTicketTop } from "../../modules/ticket/ticketUtils/utilFunctions";
 
 export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer: string, ticket: string) => {
+ 
   payload.entry.map((entry) => {
     entry.changes.map((changes) => {
       changes.value.messages.map((message, mi) => {
@@ -29,9 +30,10 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
               createdAt: Date.now(),
             };
             await saveMessage(ticket, messagePayload);
-          }else if(message.image){
+          }else if(message.image?.id){
             console.log(message,"yeh webhook ka msg hai")
             console.log(message.image,"yeh wehook images hai")
+            console.log(message.image.imageUrl,"this is image url")
 
 const messagePayload: iImageMessage = {
   consumer: consumer,
@@ -40,7 +42,7 @@ const messagePayload: iImageMessage = {
   ticket: ticket,
   type: "received",
   messageType:"image",
- 
+ id:message.image.id,
   createdAt: Date.now(),
 };
 await saveMessage(ticket, messagePayload);
