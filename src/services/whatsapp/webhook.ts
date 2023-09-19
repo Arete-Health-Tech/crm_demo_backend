@@ -229,6 +229,7 @@ export const saveMessageFromWebhook = async (
           } else if (message.image) {
             // Handle image messages
             const imageUrl = message.image.url;
+            console.log(imageUrl);
             const caption = message.image.caption || ""; // Optional caption
             const messagePayload: iImageMessage = {
               consumer: consumer,
