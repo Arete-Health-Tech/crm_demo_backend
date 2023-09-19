@@ -147,7 +147,7 @@ interface iTextMessagePayload {
   body: string;
 }
 interface iImageMessagePayload {
-  url: any; // URL or identifier for the image
+  url: "https://aretewhatsappbucket.s3.amazonaws.com/HERNIORRHAPHY/WHAT_HERNIORRHAPHY.jpg"; // URL or identifier for the image
   caption?: string; // Optional caption for the image
 }
 
