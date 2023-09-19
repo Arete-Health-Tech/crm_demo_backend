@@ -32,8 +32,13 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
             await saveMessage(ticket, messagePayload);
           }else if(message.image?.id){
             console.log(message,"yeh webhook ka msg hai")
-            console.log(message.image,"yeh wehook images hai")
+            console.log(message.image.id,"yeh wehook images hai")
             console.log(message.image.imageUrl,"this is image url")
+            
+const imageUrl = `https://your-image-base-url.com/${message.image.id}`; // Replace with the actual base URL
+
+console.log(imageUrl, "This is the image URL");
+            
 
 const messagePayload: iImageMessage = {
   consumer: consumer,
