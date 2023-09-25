@@ -33,7 +33,7 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
           }else if(message.image){
             console.log(message,"yeh webhook ka msg hai")
             console.log(message.image.id,"yeh wehook images hai")
-            console.log(message.image,"this is image url")
+            console.log(message.image.caption,"this is image url")
             
 
 
@@ -42,6 +42,7 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
 const messagePayload: iImageMessage = {
   consumer: consumer,
   sender: changes.value.contacts[mi].wa_id,
+  image:message.image.caption,
   ticket: ticket,
   type: "received" ,
   messageType:"image",
