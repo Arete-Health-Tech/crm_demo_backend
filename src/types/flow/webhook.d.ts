@@ -82,10 +82,8 @@ messageType:"image";
 }
 
 interface iImageMessagePayload {
-  image: {
-    caption: "Hello, this is an image!";
-    url: "URL_TO_YOUR_IMAGE";
-    mime_type: "image/jpeg";
-    filename: "image.jpg";
-  };
+  caption: string;
+  sha256:string;
+  mime_type: string;
+id:number;
 }

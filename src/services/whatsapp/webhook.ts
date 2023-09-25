@@ -32,8 +32,8 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
             await saveMessage(ticket, messagePayload);
           }else if(message.image){
             console.log(message,"yeh webhook ka msg hai")
-            console.log(message.image.image,"yeh wehook images hai")
-            console.log(message.image,"this is image url")
+            console.log(message.image,"yeh wehook images hai")
+            console.log(message.image.id,"this is image url")
             
 
 
