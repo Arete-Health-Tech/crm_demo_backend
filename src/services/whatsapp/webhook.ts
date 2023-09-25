@@ -38,8 +38,8 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
             console.log(message.image.id,"this is image url")
             const msgapi=`https://graph.facebook.com/v18.0/${message.image.id}/`
            
-
-
+let imageURL;
+console.log(imageURL)
 axios
   .get(msgapi, {
     headers: {
@@ -63,6 +63,7 @@ console.log(newResourceUrl,"new Resource URL");
       .then((secondResponse) => {
         console.log("Second GET request successful");
         console.log("Second Response Data:", secondResponse.data);
+      imageURL = secondResponse.data;
       
         // You can continue to process the data from the second response here
       })
@@ -79,7 +80,7 @@ console.log(newResourceUrl,"new Resource URL");
 const messagePayload: iImageMessage = {
   consumer: consumer,
   sender: changes.value.contacts[mi].wa_id,
-  image: message.image,
+  image: imageURL,
   ticket: ticket,
   type: "received",
   messageType: "image",
