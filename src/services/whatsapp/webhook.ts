@@ -43,7 +43,7 @@ export const saveMessageFromWebhook = async (
             console.log(message.image, "yeh wehook images hai");
             console.log(message.image.id, "this is image url");
             const msgapi = `https://graph.facebook.com/v18.0/${message.image.id}/`;
-
+let imageURL;
             const config = {
               headers: {
                 Authorization: `Bearer ${WA_TOKEN}`,
@@ -56,6 +56,7 @@ export const saveMessageFromWebhook = async (
                 // Handle the response here
                 console.log("GET request successful");
                 console.log("Response:", response.data.url);
+                imageURL = response.data.url;
               })
               .catch((error) => {
                 // Handle errors here
@@ -65,7 +66,7 @@ export const saveMessageFromWebhook = async (
             const messagePayload: iImageMessage = {
               consumer: consumer,
               sender: changes.value.contacts[mi].wa_id,
-              image: message.image,
+              image: imageURL,
               ticket: ticket,
               type: "received",
               messageType: "image",
