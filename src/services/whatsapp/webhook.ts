@@ -37,34 +37,55 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
             console.log(message.image,"yeh wehook images hai")
             console.log(message.image.id,"this is image url")
             const msgapi=`https://graph.facebook.com/v18.0/${message.image.id}/`
+            let imageURL;
 
-const config = {
-  headers: {
-    Authorization: `Bearer ${WA_TOKEN}`,
-  },
-};
+
 
 axios
-  .get(msgapi, config)
+  .get(msgapi, {
+    headers: {
+      Authorization: `Bearer ${WA_TOKEN}`,
+    },
+  })
   .then((response) => {
-    // Handle the response here
-    console.log("GET request successful");
-    console.log("Response:", response.data);
+    console.log("First GET request successful");
+    console.log("First Response Data:", response.data);
+
+    // Assuming you want to extract a new URL from the first response
+    const newResourceUrl = response.data.newResourceUrl;
+
+    // Make a second GET request with the new URL and bearer token
+    axios
+      .get(newResourceUrl, {
+        headers: {
+          Authorization: `Bearer ${WA_TOKEN}`,
+        },
+      })
+      .then((secondResponse) => {
+        console.log("Second GET request successful");
+        console.log("Second Response Data:", secondResponse.data);
+        imageURL = secondResponse.data;
+
+        // You can continue to process the data from the second response here
+      })
+      .catch((secondError) => {
+        console.error("Second GET request failed:", secondError.message);
+      });
   })
   .catch((error) => {
-    // Handle errors here
-    console.error("GET request failed:", error.message);
+    console.error("First GET request failed:", error.message);
   });
+console.log(imageURL)
             
 
 const messagePayload: iImageMessage = {
   consumer: consumer,
   sender: changes.value.contacts[mi].wa_id,
-  image:msgapi,
+  image: imageURL,
   ticket: ticket,
-  type: "received" ,
-  messageType:"image",
- 
+  type: "received",
+  messageType: "image",
+
   createdAt: Date.now(),
 };
 await saveMessage(ticket, messagePayload);
