@@ -1,6 +1,10 @@
 import { ClientSession, ObjectId } from "mongodb";
 import { CONSUMER } from "../../types/consumer/consumer";
-import { iImageMessage, iTextMessage, iWebhookPayload } from "../../types/flow/webhook";
+import {
+  iImageMessage,
+  iTextMessage,
+  iWebhookPayload,
+} from "../../types/flow/webhook";
 import { iStage } from "../../types/stages/stages";
 import { iPrescription, iTicket } from "../../types/ticket/ticket";
 import ErrorHandler from "../../utils/errorHandler";
@@ -12,16 +16,18 @@ import { pushToUpdatedTicketTop } from "../../modules/ticket/ticketUtils/utilFun
 import axios from "axios";
 const { WA_ACCOUNT_ID, WA_TOKEN } = process.env;
 
-export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer: string, ticket: string) => {
- 
+export const saveMessageFromWebhook = async (
+  payload: iWebhookPayload,
+  consumer: string,
+  ticket: string
+) => {
   payload.entry.map((entry) => {
     entry.changes.map((changes) => {
       changes.value.messages.map((message, mi) => {
         // finding consumer and ticket
         (async function () {
           if (message.text) {
-            
-            console.log(message.text,"yeh received message hai")
+            console.log(message.text, "yeh received message hai");
             const messagePayload: iTextMessage = {
               consumer: consumer,
               sender: changes.value.contacts[mi].wa_id,
@@ -32,69 +38,42 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
               createdAt: Date.now(),
             };
             await saveMessage(ticket, messagePayload);
-          }else if(message.image){
-            console.log(message,"yeh webhook ka msg hai")
-            console.log(message.image,"yeh wehook images hai")
-            console.log(message.image.id,"this is image url")
-            const msgapi=`https://graph.facebook.com/v18.0/${message.image.id}/`
-           
-let imageURL;
-console.log(imageURL)
-axios
-  .get(msgapi, {
-    headers: {
-      Authorization: `Bearer ${WA_TOKEN}`,
-    },
-  })
-  .then((response) => {
-    console.log("First GET request successful");
-    console.log("First Response Data:", response.data);
+          } else if (message.image) {
+            console.log(message, "yeh webhook ka msg hai");
+            console.log(message.image, "yeh wehook images hai");
+            console.log(message.image.id, "this is image url");
+            const msgapi = `https://graph.facebook.com/v18.0/${message.image.id}/`;
 
-    // Assuming you want to extract a new URL from the first response
-    const newResourceUrl = response.data.url;
-console.log(newResourceUrl,"new Resource URL");
-imageURL=newResourceUrl
-    // Make a second GET request with the new URL and bearer token
-    axios
-      .get(newResourceUrl, {
-        headers: {
-          Authorization: `Bearer ${WA_TOKEN}`,
-        },
-      })
-      .then((secondResponse) => {
-        console.log("Second GET request successful");
-        console.log("Second Response Data:", secondResponse);
-     
-      
-        // You can continue to process the data from the second response here
-      })
-      .catch((secondError) => {
-        console.error("Second GET request failed:", secondError.message);
-      });
-  })
-  .catch((error) => {
-    console.error("First GET request failed:", error.message);
-  });
+            const config = {
+              headers: {
+                Authorization: `Bearer ${WA_TOKEN}`,
+              },
+            };
 
-            
+            axios
+              .get(msgapi, config)
+              .then((response) => {
+                // Handle the response here
+                console.log("GET request successful");
+                console.log("Response:", response.data.url);
+              })
+              .catch((error) => {
+                // Handle errors here
+                console.error("GET request failed:", error.message);
+              });
 
-const messagePayload: iImageMessage = {
-  consumer: consumer,
-  sender: changes.value.contacts[mi].wa_id,
-  image: imageURL,
-  ticket: ticket,
-  type: "received",
-  messageType: "image",
+            const messagePayload: iImageMessage = {
+              consumer: consumer,
+              sender: changes.value.contacts[mi].wa_id,
+              image: message.image,
+              ticket: ticket,
+              type: "received",
+              messageType: "image",
 
-  createdAt: Date.now(),
-};
-await saveMessage(ticket, messagePayload);
-          } 
-          
-          
-          
-          
-          else if (message.button) {
+              createdAt: Date.now(),
+            };
+            await saveMessage(ticket, messagePayload);
+          } else if (message.button) {
             const messagePayload: iTextMessage = {
               consumer: consumer,
               sender: changes.value.contacts[mi].wa_id,
@@ -122,7 +101,9 @@ await saveMessage(ticket, messagePayload);
                 consumer: consumer,
                 sender: changes.value.contacts[mi].wa_id,
                 text:
-                  message.interactive.list_reply.title + "\n\n" + message.interactive.list_reply.description,
+                  message.interactive.list_reply.title +
+                  "\n\n" +
+                  message.interactive.list_reply.description,
                 ticket: ticket,
                 type: "received",
                 messageType: "text",
@@ -138,31 +119,35 @@ await saveMessage(ticket, messagePayload);
 };
 
 export const saveMessage = async (ticket: string, message: any) => {
-
   console.log("message payload", message);
-  if(message.type === "received"){
+  if (message.type === "received") {
     const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
     if (data) {
-    let ticketObjCache = JSON.parse(data);
-            ticketObjCache = await pushToUpdatedTicketTop(
-              "true",
-              message.ticket,
-              ticketObjCache
-            );          
-  } 
+      let ticketObjCache = JSON.parse(data);
+      ticketObjCache = await pushToUpdatedTicketTop(
+        "true",
+        message.ticket,
+        ticketObjCache
+      );
+    }
   }
-  console.log(fsCollections,"this is collections from firebase")
+  console.log(fsCollections, "this is collections from firebase");
   return await firestore
     .collection(fsCollections.TICKET)
     .doc(ticket)
     .collection(fsCollections.MESSAGES)
     .doc()
-   
+
     .set(message);
 };
 
-export const saveTextMessage = async (message: iTextMessage, session: ClientSession) => {
-  await MongoService.collection(Collections.MESSAGES).insertOne(message, { session });
+export const saveTextMessage = async (
+  message: iTextMessage,
+  session: ClientSession
+) => {
+  await MongoService.collection(Collections.MESSAGES).insertOne(message, {
+    session,
+  });
   console.log(message, "saveTextMessage");
 };
 
@@ -176,10 +161,10 @@ export const saveFlowMessages = async (ticket: ObjectId, node: ObjectId) => {
 
 export const findConsumerFromWAID = async (consumerWAId: string) => {
   // const stages = await MongoService.collection(Collections.STAGE).find<iStage>({}).toArray();
-  console.log(consumerWAId, "consumer Id hai yeh ")
+  console.log(consumerWAId, "consumer Id hai yeh ");
   const prescription = await MongoService.collection(Collections.PRESCRIPTION)
-    .find<iPrescription>({}).toArray();
-   
+    .find<iPrescription>({})
+    .toArray();
 
   // const consumer = await MongoService.collection(
   //   Collections.CONSUMER
@@ -191,19 +176,19 @@ export const findConsumerFromWAID = async (consumerWAId: string) => {
     .find<CONSUMER>({
       phone: consumerWAId,
     })
-    .sort({_id:-1 })
-   
+    .sort({ _id: -1 })
+
     .toArray();
 
   if (consumer === null) throw new ErrorHandler("No Consumer Found", 404);
- 
+
   const tickets = await MongoService.collection(Collections.TICKET)
     .find<iTicket>({
       consumer: consumer[0]._id,
     })
-   
+
     .toArray();
-   
+
   // const ticket = tickets.find(
   //   (item) => stages.find((stage) => stage._id?.toString() === item.stage.toString())?.code
   // );
@@ -216,8 +201,7 @@ export const findConsumerFromWAID = async (consumerWAId: string) => {
           prescription._id?.toString() === item.prescription.toString()
       )?.consumer
   );
- 
-  if (!ticket)
-  throw new ErrorHandler("No Ticket Found", 404);
+
+  if (!ticket) throw new ErrorHandler("No Ticket Found", 404);
   return { ticket: ticket._id!, consumer: consumer[0]._id };
 };
