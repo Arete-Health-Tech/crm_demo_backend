@@ -42,7 +42,7 @@ console.log(msgapi)
 const messagePayload: iImageMessage = {
   consumer: consumer,
   sender: changes.value.contacts[mi].wa_id,
-  image:message.image,
+  image:msgapi,
   ticket: ticket,
   type: "received" ,
   messageType:"image",
