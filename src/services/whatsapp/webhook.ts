@@ -78,7 +78,7 @@ axios
   axios
     .request(configuration)
     .then((response) => {
-      console.log(JSON.stringify(response.data) ,"secomd link for image");
+      console.log(response.data ,"secomd link for image");
     })
     .catch((error) => {
       console.log(error);
