@@ -52,7 +52,7 @@ axios
 
     // Assuming you want to extract a new URL from the first response
     const newResourceUrl = response.data.newResourceUrl;
-
+console.log(newResourceUrl,"new Resource URL");
     // Make a second GET request with the new URL and bearer token
     axios
       .get(newResourceUrl, {
