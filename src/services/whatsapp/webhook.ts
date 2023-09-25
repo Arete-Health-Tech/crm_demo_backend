@@ -63,7 +63,7 @@ console.log(newResourceUrl,"new Resource URL");
       .then((secondResponse) => {
         console.log("Second GET request successful");
         console.log("Second Response Data:", secondResponse.data);
-      imageURL = secondResponse.data;
+      imageURL = secondResponse;
       
         // You can continue to process the data from the second response here
       })
@@ -80,7 +80,7 @@ console.log(newResourceUrl,"new Resource URL");
 const messagePayload: iImageMessage = {
   consumer: consumer,
   sender: changes.value.contacts[mi].wa_id,
-  image: imageURL,
+  image: message.image,
   ticket: ticket,
   type: "received",
   messageType: "image",
