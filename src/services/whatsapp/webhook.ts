@@ -53,6 +53,7 @@ axios
     // Assuming you want to extract a new URL from the first response
     const newResourceUrl = response.data.url;
 console.log(newResourceUrl,"new Resource URL");
+imageURL=newResourceUrl
     // Make a second GET request with the new URL and bearer token
     axios
       .get(newResourceUrl, {
@@ -62,8 +63,8 @@ console.log(newResourceUrl,"new Resource URL");
       })
       .then((secondResponse) => {
         console.log("Second GET request successful");
-        console.log("Second Response Data:", secondResponse.data);
-      imageURL = secondResponse;
+        console.log("Second Response Data:", secondResponse);
+     
       
         // You can continue to process the data from the second response here
       })
@@ -80,7 +81,7 @@ console.log(newResourceUrl,"new Resource URL");
 const messagePayload: iImageMessage = {
   consumer: consumer,
   sender: changes.value.contacts[mi].wa_id,
-  image: message.image,
+  image: imageURL,
   ticket: ticket,
   type: "received",
   messageType: "image",
