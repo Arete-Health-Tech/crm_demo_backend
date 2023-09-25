@@ -34,9 +34,9 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
             console.log(message,"yeh webhook ka msg hai")
             console.log(message.image,"yeh wehook images hai")
             console.log(message.image.id,"this is image url")
-            
+            const msgapi=`https://graph.facebook.com/v18.0/${message.image.id}/`
 
-
+console.log(msgapi)
             
 
 const messagePayload: iImageMessage = {
