@@ -72,7 +72,7 @@ interface iTextMessage {
 
 interface iImageMessage {
   id:string;
-image:string;
+image:any;
   sender: string;
   type: "received" | "   sent";
   ticket: string;
@@ -83,9 +83,9 @@ messageType:"image";
 
 interface iImageMessagePayload{
    image:{
-                    caption: string,
-                  mime_type: string,
-                    sha256: string,
-                  id: string
+                    caption: "CAPTION",
+                  mime_type: "image/jpeg",
+                    sha256: "IMAGE_HASH",
+                  id: "ID"
    }       
 }
