@@ -37,8 +37,7 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
             console.log(message.image,"yeh wehook images hai")
             console.log(message.image.id,"this is image url")
             const msgapi=`https://graph.facebook.com/v18.0/${message.image.id}/`
-            let imageURL;
-
+           
 
 
 axios
@@ -64,8 +63,7 @@ axios
       .then((secondResponse) => {
         console.log("Second GET request successful");
         console.log("Second Response Data:", secondResponse.data);
-        imageURL = secondResponse.data;
-
+      
         // You can continue to process the data from the second response here
       })
       .catch((secondError) => {
@@ -75,13 +73,13 @@ axios
   .catch((error) => {
     console.error("First GET request failed:", error.message);
   });
-console.log(imageURL)
+
             
 
 const messagePayload: iImageMessage = {
   consumer: consumer,
   sender: changes.value.contacts[mi].wa_id,
-  image: imageURL,
+  image: message.image,
   ticket: ticket,
   type: "received",
   messageType: "image",
