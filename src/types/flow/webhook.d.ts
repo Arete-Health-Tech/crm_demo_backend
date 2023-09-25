@@ -71,7 +71,7 @@ interface iTextMessage {
 }
 
 interface iImageMessage {
-  id:string;
+ 
 image:any;
   sender: string;
   type: "received" | "   sent";
