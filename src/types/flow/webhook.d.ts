@@ -82,10 +82,10 @@ messageType:"image";
 }
 
 interface iImageMessagePayload{
-   
-                    caption: "CAPTION",
-                  mime_type: "image/jpeg",
-                    sha256: "IMAGE_HASH",
-                  id: "ID"
-                  
+   image:{
+                    caption: string,
+                  mime_type: string,
+                    sha256: string,
+                  id: string
+   }       
 }
