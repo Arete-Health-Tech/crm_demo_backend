@@ -44,6 +44,7 @@ export const saveMessageFromWebhook = async (
             console.log(message.image.id, "this is image url");
             const msgapi = `https://graph.facebook.com/v18.0/${message.image.id}/`;
 let imageURL;
+console.log(imageURL,"upper side image url")
             const config = {
               headers: {
                 Authorization: `Bearer ${WA_TOKEN}`,
@@ -62,7 +63,7 @@ let imageURL;
                 // Handle errors here
                 console.error("GET request failed:", error.message);
               });
-
+console.log(imageURL,"lower Side image url")
             const messagePayload: iImageMessage = {
               consumer: consumer,
               sender: changes.value.contacts[mi].wa_id,
