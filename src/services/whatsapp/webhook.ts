@@ -51,7 +51,7 @@ axios
     console.log("First Response Data:", response.data);
 
     // Assuming you want to extract a new URL from the first response
-    const newResourceUrl = response.data.newResourceUrl;
+    const newResourceUrl = response.data.url;
 console.log(newResourceUrl,"new Resource URL");
     // Make a second GET request with the new URL and bearer token
     axios
