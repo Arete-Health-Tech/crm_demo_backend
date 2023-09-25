@@ -81,11 +81,11 @@ messageType:"image";
   createdAt: number;
 }
 
-interface iImageMessagePayload{
-   image:{
-                    caption: "CAPTION",
-                  mime_type: "image/jpeg",
-                    sha256: "IMAGE_HASH",
-                  id: "ID"
-   }       
+interface iImageMessagePayload {
+  image: {
+    caption: "Hello, this is an image!";
+    url: "URL_TO_YOUR_IMAGE";
+    mime_type: "image/jpeg";
+    filename: "image.jpg";
+  };
 }
