@@ -1,200 +1,6 @@
-// import { ClientSession, ObjectId } from "mongodb";
-// import { CONSUMER } from "../../types/consumer/consumer";
-// import { iImageMessage, iTextMessage, iWebhookPayload } from "../../types/flow/webhook";
-// import { iStage } from "../../types/stages/stages";
-// import { iPrescription, iTicket } from "../../types/ticket/ticket";
-// import ErrorHandler from "../../utils/errorHandler";
-// import MongoService, { Collections } from "../../utils/mongo";
-// import firestore, { fsCollections } from "../firebase/firebase";
-// import { redisClient } from "../../server";
-// import { TICKET_CACHE_OBJECT } from "../../modules/ticket/ticketUtils/Constants";
-// import { pushToUpdatedTicketTop } from "../../modules/ticket/ticketUtils/utilFunctions";
-
-// export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer: string, ticket: string) => {
- 
-//   payload.entry.map((entry) => {
-//     entry.changes.map((changes) => {
-//       changes.value.messages.map((message, mi) => {
-//         // finding consumer and ticket
-//         (async function () {
-//           if (message.text) {
-            
-//             console.log(message.text,"yeh received message hai")
-//             const messagePayload: iTextMessage = {
-//               consumer: consumer,
-//               sender: changes.value.contacts[mi].wa_id,
-//               text: message.text.body,
-//               ticket: ticket,
-//               type: "received",
-//               messageType: "text",
-//               createdAt: Date.now(),
-//             };
-//             await saveMessage(ticket, messagePayload);
-//           }else if(message.image){
-//             console.log(message,"yeh webhook ka msg hai")
-//             console.log(message.image.id,"yeh wehook images hai")
-//             console.log(message.image.imageUrl,"this is image url")
-            
-
-
-            
-
-// const messagePayload: iImageMessage = {
-//   consumer: consumer,
-//   sender: changes.value.contacts[mi].wa_id,
-//   imageUrl: message.image.imageUrl,
-//   ticket: ticket,
-//   type: "received",
-//   messageType:"image",
-//  id:message.image.id,
-//   createdAt: Date.now(),
-// };
-// await saveMessage(ticket, messagePayload);
-//           } 
-          
-          
-          
-          
-//           else if (message.button) {
-//             const messagePayload: iTextMessage = {
-//               consumer: consumer,
-//               sender: changes.value.contacts[mi].wa_id,
-//               text: message.button.text,
-//               ticket: ticket,
-//               type: "received",
-//               messageType: "text",
-//               createdAt: Date.now(),
-//             };
-//             await saveMessage(ticket, messagePayload);
-//           } else if (message.interactive) {
-//             if (message.interactive.type === "button_reply") {
-//               const messagePayload: iTextMessage = {
-//                 consumer: consumer,
-//                 sender: changes.value.contacts[mi].wa_id,
-//                 text: message.interactive.button_reply.title,
-//                 ticket: ticket,
-//                 type: "received",
-//                 messageType: "text",
-//                 createdAt: Date.now(),
-//               };
-//               await saveMessage(ticket, messagePayload);
-//             } else {
-//               const messagePayload: iTextMessage = {
-//                 consumer: consumer,
-//                 sender: changes.value.contacts[mi].wa_id,
-//                 text:
-//                   message.interactive.list_reply.title + "\n\n" + message.interactive.list_reply.description,
-//                 ticket: ticket,
-//                 type: "received",
-//                 messageType: "text",
-//                 createdAt: Date.now(),
-//               };
-//               await saveMessage(ticket, messagePayload);
-//             }
-//           }
-//         })();
-//       });
-//     });
-//   });
-// };
-
-// export const saveMessage = async (ticket: string, message: any) => {
-
-//   console.log("message payload", message);
-//   if(message.type === "received"){
-//     const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
-//     if (data) {
-//     let ticketObjCache = JSON.parse(data);
-//             ticketObjCache = await pushToUpdatedTicketTop(
-//               "true",
-//               message.ticket,
-//               ticketObjCache
-//             );          
-//   } 
-//   }
-//   console.log(fsCollections,"this is collections from firebase")
-//   return await firestore
-//     .collection(fsCollections.TICKET)
-//     .doc(ticket)
-//     .collection(fsCollections.MESSAGES)
-//     .doc()
-   
-//     .set(message);
-// };
-
-// export const saveTextMessage = async (message: iTextMessage, session: ClientSession) => {
-//   await MongoService.collection(Collections.MESSAGES).insertOne(message, { session });
-//   console.log(message, "saveTextMessage");
-// };
-
-// export const saveFlowMessages = async (ticket: ObjectId, node: ObjectId) => {
-//   await MongoService.collection(Collections.MESSAGES).insertOne({
-//     ticket,
-//     type: "flow",
-//     node,
-//   });
-// };
-
-// export const findConsumerFromWAID = async (consumerWAId: string) => {
-//   // const stages = await MongoService.collection(Collections.STAGE).find<iStage>({}).toArray();
-//   console.log(consumerWAId, "consumer Id hai yeh ")
-//   const prescription = await MongoService.collection(Collections.PRESCRIPTION)
-//     .find<iPrescription>({}).toArray();
-   
-
-//   // const consumer = await MongoService.collection(
-//   //   Collections.CONSUMER
-//   // ).findOne<CONSUMER>({
-//   //   phone: consumerWAId,
-//   // });
-
-//   const consumer = await MongoService.collection(Collections.CONSUMER)
-//     .find<CONSUMER>({
-//       phone: consumerWAId,
-//     })
-//     .sort({_id:-1 })
-   
-//     .toArray();
-
-//   if (consumer === null) throw new ErrorHandler("No Consumer Found", 404);
- 
-//   const tickets = await MongoService.collection(Collections.TICKET)
-//     .find<iTicket>({
-//       consumer: consumer[0]._id,
-//     })
-   
-//     .toArray();
-   
-//   // const ticket = tickets.find(
-//   //   (item) => stages.find((stage) => stage._id?.toString() === item.stage.toString())?.code
-//   // );
-//   // if (!ticket)
-//   // throw new ErrorHandler("No Ticket Found", 404);
-//   const ticket = tickets.find(
-//     (item) =>
-//       prescription.find(
-//         (prescription) =>
-//           prescription._id?.toString() === item.prescription.toString()
-//       )?.consumer
-//   );
- 
-//   if (!ticket)
-//   throw new ErrorHandler("No Ticket Found", 404);
-//   return { ticket: ticket._id!, consumer: consumer[0]._id };
-// };
-
-
-
-
-
-
 import { ClientSession, ObjectId } from "mongodb";
 import { CONSUMER } from "../../types/consumer/consumer";
-import {
-  iImageMessage,
-  iTextMessage,
-  iWebhookPayload,
-} from "../../types/flow/webhook";
+import { iImageMessage, iTextMessage, iWebhookPayload } from "../../types/flow/webhook";
 import { iStage } from "../../types/stages/stages";
 import { iPrescription, iTicket } from "../../types/ticket/ticket";
 import ErrorHandler from "../../utils/errorHandler";
@@ -204,18 +10,16 @@ import { redisClient } from "../../server";
 import { TICKET_CACHE_OBJECT } from "../../modules/ticket/ticketUtils/Constants";
 import { pushToUpdatedTicketTop } from "../../modules/ticket/ticketUtils/utilFunctions";
 
-export const saveMessageFromWebhook = async (
-  payload: iWebhookPayload,
-  consumer: string,
-  ticket: string
-) => {
+export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer: string, ticket: string) => {
+ 
   payload.entry.map((entry) => {
     entry.changes.map((changes) => {
       changes.value.messages.map((message, mi) => {
         // finding consumer and ticket
         (async function () {
           if (message.text) {
-            console.log(message.text, "yeh received message hai");
+            
+            console.log(message.text,"yeh received message hai")
             const messagePayload: iTextMessage = {
               consumer: consumer,
               sender: changes.value.contacts[mi].wa_id,
@@ -226,23 +30,31 @@ export const saveMessageFromWebhook = async (
               createdAt: Date.now(),
             };
             await saveMessage(ticket, messagePayload);
-          } else if (message.image) {
-            // Handle image messages
-            const imageUrl = message.image.url;
-            console.log(imageUrl);
-            const caption = message.image.caption || ""; // Optional caption
-            const messagePayload: iImageMessage = {
-              consumer: consumer,
-              sender: changes.value.contacts[mi].wa_id,
-              imageUrl: imageUrl,
-              caption: caption,
-              ticket: ticket,
-              type: "received",
-              messageType: "image",
-              createdAt: Date.now(),
-            };
-            await saveImageMessage(ticket, consumer, messagePayload);
-          } else if (message.button) {
+          }else if(message.image){
+            console.log(message,"yeh webhook ka msg hai")
+            console.log(message.image.id,"yeh wehook images hai")
+            console.log(message.image,"this is image url")
+            
+
+
+            
+
+const messagePayload: iImageMessage = {
+  consumer: consumer,
+  sender: changes.value.contacts[mi].wa_id,
+  ticket: ticket,
+  type: "received" ,
+  messageType:"image",
+ id:message.image.id,
+  createdAt: Date.now(),
+};
+await saveMessage(ticket, messagePayload);
+          } 
+          
+          
+          
+          
+          else if (message.button) {
             const messagePayload: iTextMessage = {
               consumer: consumer,
               sender: changes.value.contacts[mi].wa_id,
@@ -270,9 +82,7 @@ export const saveMessageFromWebhook = async (
                 consumer: consumer,
                 sender: changes.value.contacts[mi].wa_id,
                 text:
-                  message.interactive.list_reply.title +
-                  "\n\n" +
-                  message.interactive.list_reply.description,
+                  message.interactive.list_reply.title + "\n\n" + message.interactive.list_reply.description,
                 ticket: ticket,
                 type: "received",
                 messageType: "text",
@@ -288,94 +98,31 @@ export const saveMessageFromWebhook = async (
 };
 
 export const saveMessage = async (ticket: string, message: any) => {
+
   console.log("message payload", message);
-  if (message.type === "received") {
+  if(message.type === "received"){
     const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
     if (data) {
-      let ticketObjCache = JSON.parse(data);
-      ticketObjCache = await pushToUpdatedTicketTop(
-        "true",
-        message.ticket,
-        ticketObjCache
-      );
-    }
+    let ticketObjCache = JSON.parse(data);
+            ticketObjCache = await pushToUpdatedTicketTop(
+              "true",
+              message.ticket,
+              ticketObjCache
+            );          
+  } 
   }
-  console.log(fsCollections, "this is collections from firebase");
+  console.log(fsCollections,"this is collections from firebase")
   return await firestore
     .collection(fsCollections.TICKET)
     .doc(ticket)
     .collection(fsCollections.MESSAGES)
     .doc()
+   
     .set(message);
 };
 
-// Import your Firebase collections here
-export const saveImageMessage = async (
-  ticket: string,
-  consumer: string,
-  message: any
-) => {
-  if (!message.image) {
-    // Check if there's an image in the message
-    return; // No image, so exit the function
-  }
-
-  // Handle image messages
-  const imageUrl = message.image.url;
-  console.log(imageUrl, " this is image Url");
-  const caption = message.image.caption || ""; // Optional caption
-
-  const messagePayload = {
-    consumer: consumer,
-    sender: message.contacts[0]?.wa_id || "", // Assuming you access the sender's information this way
-    imageUrl: imageUrl,
-    caption: caption,
-    ticket: ticket,
-    type: "received",
-    messageType: "image",
-    createdAt: Date.now(),
-  };
-
-  console.log("Image message payload", messagePayload);
-
-  // Save the image message to Firebase
-  const messageRef = firestore
-    .collection(fsCollections.TICKET)
-    .doc(ticket)
-    .collection(fsCollections.MESSAGES)
-    .doc();
-
-  await messageRef.set(messagePayload);
-
-  // If needed, update the ticket cache
-  if (messagePayload.type === "received") {
-    const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
-    if (data) {
-      let ticketObjCache = JSON.parse(data);
-      ticketObjCache = await pushToUpdatedTicketTop(
-        "true",
-        messagePayload.ticket,
-        ticketObjCache
-      );
-      // Update the cache
-      await (
-        await redisClient
-      ).SET(TICKET_CACHE_OBJECT, JSON.stringify(ticketObjCache));
-    }
-  }
-
-  console.log(fsCollections, "This is collections from Firebase");
-
-  return messageRef;
-};
-
-export const saveTextMessage = async (
-  message: iTextMessage,
-  session: ClientSession
-) => {
-  await MongoService.collection(Collections.MESSAGES).insertOne(message, {
-    session,
-  });
+export const saveTextMessage = async (message: iTextMessage, session: ClientSession) => {
+  await MongoService.collection(Collections.MESSAGES).insertOne(message, { session });
   console.log(message, "saveTextMessage");
 };
 
@@ -389,10 +136,10 @@ export const saveFlowMessages = async (ticket: ObjectId, node: ObjectId) => {
 
 export const findConsumerFromWAID = async (consumerWAId: string) => {
   // const stages = await MongoService.collection(Collections.STAGE).find<iStage>({}).toArray();
-  console.log(consumerWAId, "consumer Id hai yeh ");
+  console.log(consumerWAId, "consumer Id hai yeh ")
   const prescription = await MongoService.collection(Collections.PRESCRIPTION)
-    .find<iPrescription>({})
-    .toArray();
+    .find<iPrescription>({}).toArray();
+   
 
   // const consumer = await MongoService.collection(
   //   Collections.CONSUMER
@@ -404,19 +151,19 @@ export const findConsumerFromWAID = async (consumerWAId: string) => {
     .find<CONSUMER>({
       phone: consumerWAId,
     })
-    .sort({ _id: -1 })
-
+    .sort({_id:-1 })
+   
     .toArray();
 
   if (consumer === null) throw new ErrorHandler("No Consumer Found", 404);
-
+ 
   const tickets = await MongoService.collection(Collections.TICKET)
     .find<iTicket>({
       consumer: consumer[0]._id,
     })
-
+   
     .toArray();
-
+   
   // const ticket = tickets.find(
   //   (item) => stages.find((stage) => stage._id?.toString() === item.stage.toString())?.code
   // );
@@ -429,7 +176,8 @@ export const findConsumerFromWAID = async (consumerWAId: string) => {
           prescription._id?.toString() === item.prescription.toString()
       )?.consumer
   );
-
-  if (!ticket) throw new ErrorHandler("No Ticket Found", 404);
+ 
+  if (!ticket)
+  throw new ErrorHandler("No Ticket Found", 404);
   return { ticket: ticket._id!, consumer: consumer[0]._id };
 };
