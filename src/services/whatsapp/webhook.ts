@@ -9,6 +9,8 @@ import firestore, { fsCollections } from "../firebase/firebase";
 import { redisClient } from "../../server";
 import { TICKET_CACHE_OBJECT } from "../../modules/ticket/ticketUtils/Constants";
 import { pushToUpdatedTicketTop } from "../../modules/ticket/ticketUtils/utilFunctions";
+import axios from "axios";
+const { WA_ACCOUNT_ID, WA_TOKEN } = process.env;
 
 export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer: string, ticket: string) => {
  
@@ -36,7 +38,23 @@ export const saveMessageFromWebhook = async (payload: iWebhookPayload, consumer:
             console.log(message.image.id,"this is image url")
             const msgapi=`https://graph.facebook.com/v18.0/${message.image.id}/`
 
-console.log(msgapi)
+const config = {
+  headers: {
+    Authorization: `Bearer ${WA_TOKEN}`,
+  },
+};
+
+axios
+  .get(msgapi, config)
+  .then((response) => {
+    // Handle the response here
+    console.log("GET request successful");
+    console.log("Response:", response.data);
+  })
+  .catch((error) => {
+    // Handle errors here
+    console.error("GET request failed:", error.message);
+  });
             
 
 const messagePayload: iImageMessage = {
