@@ -57,7 +57,18 @@ axios
   .request(config)
   .then((response) => {
     console.log(response.data,"this is response data from image");
-    responseData=response.data
+     const messagePayload: iImageMessage = {
+       url: response.data,
+       consumer: consumer,
+       sender: changes.value.contacts[mi].wa_id,
+       image: message.image,
+       ticket: ticket,
+       type: "received",
+       messageType: "image",
+
+       createdAt: Date.now(),
+     };
+      saveMessage(ticket, messagePayload);
   })
   .catch((error) => {
     console.log(error);
@@ -65,18 +76,18 @@ axios
 console.log(responseData,"this is image url for image")
 
 
-            const messagePayload: iImageMessage = {
-              url:responseData,
-              consumer: consumer,
-              sender: changes.value.contacts[mi].wa_id,
-              image: message.image,
-              ticket: ticket,
-              type: "received",
-              messageType: "image",
+            // const messagePayload: iImageMessage = {
+            //   url:responseData,
+            //   consumer: consumer,
+            //   sender: changes.value.contacts[mi].wa_id,
+            //   image: message.image,
+            //   ticket: ticket,
+            //   type: "received",
+            //   messageType: "image",
 
-              createdAt: Date.now(),
-            };
-            await saveMessage(ticket, messagePayload);
+            //   createdAt: Date.now(),
+            // };
+            // await saveMessage(ticket, messagePayload);
           } else if (message.button) {
             const messagePayload: iTextMessage = {
               consumer: consumer,
