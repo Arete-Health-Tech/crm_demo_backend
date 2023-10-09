@@ -58,7 +58,7 @@ axios
   .then((response) => {
     console.log(response.data,"this is response data from image");
      const messagePayload: iImageMessage = {
-       url: response.data,
+       url: response.data.url,
        consumer: consumer,
        sender: changes.value.contacts[mi].wa_id,
        image: message.image,
