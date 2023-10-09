@@ -284,6 +284,7 @@ export const ticketsWithPrescription = PromiseWrapper(
 export const getRepresentativeTickets = PromiseWrapper(
   async (req: Request, res: Response, next: NextFunction) => {
     const requestQuery: any = req.query;
+   
     const download = requestQuery.downloadAll;
     const pageNum: any = parseInt(requestQuery?.page) || 1;
     const skipCount = download !== "true" ? (parseInt(pageNum) - 1) * 10 : 0;
@@ -305,6 +306,7 @@ export const getRepresentativeTickets = PromiseWrapper(
     }
     const filterFlag = Object.keys(filters).length > 0;
     const ticketId = requestQuery.ticketId;
+    console.log(ticketId,"this is ticketid")
     const fetchUpdated = requestQuery.fetchUpdated;
 
     console.log("query: ", requestQuery);

@@ -58,31 +58,13 @@ let config = {
 axios
   .request(config)
   .then((response) => {
-    console.log(JSON.stringify(response.data),"request data in json");
+    console.log(response.data);
   })
   .catch((error) => {
     console.log(error);
-  });
+  }); 
 
 
-  let configuration = {
-    method: "get",
-    maxBodyLength: Infinity,
-    url: "https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=195703236868802&ext=1695642242&hash=ATvJqRZssmCXDWnchVN4_k608wNRmFBygQ9CgtUy60QFXg",
-    headers: {
-      Authorization:
-        "Bearer EAALU5Uh1hCoBAHOvIZAOLuJVrUltYe3uMCIQwKvayQCZC5zR45RO9iK5ZAeRNUKhZB3dShZBM4DugqeUtw9ZCIYOr39g3fqGsjYYycjNPb4CpMFZCQY4rqUSXaPHHam8utfUUzC4NBBSYLkoZCuSEW1oPl6TaZCK7hgmJ1h1E5DxXw8BEXKW1Vs2P",
-    },
-  };
-
-  axios
-    .request(configuration)
-    .then((response) => {
-      console.log(response.data ,"secomd link for image");
-    })
-    .catch((error) => {
-      console.log(error);
-    });
 
             const messagePayload: iImageMessage = {
               consumer: consumer,
