@@ -73,6 +73,7 @@ interface iTextMessage {
 interface iImageMessage {
  
 image:any;
+url:any;
   sender: string;
   type: "received" | "   sent";
   ticket: string;

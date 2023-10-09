@@ -66,9 +66,10 @@ console.log(responseData)
 
 
             const messagePayload: iImageMessage = {
+              url:responseData,
               consumer: consumer,
               sender: changes.value.contacts[mi].wa_id,
-              image: responseData,
+              image: message.image,
               ticket: ticket,
               type: "received",
               messageType: "image",
