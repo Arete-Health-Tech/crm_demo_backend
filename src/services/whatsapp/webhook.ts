@@ -52,22 +52,23 @@ let config = {
       "Bearer EAALU5Uh1hCoBAHOvIZAOLuJVrUltYe3uMCIQwKvayQCZC5zR45RO9iK5ZAeRNUKhZB3dShZBM4DugqeUtw9ZCIYOr39g3fqGsjYYycjNPb4CpMFZCQY4rqUSXaPHHam8utfUUzC4NBBSYLkoZCuSEW1oPl6TaZCK7hgmJ1h1E5DxXw8BEXKW1Vs2P",
   },
 };
-
+let responseData;
 axios
   .request(config)
   .then((response) => {
     console.log(response.data,"this is response data from image");
+    responseData=response.data
   })
   .catch((error) => {
     console.log(error);
   }); 
-
+console.log(responseData)
 
 
             const messagePayload: iImageMessage = {
               consumer: consumer,
               sender: changes.value.contacts[mi].wa_id,
-              image: message.image,
+              image: responseData,
               ticket: ticket,
               type: "received",
               messageType: "image",
