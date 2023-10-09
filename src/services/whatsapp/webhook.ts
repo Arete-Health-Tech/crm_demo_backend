@@ -39,9 +39,7 @@ export const saveMessageFromWebhook = async (
             };
             await saveMessage(ticket, messagePayload);
           } else if (message.image) {
-            console.log(message, "yeh webhook ka msg hai");
-            console.log(message.image, "yeh wehook images hai");
-            console.log(message.image.id, "this is image url");
+           
           
 
 
@@ -58,7 +56,7 @@ let config = {
 axios
   .request(config)
   .then((response) => {
-    console.log(response.data);
+    console.log(response.data,"this is response data from image");
   })
   .catch((error) => {
     console.log(error);

@@ -101,7 +101,7 @@ export const HandleWebhook = async (
         changes.value.messages.forEach((message, mi) => {
         
           (async function () {
-            console.log(message,"tis is message")
+           
             try {
               const { prescription, ticket } =
                 await findTicketAndPrescriptionFromWAID(
