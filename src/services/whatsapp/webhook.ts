@@ -62,7 +62,7 @@ axios
   .catch((error) => {
     console.log(error);
   }); 
-console.log(responseData)
+console.log(responseData,"this is image url for image")
 
 
             const messagePayload: iImageMessage = {
