@@ -43,51 +43,51 @@ export const saveMessageFromWebhook = async (
           
 
 
-let config = {
-  method: "get",
-  maxBodyLength: Infinity,
-  url: `https://graph.facebook.com/v18.0/${message.image.id}/`,
-  headers: {
-    Authorization:
-      "Bearer EAALU5Uh1hCoBAHOvIZAOLuJVrUltYe3uMCIQwKvayQCZC5zR45RO9iK5ZAeRNUKhZB3dShZBM4DugqeUtw9ZCIYOr39g3fqGsjYYycjNPb4CpMFZCQY4rqUSXaPHHam8utfUUzC4NBBSYLkoZCuSEW1oPl6TaZCK7hgmJ1h1E5DxXw8BEXKW1Vs2P",
-  },
-};
-let responseData;
-axios
-  .request(config)
-  .then((response) => {
-    console.log(response.data,"this is response data from image");
-     const messagePayload: iImageMessage = {
-       url: response.data.url,
-       consumer: consumer,
-       sender: changes.value.contacts[mi].wa_id,
-       image: message.image,
-       ticket: ticket,
-       type: "received",
-       messageType: "image",
+// let config = {
+//   method: "get",
+//   maxBodyLength: Infinity,
+//   url: `https://graph.facebook.com/v18.0/${message.image.id}/`,
+//   headers: {
+//     Authorization:
+//       "Bearer EAALU5Uh1hCoBAHOvIZAOLuJVrUltYe3uMCIQwKvayQCZC5zR45RO9iK5ZAeRNUKhZB3dShZBM4DugqeUtw9ZCIYOr39g3fqGsjYYycjNPb4CpMFZCQY4rqUSXaPHHam8utfUUzC4NBBSYLkoZCuSEW1oPl6TaZCK7hgmJ1h1E5DxXw8BEXKW1Vs2P",
+//   },
+// };
 
-       createdAt: Date.now(),
-     };
-      saveMessage(ticket, messagePayload);
-  })
-  .catch((error) => {
-    console.log(error);
-  }); 
-console.log(responseData,"this is image url for image")
+// axios
+//   .request(config)
+//   .then((response) => {
+//     console.log(response.data,"this is response data from image");
+//      const messagePayload: iImageMessage = {
+//        url: response.data.url,
+//        consumer: consumer,
+//        sender: changes.value.contacts[mi].wa_id,
+//        image: message.image,
+//        ticket: ticket,
+//        type: "received",
+//        messageType: "image",
+
+//        createdAt: Date.now(),
+//      };
+//       saveMessage(ticket, messagePayload);
+//   })
+//   .catch((error) => {
+//     console.log(error);
+//   }); 
 
 
-            // const messagePayload: iImageMessage = {
-            //   url:responseData,
-            //   consumer: consumer,
-            //   sender: changes.value.contacts[mi].wa_id,
-            //   image: message.image,
-            //   ticket: ticket,
-            //   type: "received",
-            //   messageType: "image",
 
-            //   createdAt: Date.now(),
-            // };
-            // await saveMessage(ticket, messagePayload);
+            const messagePayload: iImageMessage = {
+              url:message.image,
+              consumer: consumer,
+              sender: changes.value.contacts[mi].wa_id,
+              image: message.image,
+              ticket: ticket,
+              type: "received",
+              messageType: "image",
+
+              createdAt: Date.now(),
+            };
+            await saveMessage(ticket, messagePayload);
           } else if (message.button) {
             const messagePayload: iTextMessage = {
               consumer: consumer,
