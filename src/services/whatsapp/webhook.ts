@@ -14,7 +14,9 @@ import { redisClient } from "../../server";
 import { TICKET_CACHE_OBJECT } from "../../modules/ticket/ticketUtils/Constants";
 import { pushToUpdatedTicketTop } from "../../modules/ticket/ticketUtils/utilFunctions";
 import axios from "axios";
+import { putMedia } from "../aws/s3";
 const { WA_ACCOUNT_ID, WA_TOKEN } = process.env;
+const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
 
 export const saveMessageFromWebhook = async (
   payload: iWebhookPayload,
@@ -69,11 +71,24 @@ let config = {
       },
     });
 
-    console.log(imageResponse, "This is image response for WhatsApp");
+    console.log(imageResponse.data, "This is image response for WhatsApp");
+    const file = {
+      originalname: "image", // Provide a suitable name for your image
+      buffer: Buffer.concat(imageResponse.data), // Replace 'buffers' with the image data
+      mimetype: "image/jpeg", // Replace with the appropriate image MIME type (e.g., image/jpeg, image/png, etc.)
+    };
+      const { Location } = await putMedia(
+        file,
+        `patients/${message?.image?.id}`,
+        BUCKET_NAME
+      );
+       const uploadImage = Location;
+       console.log(uploadImage);
   } catch (error) {
     console.error(error);
   }
 })();
+ 
 
 
             const messagePayload: iImageMessage = {
