@@ -72,11 +72,11 @@ let config = {
       },
     });
 
-    console.log(JSON.stringify(imageResponse.data), "This is image response for WhatsApp");
+    
 
     console.log(imageResponse.data,"without stringfy")
 
-console.log(imageResponse,"this is without data ")
+
 console.log(JSON.stringify(imageResponse), "this is without data ");
 
 
