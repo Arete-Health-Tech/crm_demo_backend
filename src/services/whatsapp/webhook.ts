@@ -72,20 +72,20 @@ let config = {
       },
     });
 
-    console.log(imageResponse, "This is image response for WhatsApp");
+    console.log(imageResponse.data, "This is image response for WhatsApp");
     console.log("hello")
-    const file = {
-      originalname: "image", // Provide a suitable name for your image
-      buffer: Buffer.concat(imageResponse.data), // Replace 'buffers' with the image data
-      mimetype: "image/jpeg", // Replace with the appropriate image MIME type (e.g., image/jpeg, image/png, etc.)
-    };
-      const { Location } = await putMedia(
-        file,
-        `patients/${message?.image?.id}`,
-        BUCKET_NAME
-      );
-       const uploadImage = Location;
-       console.log(uploadImage,"this is upload image from whatsapp ");
+    // const file = {
+    //   originalname: "image", // Provide a suitable name for your image
+    //   buffer: Buffer.concat(imageResponse.data), // Replace 'buffers' with the image data
+    //   mimetype: "image/jpeg", // Replace with the appropriate image MIME type (e.g., image/jpeg, image/png, etc.)
+    // };
+    //   const { Location } = await putMedia(
+    //     file,
+    //     `patients/${message?.image?.id}`,
+    //     BUCKET_NAME
+    //   );
+    //    const uploadImage = Location;
+    //    console.log(uploadImage,"this is upload image from whatsapp ");
   } catch (error) {
     console.error(error);
   }
