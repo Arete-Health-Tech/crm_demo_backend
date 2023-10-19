@@ -80,9 +80,10 @@ let config = {
 
 
     console.log("hello")
+    const concatenatedBuffer = Buffer.concat([imageResponse.data]);
     const file = {
       originalname: "image", // Provide a suitable name for your image
-      buffer: Buffer.concat(imageResponse.data), // Replace 'buffers' with the image data
+      buffer: concatenatedBuffer, // Replace 'buffers' with the image data
       mimetype: "image/jpeg", // Replace with the appropriate image MIME type (e.g., image/jpeg, image/png, etc.)
     };
       const { Location } = await putMedia(
