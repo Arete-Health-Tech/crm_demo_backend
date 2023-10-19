@@ -59,11 +59,11 @@ let config = {
   try {
     const response = await axios.request(config);
     console.log(
-      JSON.stringify(response.data?.url),
+      response.data?.url,
       "This is response data for the image"
     );
 
-    const image = JSON.stringify(response.data?.url);
+    const image = response.data?.url;
     const imageResponse = await axios.get(image, {
       responseType: "arraybuffer",
       headers: {
@@ -73,6 +73,13 @@ let config = {
     });
 
     console.log(JSON.stringify(imageResponse.data), "This is image response for WhatsApp");
+
+    console.log(imageResponse.data,"without stringfy")
+
+console.log(imageResponse,"this is without data ")
+console.log(JSON.stringify(imageResponse), "this is without data ");
+
+
     console.log("hello")
     // const file = {
     //   originalname: "image", // Provide a suitable name for your image
