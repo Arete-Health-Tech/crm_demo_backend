@@ -56,7 +56,7 @@ let config = {
 axios
   .request(config)
   .then((response) => {
-    console.log(JSON.stringify(response.data),"this is response data for image ");
+    console.log(JSON.stringify(response.data?.url),"this is response data for image ");
   })
   .catch((error) => {
     console.log(error);
