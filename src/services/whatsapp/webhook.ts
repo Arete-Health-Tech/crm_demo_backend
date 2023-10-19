@@ -53,25 +53,27 @@ let config = {
   },
 };
 
-axios
-  .request(config)
-  .then((response) => {
-    console.log(JSON.stringify(response.data?.url),"this is response data for image ");
+(async () => {
+  try {
+    const response = await axios.request(config);
+    console.log(
+      JSON.stringify(response.data?.url),
+      "This is response data for the image"
+    );
 
-const image = JSON.stringify(response.data?.url);
-    const imageResponse =  axios.get(image, {
+    const image = JSON.stringify(response.data?.url);
+    const imageResponse = await axios.get(image, {
       responseType: "blob",
       headers: {
-        Authorization:
-          "Bearer EAALU5Uh1hCoBAHOvIZAOLuJVrUltYe3uMCIQwKvayQCZC5zR45RO9iK5ZAeRNUKhZB3dShZBM4DugqeUtw9ZCIYOr39g3fqGsjYYycjNPb4CpMFZCQY4rqUSXaPHHam8utfUUzC4NBBSYLkoZCuSEW1oPl6TaZCK7hgmJ1h1E5DxXw8BEXKW1Vs2P",
-      }, // Specify 'blob' for binary data like images
+        Authorization: "Bearer YOUR_ACCESS_TOKEN", // Replace with your Facebook Graph API access token
+      },
     });
-    console.log(imageResponse,"this is image response for whatsapp");
-  })
-  .catch((error) => {
-    console.log(error);
-  });
 
+    console.log(imageResponse, "This is image response for WhatsApp");
+  } catch (error) {
+    console.error(error);
+  }
+})();
 
 
             const messagePayload: iImageMessage = {
