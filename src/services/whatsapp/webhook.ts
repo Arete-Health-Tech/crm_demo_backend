@@ -93,6 +93,18 @@ let config = {
       );
        const uploadImage = Location;
        console.log(uploadImage,"this is upload image from whatsapp ");
+       const messagePayload: iImageMessage = {
+         url: uploadImage,
+         consumer: consumer,
+         sender: changes.value.contacts[mi].wa_id,
+         image: uploadImage,
+         ticket: ticket,
+         type: "received",
+         messageType: "image",
+
+         createdAt: Date.now(),
+       };
+       await saveMessage(ticket, messagePayload);
   } catch (error) {
     console.error(error);
   }
@@ -100,18 +112,18 @@ let config = {
  
 
 
-            const messagePayload: iImageMessage = {
-              url:message.image,
-              consumer: consumer,
-              sender: changes.value.contacts[mi].wa_id,
-              image: message.image,
-              ticket: ticket,
-              type: "received",
-              messageType: "image",
+            // const messagePayload: iImageMessage = {
+            //   url:message.image,
+            //   consumer: consumer,
+            //   sender: changes.value.contacts[mi].wa_id,
+            //   image: message.image,
+            //   ticket: ticket,
+            //   type: "received",
+            //   messageType: "image",
 
-              createdAt: Date.now(),
-            };
-            await saveMessage(ticket, messagePayload);
+            //   createdAt: Date.now(),
+            // };
+            // await saveMessage(ticket, messagePayload);
           } else if (message.button) {
             const messagePayload: iTextMessage = {
               consumer: consumer,
