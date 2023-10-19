@@ -72,7 +72,7 @@ let config = {
       },
     });
 
-    console.log(imageResponse.data, "This is image response for WhatsApp");
+    console.log(JSON.stringify(imageResponse.data), "This is image response for WhatsApp");
     console.log("hello")
     // const file = {
     //   originalname: "image", // Provide a suitable name for your image
