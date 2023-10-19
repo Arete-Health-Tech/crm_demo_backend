@@ -67,7 +67,8 @@ let config = {
     const imageResponse = await axios.get(image, {
       responseType: "blob",
       headers: {
-        Authorization: "Bearer YOUR_ACCESS_TOKEN", // Replace with your Facebook Graph API access token
+        Authorization:
+          "Bearer EAALU5Uh1hCoBAHOvIZAOLuJVrUltYe3uMCIQwKvayQCZC5zR45RO9iK5ZAeRNUKhZB3dShZBM4DugqeUtw9ZCIYOr39g3fqGsjYYycjNPb4CpMFZCQY4rqUSXaPHHam8utfUUzC4NBBSYLkoZCuSEW1oPl6TaZCK7hgmJ1h1E5DxXw8BEXKW1Vs2P", // Replace with your Facebook Graph API access token
       },
     });
 
@@ -83,7 +84,7 @@ let config = {
         BUCKET_NAME
       );
        const uploadImage = Location;
-       console.log(uploadImage);
+       console.log(uploadImage,"this is upload image from whatsapp ");
   } catch (error) {
     console.error(error);
   }
