@@ -27,6 +27,72 @@ export const sendMessage = async (receiver: string, payload: any) => {
   }
 };
 
+export const sendImageMessage = async (
+  receiver: string,
+  url: string,
+ 
+) => {
+  try {
+    const { data } = await axios.post(
+      WHATSAPP_URL,
+      {
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to: receiver,
+        type: "image",
+        image: {
+          link: url,
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${WA_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return data;
+  } catch (error: any) {
+    console.log(error.response.data.error, "wa_error");
+    throw new ErrorHandler(error.response.data.error.message, 500);
+  }
+};
+
+
+
+export const sendPdfMessage = async (receiver: string, location: string) => {
+  try {
+    const { data } = await axios.post(
+      WHATSAPP_URL,
+      {
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to: receiver,
+        type: "document",
+        document: {
+          link: location,
+          filename: "",
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${WA_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return data;
+  } catch (error: any) {
+    console.log(error.response.data.error, "wa_error");
+    throw new ErrorHandler(error.response.data.error.message, 500);
+  }
+};
+
+
+
+
+
+
 export const sendTemplateMessage = async (
   receiver: string,
   templateName: string,

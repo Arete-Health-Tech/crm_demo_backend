@@ -6,6 +6,7 @@ import {
 } from "../../services/whatsapp/webhook";
 import {
   followUpMessage,
+  sendImageMessage,
   sendMessage,
   sendTemplateMessage,
 } from "../../services/whatsapp/whatsapp";
@@ -13,6 +14,7 @@ import { iFlowConnect, iListNode, iReplyNode } from "../../types/flow/reply";
 import ErrorHandler from "../../utils/errorHandler";
 import MongoService, { Collections } from "../../utils/mongo";
 import {
+  createImagePayload,
   createListPayload,
   createReplyPayload,
   createTextPayload,
@@ -25,7 +27,10 @@ export const createReplyNode = async (
     session,
   });
 };
-
+type ImagePayload = {
+  url: string;
+  caption: string;
+};
 
 
 export const createListNode = async (
@@ -129,6 +134,17 @@ export const sendTextMessage = async (
   const textPayload = createTextPayload(message, sender);
   await sendMessage(receiver, textPayload);
 };
+
+
+export const sendImage = async (
+  location: string,
+  receiver: string,
+  sender: string
+) => {
+  // const imagePayload = createImagePayload(location, sender);
+  await sendImageMessage(receiver, location);
+};
+
 export const createNodeIndexes = async () => {
   await MongoService.collection(Collections.FLOW).createIndex({
     nodeId: "text",

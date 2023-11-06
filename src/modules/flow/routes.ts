@@ -4,7 +4,8 @@ import * as controllers from "./controller";
 import isLoggedIn from "../../middleware/authorization/isLoggedIn";
 import isAdmin from "../../middleware/authorization/isAdmin";
 import { followUpMessage } from "../../services/whatsapp/whatsapp";
-
+import multer from "multer";
+const upload = multer();
 const router = Router();
 router.route("/search").get(validations.searchFlowNode, controllers.FindNode);
 router
@@ -30,6 +31,13 @@ router.route("/webhook").post(controllers.HandleWebhook);
 router
   .route("/message")
   .post(validations.send_message, controllers.SendMessage);
+
+  
+  router.route("/whatsappImageStatus").post(
+    upload.single("images"),
+
+    controllers.whatsappImageStatus
+  );
 // router
 // router
 //   .route("/message")

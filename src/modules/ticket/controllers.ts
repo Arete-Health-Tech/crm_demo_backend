@@ -99,6 +99,7 @@ import {
 } from "./ticketUtils/utilFunctions";
 import { findOneConsumer } from "../consumer/crud";
 import { REFETCH_TICKETS } from "../../utils/socket/constants";
+const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
 const cron = require("node-cron");
 
 type ticketBody = iTicket & iPrescription;
@@ -868,10 +869,12 @@ export const createPatientStatus = PromiseWrapper(
   ) => {
     const requsetBody = req.body;
     let imageKey: string | null = null;
+    console.log(req.file,"hthjsdhsjdsdsds")
     if (req.file) {
       const { Key } = await putMedia(
         req.file,
-        `patients/${requsetBody.consumer}/patientStatus`
+        `patients/${requsetBody.consumer}/patientStatus`,
+        BUCKET_NAME
       );
       imageKey = Key;
     }

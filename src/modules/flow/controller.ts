@@ -8,7 +8,7 @@ import {
   saveMessageFromWebhook,
   saveTextMessage,
 } from "../../services/whatsapp/webhook";
-import { followUpMessage } from "../../services/whatsapp/whatsapp";
+import { followUpMessage, sendPdfMessage } from "../../services/whatsapp/whatsapp";
 import { iWebhookPayload } from "../../types/flow/webhook";
 import ErrorHandler from "../../utils/errorHandler";
 import { findConsumerById } from "../consumer/functions";
@@ -22,8 +22,11 @@ import {
   findFlowConnectorByTemplateIdentifier,
   findNodeByDiseaseId,
   getConnector,
+  sendImage,
   sendTextMessage,
 } from "./functions";
+import { putMedia } from "../../services/aws/s3";
+const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
 export const createReplyNodeController = PromiseWrapper(
   async (
     req: Request,
@@ -165,7 +168,11 @@ export const SendMessage = PromiseWrapper(
     session: ClientSession
   ) => {
     const { message, consumerId, ticketID} = req.body;
+  
+   
+  
     console.log(req.body,"req body")
+    
     const consumer = await findConsumerById(consumerId);
     // console.log(consumer, "hello")
     if (consumer === null) throw new ErrorHandler("Consumer Not Found", 400);
@@ -213,5 +220,74 @@ export const GetConnector = PromiseWrapper(
       throw new ErrorHandler("Page Length Limit Exceed", 400);
     const connectors = await getConnector(pageLength, page);
     return res.status(200).json(connectors);
+  }
+);
+export const whatsappImageStatus = PromiseWrapper(
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    session: ClientSession
+  ) => {
+    const {consumerId,ticketID} = req.body
+    const newConsumerID = new ObjectId(consumerId);
+   console.log(ticketID,"this is ticketID for image");
+   console.log(req.file,"this is request of file")
+    const { Location } = await putMedia(
+    req.file,
+      `patients/whatsappImageStatus`,
+      BUCKET_NAME
+    );
+    const location=Location;
+     console.log(location, "thi sis image from fromt end");
+    const consumer = await findConsumerById(newConsumerID);
+    // console.log(consumer, "hello")
+    if (consumer === null) throw new ErrorHandler("Consumer Not Found", 400);
+    const sender = consumer.firstName;
+    console.log(sender, "sender ", consumer._id.toString(), "\n", consumer);
+     const fileType = req.file?.mimetype.startsWith("image") ? "image" : "pdf";
+    await sendImage(location, consumer.phone, sender);
+      if (fileType === "image") {
+      console.log("this is image from fromnt end fsdfkjddddg")
+        await sendImage(location, consumer.phone, sender);
+         await saveMessage(ticketID, {
+           consumer: consumer._id.toString(),
+           messageType: fileType,
+           sender: consumer.phone,
+           imageURL: location,
+           ticket: ticketID,
+           type: "sent",
+           createdAt: Date.now(),
+         });
+         return res.status(200).json({ message: "message sent." });
+      } else if (fileType === "pdf") {
+        // Handle PDF upload
+        console.log("this is pdf")
+console.log(location ,"yeh wo wali location hai dlkh lo ")
+console.log(consumer.phone,"fjksdgksffffffffffffffffffffffffffffffffffffffffffg")
+         await sendPdfMessage(consumer.phone, location);
+          await saveMessage(ticketID, {
+            consumer: consumer._id.toString(),
+            messageType: fileType,
+            sender: consumer.phone,
+            imageURL: location,
+            ticket: ticketID,
+            type: "sent",
+            createdAt: Date.now(),
+          });
+          return res.status(200).json({ message: "message sent." });
+        // await sendPdf(location, consumer.phone, sender); // Implement the sendPdf function
+      }
+  // await saveMessage(ticketID, {
+  //   consumer: consumer._id.toString(),
+  //   messageType: fileType,
+  //   sender: consumer.phone,
+  //   imageURL: location,
+  //   ticket: ticketID,
+  //   type: "sent",
+  //   createdAt: Date.now(),
+  // });
+  // return res.status(200).json({ message: "message sent." });
+   
   }
 );

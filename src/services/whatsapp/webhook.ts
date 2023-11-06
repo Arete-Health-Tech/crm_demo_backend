@@ -27,7 +27,9 @@ export const saveMessageFromWebhook = async (
     entry.changes.map((changes) => {
       changes.value.messages.map((message, mi) => {
         // finding consumer and ticket
+      
         (async function () {
+          console.log(message ,"this is message")
           if (message.text) {
             console.log(message.text, "yeh received message hai");
             const messagePayload: iTextMessage = {
@@ -41,7 +43,7 @@ export const saveMessageFromWebhook = async (
             };
             await saveMessage(ticket, messagePayload);
           } else if (message.image) {
-           
+           console.log(message ,"this is mssage for pdf")
           
 
 
@@ -79,7 +81,7 @@ let config = {
 
 
 
-    console.log("hello")
+   
     const concatenatedBuffer = Buffer.concat([imageResponse.data]);
     const file = {
       originalname: "image", // Provide a suitable name for your image

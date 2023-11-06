@@ -182,3 +182,19 @@ export const createHeader = (type: "video" | "document" | "image", link: string)
       break;
   }
 };
+
+export const createImagePayload = (location: string, sender: string) => {
+  return {
+    type: "image",
+    image: {
+      location,
+    },
+  };
+};
+
+
+
+
+
+
+
