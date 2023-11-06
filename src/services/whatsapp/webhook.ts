@@ -45,13 +45,19 @@ export const saveMessageFromWebhook = async (
           } else if (message.image || message.document) {
            console.log(message.image ,"this is mssage for pdf")
            console.log(message.document, "this is id for image");
-          
+          const isImageID = message.image?.id;
+          console.log(isImageID," this is image id");
+         
+          const isDocumentId = message.document?.id;
+ console.log(isDocumentId,"this is document id");
+
+const id = isImageID || isDocumentId; ;
 
 
 let config = {
   method: "get",
   maxBodyLength: Infinity,
-  url: `https://graph.facebook.com/v18.0/${message.image?.id}/`,
+  url: `https://graph.facebook.com/v18.0/${id}/`,
   headers: {
     Authorization:
       "Bearer EAALU5Uh1hCoBAHOvIZAOLuJVrUltYe3uMCIQwKvayQCZC5zR45RO9iK5ZAeRNUKhZB3dShZBM4DugqeUtw9ZCIYOr39g3fqGsjYYycjNPb4CpMFZCQY4rqUSXaPHHam8utfUUzC4NBBSYLkoZCuSEW1oPl6TaZCK7hgmJ1h1E5DxXw8BEXKW1Vs2P",
