@@ -1,6 +1,7 @@
 import { ClientSession, ObjectId } from "mongodb";
 import { CONSUMER } from "../../types/consumer/consumer";
 import {
+  iDocumentMessage,
   iImageMessage,
   iTextMessage,
   iWebhookPayload,
@@ -43,16 +44,13 @@ export const saveMessageFromWebhook = async (
             };
             await saveMessage(ticket, messagePayload);
           } else if (message.image || message.document) {
-           console.log(message.image ,"this is mssage for pdf")
-           console.log(message.document, "this is id for image");
+          
           const isImageID = message.image?.id;
-          console.log(isImageID," this is image id");
-         
+          console.log(isImageID, " this is image id");
+
           const isDocumentId = message.document?.id;
- console.log(isDocumentId,"this is document id");
-
-const id = isImageID || isDocumentId; ;
-
+          console.log(isDocumentId, "this is document id");
+const id = isImageID || isDocumentId;
 
 let config = {
   method: "get",
@@ -90,18 +88,17 @@ let config = {
 
    
     const concatenatedBuffer = Buffer.concat([imageResponse.data]);
+    if (message.image?.mime_type === "image/jpeg"){
       const file = {
-        originalname: "file", // Provide a suitable name for your image
+        originalname: "image", // Provide a suitable name for your image
         buffer: concatenatedBuffer, // Replace 'buffers' with the image data
         mimetype: "image/jpeg", // Replace with the appropriate image MIME type (e.g., image/jpeg, image/png, etc.)
       };
-       if (file.mimetype.startsWith("image/")) {
-  // Handle images
-  const { Location } = await putMedia(
-    file,
-    `images/${message?.image?.id}`,
-    BUCKET_NAME
-  );
+      const { Location } = await putMedia(
+        file,
+        `patients/${message?.image?.id}`,
+        BUCKET_NAME
+      );
        const uploadImage = Location;
        console.log(uploadImage,"this is upload image from whatsapp ");
        const messagePayload: iImageMessage = {
@@ -116,17 +113,21 @@ let config = {
          createdAt: Date.now(),
        };
        await saveMessage(ticket, messagePayload);
-      }else if(file.mimetype === "application/pdf")
-       {
-         // Handle PDFs
-         const { Location } = await putMedia(
-           file,
-           `pdfs/${message?.image?.id}`,
-           BUCKET_NAME
-         );
+      }else if(message.document?.mime_type === 'application/pdf'){
+        console.log("this is for pdf")
+        const file = {
+          originalname: "pdf", // Provide a suitable name for your image
+          buffer: concatenatedBuffer, // Replace 'buffers' with the image data
+          mimetype: "application/pdf", // Replace with the appropriate image MIME type (e.g., image/jpeg, image/png, etc.)
+        };
+        const { Location } = await putMedia(
+          file,
+          `patients/${id}`,
+          BUCKET_NAME
+        );
         const uploadImage = Location;
         console.log(uploadImage, "this is upload image from whatsapp ");
-        const messagePayload: iImageMessage = {
+        const messagePayload: iDocumentMessage = {
           url: uploadImage,
           consumer: consumer,
           sender: changes.value.contacts[mi].wa_id,
@@ -138,7 +139,9 @@ let config = {
           createdAt: Date.now(),
         };
         await saveMessage(ticket, messagePayload);
-       }
+      }
+
+      
   } catch (error) {
     console.error(error);
   }
