@@ -245,14 +245,14 @@ export const whatsappImageStatus = PromiseWrapper(
     if (consumer === null) throw new ErrorHandler("Consumer Not Found", 400);
     const sender = consumer.firstName;
     console.log(sender, "sender ", consumer._id.toString(), "\n", consumer);
-     const fileType = req.file?.mimetype.startsWith("image") ? "image" : "pdf";
+     const messageType = req.file?.mimetype.startsWith("image") ? "image" : "pdf";
     await sendImage(location, consumer.phone, sender);
-      if (fileType === "image") {
+      if (messageType === "image") {
       console.log("this is image from fromnt end fsdfkjddddg")
         await sendImage(location, consumer.phone, sender);
          await saveMessage(ticketID, {
            consumer: consumer._id.toString(),
-           messageType: fileType,
+           messageType: messageType,
            sender: consumer.phone,
            imageURL: location,
            ticket: ticketID,
@@ -260,22 +260,25 @@ export const whatsappImageStatus = PromiseWrapper(
            createdAt: Date.now(),
          });
          return res.status(200).json({ message: "message sent." });
-      } else if (fileType === "pdf") {
+      } else if (messageType === "pdf") {
         // Handle PDF upload
-        console.log("this is pdf")
-console.log(location ,"yeh wo wali location hai dlkh lo ")
-console.log(consumer.phone,"fjksdgksffffffffffffffffffffffffffffffffffffffffffg")
-         await sendPdfMessage(consumer.phone, location);
-          await saveMessage(ticketID, {
-            consumer: consumer._id.toString(),
-            messageType: fileType,
-            sender: consumer.phone,
-            imageURL: location,
-            ticket: ticketID,
-            type: "sent",
-            createdAt: Date.now(),
-          });
-          return res.status(200).json({ message: "message sent." });
+        console.log("this is pdf");
+        console.log(location, "yeh wo wali location hai dlkh lo ");
+        console.log(
+          consumer.phone,
+          "fjksdgksffffffffffffffffffffffffffffffffffffffffffg"
+        );
+        await sendPdfMessage(consumer.phone, location);
+        await saveMessage(ticketID, {
+          consumer: consumer._id.toString(),
+          messageType: messageType,
+          sender: consumer.phone,
+          imageURL: location,
+          ticket: ticketID,
+          type: "sent",
+          createdAt: Date.now(),
+        });
+        return res.status(200).json({ message: "message sent." });
         // await sendPdf(location, consumer.phone, sender); // Implement the sendPdf function
       }
   // await saveMessage(ticketID, {
