@@ -246,7 +246,7 @@ export const whatsappImageStatus = PromiseWrapper(
     const sender = consumer.firstName;
     console.log(sender, "sender ", consumer._id.toString(), "\n", consumer);
      const messageType = req.file?.mimetype.startsWith("image") ? "image" : "pdf";
-    await sendImage(location, consumer.phone, sender);
+  
       if (messageType === "image") {
       console.log("this is image from fromnt end fsdfkjddddg")
         await sendImage(location, consumer.phone, sender);
