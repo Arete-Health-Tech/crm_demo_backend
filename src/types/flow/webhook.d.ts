@@ -25,7 +25,8 @@ export interface iWebhookPayload {
           button?: iButtonMessagePayload;
           interactive?: iReplyMessagePayload | iListMessagePayload;
           text?: iTextMessagePayload;
-          image?: iImageMessagePayload;
+          image?: iImageMessagePayload | iDocumentMessagePayload;
+          
         }[];
         statuses: [];
       };
@@ -78,7 +79,7 @@ url:any;
   type: "received" | "   sent";
   ticket: string;
   consumer: string;
-messageType:"image";
+messageType:"image" |"pdf";
   createdAt: number;
 }
 
@@ -87,4 +88,11 @@ interface iImageMessagePayload {
   sha256:string;
   mime_type: string;
 id:number;
+}
+
+interface iDocumentMessagePayload {
+  caption: string;
+  sha256: string;
+  mime_type: string;
+  id: number;
 }

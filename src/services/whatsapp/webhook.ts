@@ -83,16 +83,18 @@ let config = {
 
    
     const concatenatedBuffer = Buffer.concat([imageResponse.data]);
-    const file = {
-      originalname: "image", // Provide a suitable name for your image
-      buffer: concatenatedBuffer, // Replace 'buffers' with the image data
-      mimetype: "image/jpeg", // Replace with the appropriate image MIME type (e.g., image/jpeg, image/png, etc.)
-    };
-      const { Location } = await putMedia(
-        file,
-        `patients/${message?.image?.id}`,
-        BUCKET_NAME
-      );
+      const file = {
+        originalname: "file", // Provide a suitable name for your image
+        buffer: concatenatedBuffer, // Replace 'buffers' with the image data
+        mimetype: "image/jpeg", // Replace with the appropriate image MIME type (e.g., image/jpeg, image/png, etc.)
+      };
+       if (file.mimetype.startsWith("image/")) {
+  // Handle images
+  const { Location } = await putMedia(
+    file,
+    `images/${message?.image?.id}`,
+    BUCKET_NAME
+  );
        const uploadImage = Location;
        console.log(uploadImage,"this is upload image from whatsapp ");
        const messagePayload: iImageMessage = {
@@ -107,6 +109,29 @@ let config = {
          createdAt: Date.now(),
        };
        await saveMessage(ticket, messagePayload);
+      }else if(file.mimetype === "application/pdf")
+       {
+         // Handle PDFs
+         const { Location } = await putMedia(
+           file,
+           `pdfs/${message?.image?.id}`,
+           BUCKET_NAME
+         );
+        const uploadImage = Location;
+        console.log(uploadImage, "this is upload image from whatsapp ");
+        const messagePayload: iImageMessage = {
+          url: uploadImage,
+          consumer: consumer,
+          sender: changes.value.contacts[mi].wa_id,
+          image: uploadImage,
+          ticket: ticket,
+          type: "received",
+          messageType: "pdf",
+
+          createdAt: Date.now(),
+        };
+        await saveMessage(ticket, messagePayload);
+       }
   } catch (error) {
     console.error(error);
   }
