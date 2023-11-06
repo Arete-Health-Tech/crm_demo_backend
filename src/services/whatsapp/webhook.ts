@@ -43,7 +43,8 @@ export const saveMessageFromWebhook = async (
             };
             await saveMessage(ticket, messagePayload);
           } else if (message.image) {
-           console.log(message ,"this is mssage for pdf")
+           console.log(message.image ,"this is mssage for pdf")
+           console.log(message.image.id,"this is id for image")
           
 
 
