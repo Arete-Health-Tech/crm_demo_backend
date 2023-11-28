@@ -416,6 +416,11 @@ export const getRepresentativeTickets = PromiseWrapper(
             $all: searchQry,
           },
         },
+        {
+          "consumer.uid": {
+            $all: searchQry,
+          },
+        },
       ],
     };
 
@@ -861,6 +866,8 @@ function capitalizeName(name: any): any {
   throw new Error("Function not implemented.");
 }
 
+
+
 export const createPatientStatus = PromiseWrapper(
   async (
     req: Request,
@@ -868,27 +875,112 @@ export const createPatientStatus = PromiseWrapper(
     next: NextFunction,
     session: ClientSession
   ) => {
-    const requsetBody = req.body;
-    let imageKey: string | null = null;
-    console.log(req.file,"hthjsdhsjdsdsds")
-    if (req.file) {
-      const { Key } = await putMedia(
-        req.file,
-        `patients/${requsetBody.consumer}/patientStatus`,
-        BUCKET_NAME
-      );
-      imageKey = Key;
+    try {
+      const requestBody = req.body;
+      let imageKey: string | null = null;
+      let consumerId = requestBody.consumer.split("/")[0]; // Extracting consumer ID
+      const sendid = new ObjectId(consumerId);
+      const consumer = await findConsumerById(sendid);
+      const sender = consumer?.phone;
+      const receive = sender?.toString();
+      console.log(sender);
+
+      if (req.file) {
+        const { Key } = await putMedia(
+          req.file,
+          `patients/${requestBody.consumer}/${requestBody.ticket}/patientStatus`,
+          BUCKET_NAME
+        );
+        imageKey = `https://${BUCKET_NAME}.s3.ap-south-1.amazonaws.com/${Key}`;
+        console.log(imageKey, "image key is after");
+      }
+
+      const payload = {
+        parentTicketId: requestBody.ticket,
+        consumer: requestBody.consumer,
+        note: requestBody.note || "",
+        dropReason: requestBody.dropReason || "",
+        paymentRefId: requestBody.paymentRefId || "",
+        image: imageKey,
+      };
+
+      if (receive !== undefined && consumer !== null) {
+        const components = [
+          {
+            type: "body",
+            parameters: [
+              {
+                type: "text",
+                text:
+                  consumer.firstName.toUpperCase() +
+                  " " +
+                  (consumer.lastName ? consumer.lastName.toUpperCase() : ""),
+              },
+            ],
+          },
+        ];
+
+        // Function to send templates with a 2-minute delay
+        const sendTemplatesWithDelay = async () => {
+          await startTemplateFlow("admission_won_one", "en", consumer.phone, components);
+
+          const delay = async (ms: number) => {
+            return new Promise<void>((resolve) => {
+              setTimeout(() => {
+                resolve();
+              }, ms);
+            });
+          };
+
+          await delay(120000); // 2-minute delay
+          await startTemplateFlow(
+            "admission_won_remainder",
+            "en",
+            consumer.phone,
+            components
+          );
+          await delay(120000); // 2-minute delay
+          await startTemplateFlow(
+            "admission_won_two_days",
+            "en",
+            consumer.phone,
+            components
+          );
+          await delay(120000); // 2-minute delay
+          await startTemplateFlow(
+            "admission_won_after_two_hour",
+            "en",
+            consumer.phone,
+            components
+          );
+          await delay(120000);
+          await startTemplateFlow(
+            "admission_won_one__day",
+            "en",
+            consumer.phone,
+            components
+          );
+          await delay(120000);
+          await startTemplateFlow(
+            "admission_won_one_hour",
+            "en",
+            consumer.phone,
+            components
+          );
+          await delay(120000);
+          // Add more delays and template calls as needed
+        };
+
+        sendTemplatesWithDelay();
+      }
+
+      const result = await insertPatientStatusDetail(payload, session);
+
+      res.status(200).json({ result, status: "Success" });
+    } catch (error) {
+      console.error("Error in createPatientStatus:", error);
+      res.status(500).json({ status: 500, error: "Internal Server Error" });
     }
-    const payload = {
-      parentTicketId: requsetBody.ticket,
-      consumer: requsetBody?.consumer,
-      note: requsetBody?.note || "",
-      dropReason: requsetBody?.dropReason || "",
-      paymentRefId: requsetBody?.paymentRefId || "",
-      image: imageKey,
-    };
-    const result = await insertPatientStatusDetail(payload, session);
-    res.status(200).json({ result, status: "Success" });
   }
 );
 
