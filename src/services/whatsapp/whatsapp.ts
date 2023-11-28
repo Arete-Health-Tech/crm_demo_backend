@@ -704,9 +704,9 @@ export const cabgUntreatedImage = async (receiver: string) => {
 };
 
 export const sendTemplateMessageWon = async (
-  receiver: string,
   templateName: string,
   templateLanguage: string,
+  receiver: string,
  
 ) => {
   try {
