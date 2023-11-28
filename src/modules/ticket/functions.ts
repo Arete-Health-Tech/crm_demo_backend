@@ -234,3 +234,23 @@ export const createResult = async (result: iSkip, session: ClientSession) => {
   });
   return result;
 };
+
+
+export const updateSubStage2 = async (
+  ticketId: ObjectId,
+  subStageCode: subStageCodeType
+) => {
+  const result = await MongoService.collection(Collections.TICKET).updateOne(
+    { _id: ticketId },
+    { $set: { subStageCode } }
+  );
+  // if not working uncomment thi code
+
+  // if (result.modifiedCount === 1) {
+  //   // The update was successful, return the updated document or a success indicator
+  //   return { success: true };
+  // } else {
+  //   // The update failed or didn't modify any documents
+  //   return { success: false };
+  // }
+};

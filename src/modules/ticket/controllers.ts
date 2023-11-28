@@ -81,6 +81,7 @@ import {
   updateTicket,
   watchTicketChangesEvent,
   createResult,
+  updateSubStage2,
 } from "./functions";
 
 import { CONSUMER } from "../../types/consumer/consumer";
@@ -891,22 +892,7 @@ export const createPatientStatus = PromiseWrapper(
   }
 );
 
-export const skipResult = PromiseWrapper(
-  async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-    session: ClientSession
-  ) => {
-    const resultData = {
-      text: req.body.text,
-      ticket: req.body.ticket,
-      createdAt: Date.now(),
-      creator: req.user!._id,
-    };
-    const result = await createResult(resultData, session);
-  }
-);
+
 
 export const validateTicket = PromiseWrapper(async (
   req: Request,
@@ -927,3 +913,56 @@ try{    const ticketId: string = req.body?.ticketId;
     }
 
   }) 
+
+  export const skipResult = PromiseWrapper(
+    async (
+      req: Request,
+      res: Response,
+      next: NextFunction,
+      session: ClientSession
+    ) => {
+      const requestBody = req.body;
+      console.log(requestBody, "skip data from ");
+    }
+  );
+
+
+  export const skipEstimate = PromiseWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        // ... (existing code)
+        const ticketId = req.body?.ticketID;
+        console.log("Request body:", ticketId);
+
+        // Ensure `ticketId` is converted to an ObjectId
+        const ticketId2 = new ObjectId(ticketId);
+        console.log("Ticket ID as ObjectId:", ticketId2);
+
+        // Retrieve ticket data
+        const ticketData: iTicket | null = await findOneTicket(ticketId2);
+        console.log("Ticket data:", ticketData);
+
+        if (ticketData !== null) { 
+          if (ticketData.subStageCode.code < 2) {
+            console.log("Updating substage...");
+            const updateResult = await updateSubStage2(ticketId2, {
+              active: true,
+              code: 2,
+            });
+            console.log("Update result:", updateResult);
+          }
+          console.log("SubStageCode after update:", ticketData.subStageCode);
+        } else {
+          throw new ErrorHandler("Couldn't find ticket data", 400);
+        }
+
+        // Sending a response with a success message
+        res.status(200).json({ message: "Substage updated successfully" });
+      } catch (e: any) {
+        console.error("Error in skipEstimate:", e);
+        res
+          .status(500)
+          .json({ status: 500, error: e.message || "Internal Server Error" });
+      }
+    }
+  );
