@@ -26,6 +26,7 @@ import {
   hysterectomyUntreatedText,
   sendMessage,
   sendTemplateMessage,
+  sendTemplateMessageWon,
 } from "../../services/whatsapp/whatsapp";
 
 import {
@@ -922,7 +923,11 @@ export const createPatientStatus = PromiseWrapper(
 
         // Function to send templates with a 2-minute delay
         const sendTemplatesWithDelay = async () => {
-          await startTemplateFlow("admission_won_one", "en", consumer.phone, components);
+          await sendTemplateMessageWon(
+            "admission_won_one",
+            "en",
+            consumer.phone
+          );
 
           const delay = async (ms: number) => {
             return new Promise<void>((resolve) => {
@@ -933,39 +938,39 @@ export const createPatientStatus = PromiseWrapper(
           };
 
           await delay(120000); // 2-minute delay
-          await startTemplateFlow(
+          await sendTemplateMessageWon(
             "admission_won_remainder",
             "en",
             consumer.phone,
-            components
+           
           );
           await delay(120000); // 2-minute delay
-          await startTemplateFlow(
+          await sendTemplateMessageWon(
             "admission_won_two_days",
             "en",
             consumer.phone,
-            components
+          
           );
           await delay(120000); // 2-minute delay
-          await startTemplateFlow(
+          await sendTemplateMessageWon(
             "admission_won_after_two_hour",
             "en",
             consumer.phone,
-            components
+           
           );
           await delay(120000);
-          await startTemplateFlow(
+          await sendTemplateMessageWon(
             "admission_won_one__day",
             "en",
             consumer.phone,
-            components
+           
           );
           await delay(120000);
-          await startTemplateFlow(
+          await sendTemplateMessageWon(
             "admission_won_one_hour",
             "en",
             consumer.phone,
-            components
+           
           );
           await delay(120000);
           // Add more delays and template calls as needed

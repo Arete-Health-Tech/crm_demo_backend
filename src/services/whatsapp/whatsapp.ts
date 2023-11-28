@@ -702,3 +702,35 @@ export const cabgUntreatedImage = async (receiver: string) => {
     throw new ErrorHandler(error.response.data.error.message, 500);
   }
 };
+
+export const sendTemplateMessageWon = async (
+  receiver: string,
+  templateName: string,
+  templateLanguage: string,
+ 
+) => {
+  try {
+    const templatePayload: any = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: receiver,
+      type: "template",
+      template: {
+        name: templateName,
+        language: {
+          code: templateLanguage,
+        },
+      },
+    };
+  
+    const { data } = await axios.post(WHATSAPP_URL, templatePayload, {
+      headers: {
+        Authorization: `Bearer ${WA_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return data;
+  } catch (error: any) {
+    throw new ErrorHandler(error.response.data.error.message, 500);
+  }
+};
