@@ -178,7 +178,9 @@ export const SendMessage = PromiseWrapper(
     if (consumer === null) throw new ErrorHandler("Consumer Not Found", 400);
     const sender = consumer.firstName
     console.log(sender ,"sender ",(consumer._id).toString(),"\n",consumer)
-    await sendTextMessage(message, consumer.phone, sender);
+    // await sendTextMessage(message, consumer.phone, sender);
+    await sendTextMessage(message, consumer.phone);
+
     const { ticket } = await findConsumerFromWAID(consumer.phone);
     await saveMessage(ticketID, {
       consumer: (consumer._id).toString(),

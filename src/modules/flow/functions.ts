@@ -129,9 +129,11 @@ export const findFlowConnectorByTemplateIdentifier = async (
 export const sendTextMessage = async (
   message: string,
   receiver: string,
-  sender: string
+  // sender: string
 ) => {
-  const textPayload = createTextPayload(message, sender);
+  // const textPayload = createTextPayload(message, sender);
+  const textPayload = createTextPayload(message);
+
   await sendMessage(receiver, textPayload);
 };
 

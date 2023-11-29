@@ -923,10 +923,11 @@ export const createPatientStatus = PromiseWrapper(
 
         // Function to send templates with a 2-minute delay
         const sendTemplatesWithDelay = async () => {
-          await sendTemplateMessageWon(
-            "admission_won_one",
+          await startTemplateFlow(
+            "admission",
             "en",
-            consumer.phone
+            consumer.phone,
+            components
           );
 
           const delay = async (ms: number) => {
@@ -937,43 +938,42 @@ export const createPatientStatus = PromiseWrapper(
             });
           };
 
-          await delay(120000); // 2-minute delay
-          await sendTemplateMessageWon(
-            "admission_won_remainder",
+          await delay(20000); // 20-sec delay
+          await startTemplateFlow(
+            "admission_two",
             "en",
             consumer.phone,
-           
+            components
           );
-          await delay(120000); // 2-minute delay
-          await sendTemplateMessageWon(
-            "admission_won_two_days",
+          await delay(20000); // 20-sec delay
+          await startTemplateFlow(
+            "admission_2_hours",
             "en",
             consumer.phone,
-          
+            components
           );
-          await delay(120000); // 2-minute delay
-          await sendTemplateMessageWon(
-            "admission_won_after_two_hour",
+          await delay(20000); // 2-minute delay
+          await startTemplateFlow(
+            "admission_one_day",
             "en",
             consumer.phone,
-           
+            components
           );
-          await delay(120000);
-          await sendTemplateMessageWon(
-            "admission_won_one__day",
+          await delay(20000);
+          await startTemplateFlow(
+            "admission_morning",
             "en",
             consumer.phone,
-           
+            components
           );
-          await delay(120000);
-          await sendTemplateMessageWon(
-            "admission_won_one_hour",
+          await delay(20000);
+          await startTemplateFlow(
+            "admission_one_hour",
             "en",
             consumer.phone,
-           
+            components
           );
-          await delay(120000);
-          // Add more delays and template calls as needed
+          await delay(20000);// Add more delays and template calls as needed
         };
 
         sendTemplatesWithDelay();
