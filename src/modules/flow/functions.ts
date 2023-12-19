@@ -53,13 +53,13 @@ const findNodeWithId = async (nodeId: string) => {
 };
 
 
-const findNodeById = async (nodeId: string, nodeName?: string | null) => {
-  const payload = nodeName ? { nodeId, nodeName } : { nodeId };
-  return await MongoService.collection(Collections.STAGEFLOW).findOne<
-    iReplyNode | iListNode
+// const findNodeById = async (nodeId: string, nodeName?: string | null) => {
+//   const payload = nodeName ? { nodeId, nodeName } : { nodeId };
+//   return await MongoService.collection(Collections.STAGEFLOW).findOne<
+//     iReplyNode | iListNode
  
-  >(payload);
-};
+//   >(payload);
+// };
 
 // export const findAndSendNode = async (
 //   nodeIdentifier: string,
@@ -90,6 +90,7 @@ export const findAndSendNode = async (
   stageCode?: number | undefined
 ) => {
   let node = await findNodeWithId(nodeIdentifier);
+  console.log(node ,"this is node for node identifier")
   console.log("stagecode",stageCode);
   let nodeName = null;
   if (stageCode === 2) {
