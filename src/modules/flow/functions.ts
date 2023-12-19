@@ -58,7 +58,7 @@ export const findAndSendNode = async (
   ticket: string
 ) => {
   let node = await findNodeWithId(nodeIdentifier);
-  console.log(node);
+  console.log(node,"this is node identifier");
   
   if (node === null) throw new Error("Node not found");
   if (node.type === "reply") {
