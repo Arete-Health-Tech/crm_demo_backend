@@ -42,7 +42,7 @@ export const createListNode = async (
   });
 };
 
-  
+
 
 const findNodeWithId = async (nodeId: string) => {
   console.log(nodeId, "node id for web hook")
@@ -52,14 +52,60 @@ const findNodeWithId = async (nodeId: string) => {
 
 };
 
+
+const findNodeById = async (nodeId: string, nodeName?: string | null) => {
+  const payload = nodeName ? { nodeId, nodeName } : { nodeId };
+  return await MongoService.collection(Collections.STAGEFLOW).findOne<
+    iReplyNode | iListNode
+ 
+  >(payload);
+};
+
+// export const findAndSendNode = async (
+//   nodeIdentifier: string,
+//   receiver: string,
+//   ticket: string
+// ) => {
+//   let node = await findNodeWithId(nodeIdentifier);
+//   console.log(node,"this is node identifier");
+  
+//   if (node === null) throw new Error("Node not found");
+//   if (node.type === "reply") {
+//     const replyPayload = createReplyPayload(node);
+//     await sendMessage(receiver, replyPayload);
+//   } else if (node.type === "list") {
+//     const listPayload = createListPayload(node);
+//     await sendMessage(receiver, listPayload);
+//   }
+//   delete node._id;
+//   // await saveFlowMessages(ticket, node._id!);
+//   await saveSentFlowMessage(ticket, node);
+// };
+
 export const findAndSendNode = async (
   nodeIdentifier: string,
   receiver: string,
-  ticket: string
+  
+  ticket: string,
+  stageCode?: number | undefined
 ) => {
   let node = await findNodeWithId(nodeIdentifier);
-  console.log(node,"this is node identifier");
-  
+  console.log("stagecode",stageCode);
+  let nodeName = null;
+  if (stageCode === 2) {
+    nodeName = "How";
+  }
+  if (stageCode === 3) {
+    nodeName = "Recovery";
+  }
+  if (stageCode === 4) {
+    nodeName = "Untreated";
+  }
+
+  // let node = await findNodeWithId(nodeIdentifier, nodeName);
+  if (node === null) {
+    node = await findNodeWithId("DF");
+  }
   if (node === null) throw new Error("Node not found");
   if (node.type === "reply") {
     const replyPayload = createReplyPayload(node);
