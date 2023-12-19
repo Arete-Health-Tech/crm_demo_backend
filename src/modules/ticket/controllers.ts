@@ -702,41 +702,41 @@ export const updateTicketData = PromiseWrapper(
       const whatsNumber = consumerData.phone;
       console.log(whatsNumber, "this is whats up number");
 
-      // let webHookResult = null;
-      // let Req: any = {};
+      let webHookResult = null;
+      let Req: any = {};
 
-      // if (stageCode<2 ) {
-      //   console.log("entered")
-      //   Req.body = {
-      //     entry: [
-      //       {
-      //         changes: [
-      //           {
-      //             value: {
-      //               contacts: [
-      //                 {
-      //                   wa_id: whatsNumber,
-      //                 },
-      //               ],
-      //               messages: [
-      //                 {
-      //                   button: {
-      //                     text: "reply",
-      //                   },
-      //                 },
-      //               ],
-      //             },
-      //           },
-      //         ],
-      //       },
-      //     ],
-      //     stageCode,
-      //   };
+      if (stageCode<2 ) {
+        console.log("entered")
+        Req.body = {
+          entry: [
+            {
+              changes: [
+                {
+                  value: {
+                    contacts: [
+                      {
+                        wa_id: whatsNumber,
+                      },
+                    ],
+                    messages: [
+                      {
+                        button: {
+                          text: "reply",
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+          stageCode,
+        };
 
-      //   webHookResult = await HandleWebhook(Req, res , next);
+        webHookResult = await HandleWebhook(Req, res , next);
 
-      //   console.log(webHookResult , " this is webhookresult");
-      // }
+        console.log(webHookResult , " this is webhookresult");
+      }
       setTimeout(async () => {
         const serviceIDS: any = await findOnePrescription(
           ticketData.prescription
