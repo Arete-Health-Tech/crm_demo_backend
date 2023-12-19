@@ -153,10 +153,12 @@ export const HandleWebhook = async (
         });
       });
     });
-    return res.sendStatus(200);
+    // return res.sendStatus(200);
+     return "webhook message sent";
    
   } catch (error: any) {
-    return res.sendStatus(200);
+    // return res.sendStatus(200);
+     return { err: "error occured", error };
   
   }
 };
