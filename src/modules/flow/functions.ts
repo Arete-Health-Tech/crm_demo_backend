@@ -45,7 +45,7 @@ export const createListNode = async (
 
 
 const findNodeWithId = async (nodeId: string) => {
-  console.log(nodeId)
+  console.log(nodeId, "node id for web hook")
   return await MongoService.collection(Collections.FLOW).findOne<
     iReplyNode | iListNode
   >({ nodeId });
