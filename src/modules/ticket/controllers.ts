@@ -668,6 +668,7 @@ export const updateTicketData = PromiseWrapper(
       console.log("stage code in update", stageCode);
       const stage = await findStageByCode(stageCode);
       console.log("SStage in update", stage.code);
+    console.log(req.body,"data in request")
       // const result = await updateTicket(
       //   req.body.ticket,
       //   {
@@ -1063,3 +1064,7 @@ try{    const ticketId: string = req.body?.ticketId;
       }
     }
   );
+
+
+  //stage change message
+  

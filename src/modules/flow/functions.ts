@@ -53,12 +53,11 @@ const findNodeWithId = async (nodeId: string) => {
 };
 
 
-const findNodeById = async (nodeId: string, nodeName?: string | null) => {
-  const payload = nodeName ? { nodeId, nodeName } : { nodeId };
+const findFlowById = async (nodeId: string) => {
+  const query = {nodeId}; 
   return await MongoService.collection(Collections.STAGEFLOW).findOne<
     iReplyNode | iListNode
- 
-  >(payload);
+  >(query);
 };
 
 export const findAndSendNode = async (
@@ -72,10 +71,11 @@ export const findAndSendNode = async (
   if (node === null) throw new Error("Node not found");
   if (node.type === "reply") {
     const replyPayload = createReplyPayload(node);
+    console.log(replyPayload,"this is a reply payload");
     await sendMessage(receiver, replyPayload);
   } else if (node.type === "list") {
     const listPayload = createListPayload(node);
-    console.log(listPayload);
+    console.log(listPayload,"thuis is a list payload");
     await sendMessage(receiver, listPayload);
   }
   delete node._id;
