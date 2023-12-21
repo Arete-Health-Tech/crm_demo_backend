@@ -656,6 +656,157 @@ export const CreateNote = PromiseWrapper(
   }
 );
 
+// export const updateTicketData = PromiseWrapper(
+//   async (
+//     req: Request,
+//     res: Response,
+//     next: NextFunction,
+//     session: ClientSession
+//   ) => {
+//     try {
+//       const stageCode: number = req.body.stageCode;
+//       console.log("stage code in update", stageCode);
+//       const stage = await findStageByCode(stageCode);
+//       console.log("SStage in update", stage.code);
+//       // const result = await updateTicket(
+//       //   req.body.ticket,
+//       //   {
+//       //     stage: stage._id!,
+//       //     subStageCode: req.body.subStageCode,
+//       //     modifiedDate: new Date(),
+//       //   },
+//       //   session
+//       // ); //update next ticket stage
+//       const result = await updateTicket(
+//         req.body.ticket,
+//         {
+//           stage: stage._id!,
+//           subStageCode: req.body.subStageCode,
+//           modifiedDate: new Date(),
+//         },
+//         session
+//       );
+//       const ticketData = await findTicketById(new ObjectId(req.body.ticket));
+//       // console.log("ticketData:",ticketData)
+//       if (!ticketData?.consumer) {
+//         throw new ErrorHandler("couldn't find ticket", 500);
+//       }
+//       const consumerData = await findOneConsumer(
+//         new ObjectId(ticketData.consumer)
+//       );
+
+//       if (!consumerData) {
+//         throw new ErrorHandler("couldn't find consumer", 500);
+//       }
+
+//       const whatsNumber = consumerData.phone;
+//       console.log(whatsNumber, "this is whats up number");
+
+//       let webHookResult = null;
+//       let Req: any = {};
+
+//       if (stageCode<=2 ) {
+//         console.log("entered")
+//         Req.body = {
+//           entry: [
+//             {
+//               changes: [
+//                 {
+//                   value: {
+//                     contacts: [
+//                       {
+//                         wa_id: whatsNumber,
+//                       },
+//                     ],
+//                     messages: [
+//                       {
+//                         button: {
+//                           text: "reply",
+//                         },
+//                       },
+//                     ],
+//                   },
+//                 },
+//               ],
+//             },
+//           ],
+//           stageCode,
+//         };
+
+//         webHookResult = await HandleWebhook(Req, res , next);
+
+//         console.log( " this is webhookresult");
+//       }
+//       setTimeout(async () => {
+//         const serviceIDS: any = await findOnePrescription(
+//           ticketData.prescription
+//         );
+//         // console.log(serviceIDS, " bdyufgdhw body of pre");
+//         console.log( "this is id ");
+//         if (serviceIDS?.service?.toString() === "64d3512171bf84a64c1e6539") {
+//           if (stageCode === 2) {
+//             console.log("write message here");
+//             await herniaHowVideo(whatsNumber);
+//             await herniaHowText(whatsNumber);
+//           }
+//           if (stageCode === 3) {
+//             console.log("2  how are the 3rd stage ");
+//             await herniaRecoveryImage(whatsNumber);
+//             await herniaRecoveryText(whatsNumber);
+//           }
+//           if (stageCode === 4) {
+//             console.log("2  how are the 3rd stage ");
+//             await herniaUntreatedImage(whatsNumber);
+//             await herniaUntreatedText(whatsNumber);
+//           }
+//         } else if (
+//           serviceIDS?.service?.toString() === "64d3516871bf84a64c1e653a"
+//         ) {
+//           if (stageCode === 2) {
+//             console.log("write message here");
+//             await hysterectomyHowVideo(whatsNumber);
+//             await hysterectomyHowText(whatsNumber);
+//           }
+//           if (stageCode === 3) {
+//             console.log("2  how are the 3rd stage ");
+//             await hysterectomyRecoveryText(whatsNumber);
+//             await hysterectomyRecoveryImage(whatsNumber);
+//           }
+//           if (stageCode === 4) {
+//             console.log("2  how are the 3rd stage ");
+//             await hysterectomyUntreatedImage(whatsNumber);
+//             await hysterectomyUntreatedText(whatsNumber);
+//           }
+//         } else if (
+//           serviceIDS?.service?.toString() === "64d3518171bf84a64c1e653b"
+//         ) {
+//           if (stageCode === 2) {
+//             console.log("write message here");
+//             await cabgHowImage(whatsNumber);
+//             await cabgHowText(whatsNumber);
+//           }
+//           if (stageCode === 3) {
+//             console.log("2  how are the 3rd stage ");
+//             await cabgRecoveryText(whatsNumber);
+//             await cabgRecoveryImage(whatsNumber);
+//           }
+//           if (stageCode === 4) {
+//             console.log("2  how are the 3rd stage ");
+//             await cabgUntreatedImage(whatsNumber);
+//             await cabgUntreatedText(whatsNumber);
+//           }
+//         }
+//       }, 3000);
+
+//       res.status(200).json({ result: `Stage updated to ${stage.name}!` });
+//     } catch (e) {
+//       res.status(500).json({ status: 500, error: e });
+//     }
+//   }
+// );
+
+
+// stage change webhook
 export const updateTicketData = PromiseWrapper(
   async (
     req: Request,
@@ -668,142 +819,76 @@ export const updateTicketData = PromiseWrapper(
       console.log("stage code in update", stageCode);
       const stage = await findStageByCode(stageCode);
       console.log("SStage in update", stage.code);
-      // const result = await updateTicket(
-      //   req.body.ticket,
-      //   {
-      //     stage: stage._id!,
-      //     subStageCode: req.body.subStageCode,
-      //     modifiedDate: new Date(),
-      //   },
-      //   session
-      // ); //update next ticket stage
+
       const result = await updateTicket(
-        req.body.ticket,
-        {
-          stage: stage._id!,
-          subStageCode: req.body.subStageCode,
-          modifiedDate: new Date(),
-        },
-        session
-      );
-      const ticketData = await findTicketById(new ObjectId(req.body.ticket));
-      // console.log("ticketData:",ticketData)
-      if (!ticketData?.consumer) {
-        throw new ErrorHandler("couldn't find ticket", 500);
-      }
-      const consumerData = await findOneConsumer(
-        new ObjectId(ticketData.consumer)
-      );
-
-      if (!consumerData) {
-        throw new ErrorHandler("couldn't find consumer", 500);
-      }
-
-      const whatsNumber = consumerData.phone;
-      console.log(whatsNumber, "this is whats up number");
-
-      let webHookResult = null;
-      let Req: any = {};
-
-      if (stageCode<=2 ) {
-        console.log("entered")
-        Req.body = {
-          entry: [
-            {
-              changes: [
+                req.body.ticket,
                 {
-                  value: {
-                    contacts: [
-                      {
-                        wa_id: whatsNumber,
-                      },
-                    ],
-                    messages: [
-                      {
-                        button: {
-                          text: "reply",
-                        },
-                      },
-                    ],
-                  },
+                  stage: stage._id!,
+                  subStageCode: req.body.subStageCode,
+                  modifiedDate: new Date(),
                 },
-              ],
-            },
-          ],
-          stageCode,
+                session
+              );
+              const ticketData = await findTicketById(new ObjectId(req.body.ticket));
+              // console.log("ticketData:",ticketData)
+              if (!ticketData?.consumer) {
+                throw new ErrorHandler("couldn't find ticket", 500);
+              }
+              const consumerData = await findOneConsumer(
+                new ObjectId(ticketData.consumer)
+              );
+              if (!consumerData) {
+                throw new ErrorHandler("couldn't find consumer", 500);
+              }
+              const whatsNumber = consumerData.phone;
+              console.log(whatsNumber, "this is whats up number");
+
+      // Webhook handling
+      if (stageCode === 2) {
+        console.log("entered");
+        const whatsNumber = consumerData.phone; // Assuming this is defined earlier
+        let Req: any = {
+          body: {
+            entry: [
+              {
+                changes: [
+                  {
+                    value: {
+                      contacts: [
+                        {
+                          wa_id: whatsNumber,
+                        },
+                      ],
+                      messages: [
+                        {
+                          button: {
+                            text: "reply",
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            ],
+            stageCode,
+          },
         };
 
-        webHookResult = await HandleWebhook(Req, res , next);
-
-        console.log( " this is webhookresult");
+        await HandleWebhook(Req, res, next);
+        console.log("this is webhookresult");
       }
-      setTimeout(async () => {
-        const serviceIDS: any = await findOnePrescription(
-          ticketData.prescription
-        );
-        // console.log(serviceIDS, " bdyufgdhw body of pre");
-        console.log( "this is id ");
-        if (serviceIDS?.service?.toString() === "64d3512171bf84a64c1e6539") {
-          if (stageCode === 2) {
-            console.log("write message here");
-            await herniaHowVideo(whatsNumber);
-            await herniaHowText(whatsNumber);
-          }
-          if (stageCode === 3) {
-            console.log("2  how are the 3rd stage ");
-            await herniaRecoveryImage(whatsNumber);
-            await herniaRecoveryText(whatsNumber);
-          }
-          if (stageCode === 4) {
-            console.log("2  how are the 3rd stage ");
-            await herniaUntreatedImage(whatsNumber);
-            await herniaUntreatedText(whatsNumber);
-          }
-        } else if (
-          serviceIDS?.service?.toString() === "64d3516871bf84a64c1e653a"
-        ) {
-          if (stageCode === 2) {
-            console.log("write message here");
-            await hysterectomyHowVideo(whatsNumber);
-            await hysterectomyHowText(whatsNumber);
-          }
-          if (stageCode === 3) {
-            console.log("2  how are the 3rd stage ");
-            await hysterectomyRecoveryText(whatsNumber);
-            await hysterectomyRecoveryImage(whatsNumber);
-          }
-          if (stageCode === 4) {
-            console.log("2  how are the 3rd stage ");
-            await hysterectomyUntreatedImage(whatsNumber);
-            await hysterectomyUntreatedText(whatsNumber);
-          }
-        } else if (
-          serviceIDS?.service?.toString() === "64d3518171bf84a64c1e653b"
-        ) {
-          if (stageCode === 2) {
-            console.log("write message here");
-            await cabgHowImage(whatsNumber);
-            await cabgHowText(whatsNumber);
-          }
-          if (stageCode === 3) {
-            console.log("2  how are the 3rd stage ");
-            await cabgRecoveryText(whatsNumber);
-            await cabgRecoveryImage(whatsNumber);
-          }
-          if (stageCode === 4) {
-            console.log("2  how are the 3rd stage ");
-            await cabgUntreatedImage(whatsNumber);
-            await cabgUntreatedText(whatsNumber);
-          }
-        }
-      }, 3000);
 
-      res.status(200).json({ result: `Stage updated to ${stage.name}!` });
-    } catch (e) {
-      res.status(500).json({ status: 500, error: e });
+      res.status(200).json({ result: `Stage updated to ${stage.name}! `});
+    } catch (e : any) {
+      console.log(e.message);
+      res.status(500).json({ status: 500, error: e.message });
     }
   }
 );
+
+
+
 
 export const updateTicketSubStageCode = PromiseWrapper(
   async (
