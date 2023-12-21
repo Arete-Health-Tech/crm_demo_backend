@@ -16,7 +16,6 @@ import MongoService, { Collections } from "../../utils/mongo";
 import {
   createImagePayload,
   createListPayload,
-  createListPayload2,
   createReplyPayload,
   createTextPayload,
 } from "./utils";
@@ -62,53 +61,22 @@ const findNodeById = async (nodeId: string, nodeName?: string | null) => {
   >(payload);
 };
 
-// export const findAndSendNode = async (
-//   nodeIdentifier: string,
-//   receiver: string,
-//   ticket: string
-// ) => {
-//   let node = await findNodeWithId(nodeIdentifier);
-//   console.log(node,"this is node identifier");
-  
-//   if (node === null) throw new Error("Node not found");
-//   if (node.type === "reply") {
-//     const replyPayload = createReplyPayload(node);
-//     await sendMessage(receiver, replyPayload);
-//   } else if (node.type === "list") {
-//     const listPayload = createListPayload(node);
-//     console.log(listPayload);
-//     await sendMessage(receiver, listPayload);
-//   }
-//   delete node._id;
-//   // await saveFlowMessages(ticket, node._id!);
-//   await saveSentFlowMessage(ticket, node);
-// };
-
-// stage change webhool
-
 export const findAndSendNode = async (
   nodeIdentifier: string,
   receiver: string,
   ticket: string
 ) => {
-  // 6494196d698ecd9a9db95e3a
   let node = await findNodeWithId(nodeIdentifier);
-  // new node id ;
+  console.log(node,"this is node identifier");
+  
   if (node === null) throw new Error("Node not found");
   if (node.type === "reply") {
     const replyPayload = createReplyPayload(node);
     await sendMessage(receiver, replyPayload);
   } else if (node.type === "list") {
-    let node2: any = await findNodeWithId(node?.listId0);
-    const listId1Value = node2.listId1;
-    let node3: any = await findNodeWithId(listId1Value);
-    // console.log(node3 , " this noe 3 in the wnicknsidjosm")
     const listPayload = createListPayload(node);
-    // console.log(listPayload , " listpayload kncjbdsudhsikdnsjhdvyusdnas");
-    const listPayload2 = createListPayload2(node3);
-    console.log(listPayload2, "listPayload2 is the ans here is nisxosmxd");
-
-    await sendMessage(receiver, listPayload2);
+    console.log(listPayload);
+    await sendMessage(receiver, listPayload);
   }
   delete node._id;
   // await saveFlowMessages(ticket, node._id!);

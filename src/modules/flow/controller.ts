@@ -90,81 +90,6 @@ console.log("query web hook", req.query)
      }
 }
 
-// export const HandleWebhook = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const body: iWebhookPayload = req.body;
-//     // console.log("web hook body yahi hai", JSON.stringify(req.body));
-//     //handling the responses
-//     body.entry.forEach((entry) => {
-//       entry.changes.forEach((changes) => {
-//         changes.value.messages.forEach((message, mi) => {
-        
-//           (async function () {
-           
-//             try {
-//               const { prescription, ticket } =
-//                 await findTicketAndPrescriptionFromWAID(
-//                   changes.value.contacts[mi].wa_id
-//                 );
-//               const departmentSet = new Set([
-//                 "63ce58474dca242deb6a4d41",
-//                 "63ce59964dca242deb6a4d4c",
-//                 "63ce59314dca242deb6a4d48",
-//               ]);
-//               if (prescription && ticket && ticket?._id) {
-//                 if (!departmentSet.has(prescription?.departments[0].toString()))
-//                   return;
-//                 if (message.button) {
-//                   await findAndSendNode(
-                    
-//                     prescription.service
-//                       ? prescription.service.toString()
-//                       : "DF",
-//                     changes.value.contacts[mi].wa_id,
-//                     ticket._id.toString(),
-                   
-//                   );
-//                 } else if (message.interactive) {
-//                   const nodeIdentifier =
-//                     message.interactive.type === "button_reply"
-//                       ? message.interactive.button_reply.id
-//                       : message.interactive.list_reply.id;
-//                   await findAndSendNode(
-//                     nodeIdentifier,
-//                     changes.value.contacts[mi].wa_id,
-//                     ticket._id.toString(),
-                   
-//                   );
-//                 }
-//                 await saveMessageFromWebhook(
-//                   body,
-//                   prescription.consumer.toString(),
-//                   ticket._id.toString()
-//                 ); // saving message
-//               }
-//             } catch (error: any) {
-//               console.log(error.message);
-//             }
-//           })();
-//         });
-//       });
-//     });
-//     return res.sendStatus(200);
-//     //  return "webhook message sent";
-   
-//   } catch (error: any) {
-//     return res.sendStatus(200);
-//     //  return { err: "error occured", error };
-  
-//   }
-// };
-
-//stage change webhook
-
 export const HandleWebhook = async (
   req: Request,
   res: Response,
@@ -172,65 +97,71 @@ export const HandleWebhook = async (
 ) => {
   try {
     const body: iWebhookPayload = req.body;
-    console.log("web hook body yahi hai", JSON.stringify(req.body));
-
-    for (const entry of body.entry) {
-      for (const changes of entry.changes) {
-        for (const message of changes.value.messages) {
-          try {
-            const { prescription, ticket } =
-              await findTicketAndPrescriptionFromWAID(
-                changes.value.contacts[0].wa_id // Assuming you want the first contact's ID
-              );
-
-            const departmentSet = new Set([
-              "63ce58474dca242deb6a4d41",
-              "63ce59964dca242deb6a4d4c",
-              "63ce59314dca242deb6a4d48",
-            ]);
-
-            if (prescription && ticket && ticket?._id) {
-              if (!departmentSet.has(prescription?.departments[0].toString()))
-                continue;
-
-              if (message.button) {
-                await findAndSendNode(
-                  prescription.service ? prescription.service.toString() : "DF",
-                  changes.value.contacts[0].wa_id,
-                  ticket._id.toString()
+    // console.log("web hook body yahi hai", JSON.stringify(req.body));
+    //handling the responses
+    body.entry.forEach((entry) => {
+      entry.changes.forEach((changes) => {
+        changes.value.messages.forEach((message, mi) => {
+        
+          (async function () {
+           
+            try {
+              const { prescription, ticket } =
+                await findTicketAndPrescriptionFromWAID(
+                  changes.value.contacts[mi].wa_id
                 );
-              } else if (message.interactive) {
-                const nodeIdentifier =
-                  message.interactive.type === "button_reply"
-                    ? message.interactive.button_reply.id
-                    : message.interactive.list_reply.id;
-                await findAndSendNode(
-                  nodeIdentifier,
-                  changes.value.contacts[0].wa_id,
+              const departmentSet = new Set([
+                "63ce58474dca242deb6a4d41",
+                "63ce59964dca242deb6a4d4c",
+                "63ce59314dca242deb6a4d48",
+              ]);
+              if (prescription && ticket && ticket?._id) {
+                if (!departmentSet.has(prescription?.departments[0].toString()))
+                  return;
+                if (message.button) {
+                  await findAndSendNode(
+                    
+                    prescription.service
+                      ? prescription.service.toString()
+                      : "DF",
+                    changes.value.contacts[mi].wa_id,
+                    ticket._id.toString(),
+                   
+                  );
+                } else if (message.interactive) {
+                  const nodeIdentifier =
+                    message.interactive.type === "button_reply"
+                      ? message.interactive.button_reply.id
+                      : message.interactive.list_reply.id;
+                  await findAndSendNode(
+                    nodeIdentifier,
+                    changes.value.contacts[mi].wa_id,
+                    ticket._id.toString(),
+                   
+                  );
+                }
+                await saveMessageFromWebhook(
+                  body,
+                  prescription.consumer.toString(),
                   ticket._id.toString()
-                );
+                ); // saving message
               }
-              await saveMessageFromWebhook(
-                body,
-                prescription.consumer.toString(),
-                ticket._id.toString()
-              ); // saving message
+            } catch (error: any) {
+              console.log(error.message);
             }
-          } catch (error: any) {
-            console.log(error.message);
-            // Handle specific message processing error
-          }
-        }
-      }
-    }
-
-    return res.status(200); //res.sendStatus(200);
+          })();
+        });
+      });
+    });
+    return res.sendStatus(200);
+    //  return "webhook message sent";
+   
   } catch (error: any) {
-    console.log(error.message);
-    return res.status(500).json({ error: "An error occurred" });
+    return res.sendStatus(200);
+    //  return { err: "error occured", error };
+  
   }
 };
-
 export const SendMessage = PromiseWrapper(
   async (
     req: Request,
