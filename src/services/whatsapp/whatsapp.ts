@@ -241,14 +241,14 @@ export const herniaHowVideo = async (
 ) => {
   try {
    
-console.log(receiver);
+console.log(receiver,"this is hernia video ");
     const templatePayload: any = {
       messaging_product: "whatsapp",
       recipient_type: "individual",
       to: receiver,
       type: "video",
       video: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/Hernia%20Medanta%20Demo/HERNIORHAPHY%20(1).mp4",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Manipal+Hospital+Demo/Hernia+Manipal/HERNIORHAPHY+(1)+(1).mp4",
       },
     };
 
@@ -331,7 +331,7 @@ export const herniaRecoveryImage = async (
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/CABG%20Medanta%20Demo/RECOVERY.jpg",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Manipal+Hospital+Demo/CABG+Manipal/RECOVERY.jpg",
       },
     };
 
@@ -384,7 +384,7 @@ export const herniaUntreatedImage = async (receiver: string) => {
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/Hernia%20Medanta%20Demo/UNTREATED_HERNIORRHAPHY.jpg",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Manipal+Hospital+Demo/Hernia+Manipal/UNTREATED_HERNIORRHAPHY+(1).jpg",
       },
     };
 
@@ -413,7 +413,7 @@ export const hysterectomyHowVideo = async (receiver: string) => {
       to: receiver,
       type: "video",
       video: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/Hysterectomy%20Medanta%20Demo%20/HYSTERECTOMY.mp4",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Manipal+Hospital+Demo/Hysterectomy+Manipal/HYSTERECTOMY+(3).mp4",
       },
     };
 
@@ -489,7 +489,7 @@ export const hysterectomyRecoveryImage = async (receiver: string) => {
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/CABG%20Medanta%20Demo/RECOVERY.jpg",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Manipal+Hospital+Demo/CABG+Manipal/RECOVERY.jpg",
       },
     };
 
@@ -539,7 +539,7 @@ export const hysterectomyUntreatedImage = async (receiver: string) => {
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/Hysterectomy%20Medanta%20Demo%20/HYSTERECTOMY_UNTREATED.jpg",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Manipal+Hospital+Demo/Hysterectomy+Manipal/HYSTERECTOMY_UNTREATED+(1).jpg",
       },
     };
 
@@ -565,7 +565,7 @@ export const cabgHowImage = async (receiver: string) => {
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/CABG%20Medanta%20Demo/CABG_PROCEDURE.jpg",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Manipal+Hospital+Demo/CABG+Manipal/CABG_HOW.jpg",
       },
     };
 
@@ -638,7 +638,7 @@ export const cabgRecoveryImage = async (receiver: string) => {
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/CABG%20Medanta%20Demo/RECOVERY.jpg",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Manipal+Hospital+Demo/CABG+Manipal/RECOVERY.jpg",
       },
     };
 
@@ -688,7 +688,7 @@ export const cabgUntreatedImage = async (receiver: string) => {
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/CABG%20Medanta%20Demo/Untitled%20design.png",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Manipal+Hospital+Demo/CABG+Manipal/UNTREATED+CABGA.jpg",
       },
     };
 
