@@ -121,6 +121,7 @@ export const sendTemplateMessage = async (
         "Content-Type": "application/json",
       },
     });
+    console.log(data ,"data from whatsaapp")
     return data;
   } catch (error: any) {
     throw new ErrorHandler(error.response.data.error.message, 500);

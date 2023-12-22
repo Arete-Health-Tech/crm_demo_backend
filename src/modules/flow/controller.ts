@@ -119,6 +119,7 @@ export const HandleWebhook = async (
                 if (!departmentSet.has(prescription?.departments[0].toString()))
                   return;
                 if (message.button) {
+                  console.log(message.button.text ,"this is message for button")
                   await findAndSendNode(
                     
                     prescription.service
