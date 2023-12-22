@@ -706,45 +706,45 @@ export const updateTicketData = PromiseWrapper(
       let webHookResult = null;
       let Req: any = {};
 
-      if (stageCode<=2 ) {
-        console.log("entered")
-        Req.body = {
-          entry: [
-            {
-              changes: [
-                {
-                  value: {
-                    contacts: [
-                      {
-                        wa_id: whatsNumber,
-                      },
-                    ],
-                    messages: [
-                      {
-                        button: {
-                          text: "reply",
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          ],
-          stageCode,
-        };
+      // if (stageCode<=2 ) {
+      //   console.log("entered")
+      //   Req.body = {
+      //     entry: [
+      //       {
+      //         changes: [
+      //           {
+      //             value: {
+      //               contacts: [
+      //                 {
+      //                   wa_id: whatsNumber,
+      //                 },
+      //               ],
+      //               messages: [
+      //                 {
+      //                   button: {
+      //                     text: "reply",
+      //                   },
+      //                 },
+      //               ],
+      //             },
+      //           },
+      //         ],
+      //       },
+      //     ],
+      //     stageCode,
+      //   };
 
-        webHookResult = await HandleWebhook(Req, res , next);
+      //   webHookResult = await HandleWebhook(Req, res , next);
 
-        console.log( " this is webhookresult");
-      }
+      //   console.log( " this is webhookresult");
+      // }
       setTimeout(async () => {
         const serviceIDS: any = await findOnePrescription(
           ticketData.prescription
         );
         // console.log(serviceIDS, " bdyufgdhw body of pre");
         console.log( "this is id ");
-        if (serviceIDS?.service?.toString() === "64d3512171bf84a64c1e6539") {
+        if (serviceIDS?.service?.toString() === "657a83447701108642bbe470") {
           if (stageCode === 2) {
             console.log("write message here");
             await herniaHowVideo(whatsNumber);
@@ -760,9 +760,7 @@ export const updateTicketData = PromiseWrapper(
             await herniaUntreatedImage(whatsNumber);
             await herniaUntreatedText(whatsNumber);
           }
-        } else if (
-          serviceIDS?.service?.toString() === "64d3516871bf84a64c1e653a"
-        ) {
+        } else if (serviceIDS?.service?.toString() === "657a83057701108642bbe46f") {
           if (stageCode === 2) {
             console.log("write message here");
             await hysterectomyHowVideo(whatsNumber);
@@ -778,9 +776,7 @@ export const updateTicketData = PromiseWrapper(
             await hysterectomyUntreatedImage(whatsNumber);
             await hysterectomyUntreatedText(whatsNumber);
           }
-        } else if (
-          serviceIDS?.service?.toString() === "64d3518171bf84a64c1e653b"
-        ) {
+        } else if (serviceIDS?.service?.toString() === "657a83787701108642bbe471") {
           if (stageCode === 2) {
             console.log("write message here");
             await cabgHowImage(whatsNumber);
