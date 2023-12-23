@@ -1,9 +1,11 @@
 import axios from "axios";
 import ErrorHandler from "../../utils/errorHandler";
+import { createHeader } from "../../modules/flow/utils";
 const { WA_ACCOUNT_ID, WA_TOKEN } = process.env;
 
 const WHATSAPP_URL = `https://graph.facebook.com/v15.0/${WA_ACCOUNT_ID}/messages`;
 export const sendMessage = async (receiver: string, payload: any) => {
+  console.log("this is send message receiver")
   try {
     const { data } = await axios.post(
       WHATSAPP_URL,
@@ -735,3 +737,129 @@ export const sendTemplateMessageWon = async (
     throw new ErrorHandler(error.response.data.error.message, 500);
   }
 };
+
+
+
+
+export const sendStageChangeMessageText = async (receiver: string, message: string) => {
+  try {
+    const templatePayload: any = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: receiver,
+      type: "text",
+      text: {
+        body: message,
+      },
+    };
+
+    const { data } = await axios.post(WHATSAPP_URL, templatePayload, {
+      headers: {
+        Authorization: `Bearer ${WA_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return data;
+  } catch (error: any) {
+    throw new ErrorHandler(error.response.data.error.message, 500);
+  }
+};
+
+
+
+export const sendStageChangeMessageMedia = async (receiver: string, headreeLink:string) => {
+  try {
+    const templatePayload: any = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: receiver,
+      type: "image" || "video",
+      image: {
+        link: headreeLink,
+      },
+    };
+
+    const { data } = await axios.post(WHATSAPP_URL, templatePayload, {
+      headers: {
+        Authorization: `Bearer ${WA_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return data;
+  } catch (error: any) {
+    throw new ErrorHandler(error.response.data.error.message, 500);
+  }
+};
+
+
+
+// export const sendStageChangeMessageInteractive = async (receiver: string) => {
+//   try {
+//     const templatePayload: any = {
+//       messaging_product: "whatsapp",
+//       recipient_type: "individual",
+//       to: receiver,
+//       type: "interactive",
+//       interactive: {
+//         type: "list",
+//         header: {
+//           type: "video",
+//           video: {
+//             link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Manipal+Hospital+Demo/Hysterectomy+Manipal/HYSTERECTOMY+(3).mp4",
+//           },
+//         },
+//         body: {
+         
+//           text: 
+//            "⚠️There are several serious complications of CAD. These can occur after years of untreated CAD when the arteries become so badly diseased that complete obstruction of blood flow through the coronary arteries occurs. \n 💁‍♀️This causes insufficient oxygen and nutrient delivery to the heart muscles, potentially causing the death of the heart muscle cells and subsequent dysfunction of a portion of the heart muscle itself which can lead to  sudden heart attacks and untimely heart failure.😥",
+          
+//         },
+//         action:{
+//           button:"Agree",
+
+//         }
+//       },
+//     };
+
+//     const { data } = await axios.post(WHATSAPP_URL, templatePayload, {
+//       headers: {
+//         Authorization: `Bearer ${WA_TOKEN}`,
+//         "Content-Type": "application/json",
+//       },
+//     });
+//     return data;
+//   } catch (error: any) {
+//     throw new ErrorHandler(error.response.data.error.message, 500);
+//   }
+// };
+
+// export const sendStageChangeMessageInteractive = (receiver: string) => {
+//   console.log("this is interavtive message")
+//   const payload: any = {
+//     type: "interactive",
+//     interactive: {
+//       type: "button",
+//       body: {
+//         text: "⚠️There are several serious complications of CAD. These can occur after years of untreated CAD when the arteries become so badly diseased that complete obstruction of blood flow through the coronary arteries occurs. \n 💁‍♀️This causes insufficient oxygen and nutrient delivery to the heart muscles, potentially causing the death of the heart muscle cells and subsequent dysfunction of a portion of the heart muscle itself which can lead to  sudden heart attacks and untimely heart failure.😥",
+//       },
+//       action: {
+//         buttons: [
+//           {
+//             type: "reply",
+//             reply: {
+//               id: "one",
+//               title: "meri",
+//             },
+//           },
+//         ],
+//       },
+//     },
+//   };
+ 
+    
+//     payload.interactive.header = createHeader("video","https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Manipal+Hospital+Demo/Hysterectomy+Manipal/HYSTERECTOMY+(3).mp4" );
+  
+ 
+  
+//   return payload;
+// }

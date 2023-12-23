@@ -25,6 +25,9 @@ import {
   hysterectomyUntreatedImage,
   hysterectomyUntreatedText,
   sendMessage,
+ 
+  sendStageChangeMessageMedia,
+  sendStageChangeMessageText,
   sendTemplateMessage,
   sendTemplateMessageWon,
 } from "../../services/whatsapp/whatsapp";
@@ -46,6 +49,7 @@ import {
 } from "../department/functions";
 import {
   findFlowConnectorByService,
+  findMeassage,
   sendTextMessage,
   startTemplateFlow,
 } from "../flow/functions";
@@ -101,6 +105,7 @@ import {
 } from "./ticketUtils/utilFunctions";
 import { findOneConsumer } from "../consumer/crud";
 import { REFETCH_TICKETS } from "../../utils/socket/constants";
+import { createReplyPayload } from "../flow/utils";
 const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
 const cron = require("node-cron");
 
@@ -678,6 +683,7 @@ export const updateTicketData = PromiseWrapper(
       //   },
       //   session
       // ); //update next ticket stage
+      
       const result = await updateTicket(
         req.body.ticket,
         {
@@ -703,97 +709,32 @@ export const updateTicketData = PromiseWrapper(
       const whatsNumber = consumerData.phone;
       console.log(whatsNumber, "this is whats up number");
 
-      let webHookResult = null;
-      let Req: any = {};
+const service = ticketData.prescription ;
+              // console.log(service , " this is service");
 
-      // if (stageCode<=2 ) {
-      //   console.log("entered")
-      //   Req.body = {
-      //     entry: [
-      //       {
-      //         changes: [
-      //           {
-      //             value: {
-      //               contacts: [
-      //                 {
-      //                   wa_id: whatsNumber,
-      //                 },
-      //               ],
-      //               messages: [
-      //                 {
-      //                   button: {
-      //                     text: "reply",
-      //                   },
-      //                 },
-      //               ],
-      //             },
-      //           },
-      //         ],
-      //       },
-      //     ],
-      //     stageCode,
-      //   };
+              const msgId = await findOnePrescription(service);
+              const oneService : string | undefined= msgId?.service?.toString();
+              console.log(oneService , "oneService i sthe oneService in the nont")
+              if (stageCode === 2 && oneService !== undefined) {
+                const messageFind : any= await findMeassage(oneService);
 
-      //   webHookResult = await HandleWebhook(Req, res , next);
-
-      //   console.log( " this is webhookresult");
-      // }
-      setTimeout(async () => {
-        const serviceIDS: any = await findOnePrescription(
-          ticketData.prescription
-        );
-        // console.log(serviceIDS, " bdyufgdhw body of pre");
-        console.log( "this is id ");
-        if (serviceIDS?.service?.toString() === "657a83447701108642bbe470") {
-          if (stageCode === 2) {
-            console.log("write message here");
-            await herniaHowVideo(whatsNumber);
-            await herniaHowText(whatsNumber);
-          }
-          if (stageCode === 3) {
-            console.log("2  how are the 3rd stage ");
-            await herniaRecoveryImage(whatsNumber);
-            await herniaRecoveryText(whatsNumber);
-          }
-          if (stageCode === 4) {
-            console.log("2  how are the 3rd stage ");
-            await herniaUntreatedImage(whatsNumber);
-            await herniaUntreatedText(whatsNumber);
-          }
-        } else if (serviceIDS?.service?.toString() === "657a83057701108642bbe46f") {
-          if (stageCode === 2) {
-            console.log("write message here");
-            await hysterectomyHowVideo(whatsNumber);
-            await hysterectomyHowText(whatsNumber);
-          }
-          if (stageCode === 3) {
-            console.log("2  how are the 3rd stage ");
-            await hysterectomyRecoveryText(whatsNumber);
-            await hysterectomyRecoveryImage(whatsNumber);
-          }
-          if (stageCode === 4) {
-            console.log("2  how are the 3rd stage ");
-            await hysterectomyUntreatedImage(whatsNumber);
-            await hysterectomyUntreatedText(whatsNumber);
-          }
-        } else if (serviceIDS?.service?.toString() === "657a83787701108642bbe471") {
-          if (stageCode === 2) {
-            console.log("write message here");
-            await cabgHowImage(whatsNumber);
-            await cabgHowText(whatsNumber);
-          }
-          if (stageCode === 3) {
-            console.log("2  how are the 3rd stage ");
-            await cabgRecoveryText(whatsNumber);
-            await cabgRecoveryImage(whatsNumber);
-          }
-          if (stageCode === 4) {
-            console.log("2  how are the 3rd stage ");
-            await cabgUntreatedImage(whatsNumber);
-            await cabgUntreatedText(whatsNumber);
-          }
-        }
-      }, 3000);
+                console.log(messageFind , " this is messageFind")
+               
+                   const replyPayload = createReplyPayload(messageFind);
+                   console.log(replyPayload, "this is a reply payload");
+                   await sendMessage(whatsNumber, replyPayload);
+                 
+                
+//                  const headreeLink = messageFind.headerLink ;
+//                  const message = messageFind?.body
+//                  console.log(headreeLink,"this is header link ");
+//                  const newData = JSON.stringify(message);
+// console.log(message, "this is body");
+// // await sendStageChangeMessageText(whatsNumber, message);
+// // await sendStageChangeMessageMedia(whatsNumber, headreeLink);
+// const newMera= sendStageChangeMessageInteractive(whatsNumber);
+// await sendMessage(whatsNumber, newMera);
+              }
 
       res.status(200).json({ result: `Stage updated to ${stage.name}!` });
     } catch (e) {

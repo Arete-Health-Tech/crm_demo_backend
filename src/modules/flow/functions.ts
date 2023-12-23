@@ -216,3 +216,9 @@ export const getConnector = async (pageLength: number, page: number) => {
     .skip(pageLength * page) 
     .toArray();
 };
+
+export const findMeassage = async (nodeId: string) => {
+  return await MongoService.collection(Collections.STAGEFLOW).findOne({
+    nodeId,
+  });
+};
