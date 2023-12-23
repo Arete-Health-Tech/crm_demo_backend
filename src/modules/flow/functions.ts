@@ -63,9 +63,12 @@ const findFlowById = async (nodeId: string) => {
 export const findAndSendNode = async (
   nodeIdentifier: string,
   receiver: string,
-  ticket: string
+  ticket: string,
+  message:string
+
 ) => {
   console.log(nodeIdentifier,"this is node identifier before ");
+  console.log(message,"this is click here to start")
   let node = await findNodeWithId(nodeIdentifier);
   console.log(node,"this is node after finfnodewith id");
   

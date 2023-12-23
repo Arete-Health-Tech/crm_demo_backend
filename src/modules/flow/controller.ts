@@ -123,7 +123,7 @@ export const HandleWebhook = async (
                     JSON.stringify(message.button.text.toLowerCase()),
                     "this is message for button"
                   );
-                  // if(message.button.text.toLowerCase() === "Click Here To Start")
+                  if(message.button.text.toLowerCase() === "click here to start"){
                   await findAndSendNode(
                     
                     prescription.service
@@ -131,8 +131,19 @@ export const HandleWebhook = async (
                       : "DF",
                     changes.value.contacts[mi].wa_id,
                     ticket._id.toString(),
+                    "hindi"
                    
-                  );
+                  );}
+                  else{
+                     await findAndSendNode(
+                       prescription.service
+                         ? prescription.service.toString()
+                         : "DF",
+                       changes.value.contacts[mi].wa_id,
+                       ticket._id.toString(),
+                       "english"
+                     );
+                  }
                 } else if (message.interactive) {
                   const nodeIdentifier =
                     message.interactive.type === "button_reply"
@@ -142,6 +153,7 @@ export const HandleWebhook = async (
                     nodeIdentifier,
                     changes.value.contacts[mi].wa_id,
                     ticket._id.toString(),
+                    ""
                    
                   );
                 }
