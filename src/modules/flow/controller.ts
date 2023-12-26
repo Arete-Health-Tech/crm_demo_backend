@@ -123,7 +123,7 @@ export const HandleWebhook = async (
                     JSON.stringify(message.button.text.toLowerCase()),
                     "this is message for button"
                   );
-                  if(message.button.text.toLowerCase() === "click here to start"){
+                  if(message.button.text.toLowerCase() === "hindi"){
                   await findAndSendNode(
                     
                     prescription.service
