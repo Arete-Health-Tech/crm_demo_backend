@@ -19,6 +19,7 @@ import {
   createListNode,
   createReplyNode,
   findAndSendNode,
+  findAndSendNodeHindi,
   findFlowConnectorByTemplateIdentifier,
   findNodeByDiseaseId,
   getConnector,
@@ -124,15 +125,13 @@ export const HandleWebhook = async (
                     "this is message for button"
                   );
                   if(message.button.text.toLowerCase() === "hindi"){
-                  await findAndSendNode(
-                    
+                  await findAndSendNodeHindi(
                     prescription.service
                       ? prescription.service.toString()
                       : "DF",
                     changes.value.contacts[mi].wa_id,
                     ticket._id.toString(),
                     "hindi"
-                   
                   );}
                   else{
                      await findAndSendNode(
@@ -145,7 +144,8 @@ export const HandleWebhook = async (
                      );
                   }
                 } else if (message.interactive) {
-                 console.log(message.button," this is button for interactive")
+                console.log(message.interactive,"this is interactive messag for buttom");
+                console.log(message.interactive?.type," this is type for interactive meddahe");
                   const nodeIdentifier =
                     message.interactive.type === "button_reply"
                       ? message.interactive.button_reply.id
@@ -157,6 +157,12 @@ export const HandleWebhook = async (
                     ""
                    
                   );
+                   await findAndSendNodeHindi(
+                     nodeIdentifier,
+                     changes.value.contacts[mi].wa_id,
+                     ticket._id.toString(),
+                     ""
+                   );
                 }
                 await saveMessageFromWebhook(
                   body,

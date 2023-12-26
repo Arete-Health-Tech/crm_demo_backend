@@ -72,24 +72,7 @@ export const findAndSendNode = async (
 ) => {
   console.log(nodeIdentifier,"this is node identifier before ");
   console.log(message,"this is click here to start")
-  if(message === "hindi"){
-  let node = await findFlowByIdhindi(nodeIdentifier);
-  console.log(node,"this is node after finfnodewith id");
   
-  if (node === null) throw new Error("Node not found");
-  if (node.type === "reply") {
-    const replyPayload = createReplyPayload(node);
-    console.log(replyPayload,"this is a reply payload");
-    await sendMessage(receiver, replyPayload);
-  } else if (node.type === "list") {
-    const listPayload = createListPayload(node);
-    console.log(listPayload,"thuis is a list payload");
-    await sendMessage(receiver, listPayload);
-  }
-  delete node._id;
-  // await saveFlowMessages(ticket, node._id!);
-  await saveSentFlowMessage(ticket, node);
-}else{
    let node = await findNodeWithId(nodeIdentifier);
   console.log(node,"this is node after finfnodewith id");
   
@@ -106,8 +89,39 @@ export const findAndSendNode = async (
   delete node._id;
   // await saveFlowMessages(ticket, node._id!);
   await saveSentFlowMessage(ticket, node);
-}
+
 };
+
+
+export const findAndSendNodeHindi = async (
+  nodeIdentifier: string,
+  receiver: string,
+  ticket: string,
+  message: string
+) => {
+   if (message === "hindi") {
+    let node = await findFlowByIdhindi(nodeIdentifier);
+    console.log(node, "this is node after finfnodewith id");
+
+    if (node === null) throw new Error("Node not found");
+    if (node.type === "reply") {
+      const replyPayload = createReplyPayload(node);
+      console.log(replyPayload, "this is a reply payload");
+      await sendMessage(receiver, replyPayload);
+    } else if (node.type === "list") {
+      const listPayload = createListPayload(node);
+      console.log(listPayload, "thuis is a list payload");
+      await sendMessage(receiver, listPayload);
+    }
+    delete node._id;
+    // await saveFlowMessages(ticket, node._id!);
+    await saveSentFlowMessage(ticket, node);
+ 
+     
+  }
+};
+
+
 
 // export const findAndSendNode = async (
 //   nodeIdentifier: string,
