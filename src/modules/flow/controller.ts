@@ -145,6 +145,7 @@ export const HandleWebhook = async (
                      );
                   }
                 } else if (message.interactive) {
+                  console.log(message.interactive.type,"this is type of interactive ")
                   const nodeIdentifier =
                     message.interactive.type === "button_reply"
                       ? message.interactive.button_reply.id
