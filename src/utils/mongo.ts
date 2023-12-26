@@ -21,7 +21,8 @@ export const Collections = {
   REMINDER: "reminder",
   TODO: "todo",
   FOLLOWUP: "followup",
-  SKIP:"skip"
+  SKIP:"skip",
+  FLOW_HINDI:"flow_hindi"
 };
 
 abstract class MongoService {

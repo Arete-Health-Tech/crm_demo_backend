@@ -23,7 +23,7 @@ export const createReplyNode = async (
   nodes: iReplyNode[],
   session: ClientSession
 ) => {
-  return await MongoService.collection(Collections.FLOW).insertMany(nodes, {
+  return await MongoService.collection(Collections.FLOW_HINDI).insertMany(nodes, {
     session,
   });
 };
@@ -37,23 +37,26 @@ export const createListNode = async (
   nodes: iListNode[],
   session: ClientSession
 ) => {
-  return await MongoService.collection(Collections.FLOW).insertMany(nodes, {
-    session,
-  });
+  return await MongoService.collection(Collections.FLOW_HINDI).insertMany(
+    nodes,
+    {
+      session,
+    }
+  );
 };
 
 
 
 const findNodeWithId = async (nodeId: string) => {
   console.log(nodeId, "node id for web hook")
-  return await MongoService.collection(Collections.FLOW).findOne<
+  return await MongoService.collection(Collections.FLOW_HINDI).findOne<
     iReplyNode | iListNode
   >({ nodeId });
 
 };
 
 
-const findFlowById = async (nodeId: string) => {
+const findFlowByIdhindi = async (nodeId: string) => {
   const query = {nodeId}; 
   return await MongoService.collection(Collections.STAGEFLOW).findOne<
     iReplyNode | iListNode
@@ -207,7 +210,7 @@ export const createNodeIndexes = async () => {
   });
 };
 export const findNodeByDiseaseId = async (flowQuery: string) => {
-  return await MongoService.collection(Collections.FLOW)   
+  return await MongoService.collection(Collections.FLOW_HINDI)   
     .find({ $text: { $search: flowQuery } })
     .toArray();
 };
