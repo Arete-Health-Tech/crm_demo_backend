@@ -150,18 +150,18 @@ export const HandleWebhook = async (
                     message.interactive.type === "button_reply"
                       ? message.interactive.button_reply.id
                       : message.interactive.list_reply.id;
-                  await findAndSendNode(
-                    nodeIdentifier,
-                    changes.value.contacts[mi].wa_id,
-                    ticket._id.toString(),
-                    ""
+                  // await findAndSendNode(
+                  //   nodeIdentifier,
+                  //   changes.value.contacts[mi].wa_id,
+                  //   ticket._id.toString(),
+                  //   ""
                    
-                  );
+                  // );
                    await findAndSendNodeHindi(
                      nodeIdentifier,
                      changes.value.contacts[mi].wa_id,
                      ticket._id.toString(),
-                     ""
+                     "hindi"
                    );
                 }
                 await saveMessageFromWebhook(
