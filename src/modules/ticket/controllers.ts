@@ -712,17 +712,85 @@ export const updateTicketData = PromiseWrapper(
 const service = ticketData.prescription ;
               // console.log(service , " this is service");
 
-              const msgId = await findOnePrescription(service);
-              const oneService : string | undefined= msgId?.service?.toString();
-              console.log(oneService , "oneService i sthe oneService in the nont")
-              if (stageCode === 2 && oneService !== undefined) {
-                const messageFind : any= await findMeassage(oneService);
+              // const msgId = await findOnePrescription(service);
+              // const oneService : string | undefined= msgId?.service?.toString();
+              // console.log(oneService , "oneService i sthe oneService in the nont")
+              // if (stageCode === 2 && oneService !== undefined) {
+              //   const messageFind : any= await findMeassage(oneService);
 
-                console.log(messageFind , " this is messageFind")
+              //   console.log(messageFind , " this is messageFind")
                
-                   const replyPayload = createReplyPayload(messageFind);
-                   console.log(replyPayload, "this is a reply payload");
-                   await sendMessage(whatsNumber, replyPayload);
+                  //  const replyPayload = createReplyPayload(messageFind);
+                  //  console.log(replyPayload, "this is a reply payload");
+                  //  await sendMessage(whatsNumber, replyPayload);
+                   setTimeout(async () => {
+                     const serviceIDS: any = await findOnePrescription(
+                       ticketData.prescription
+                     );
+                     console.log(serviceIDS, " bdyufgdhw body of pre");
+                     console.log(
+                       serviceIDS?.service?.toString(),
+                       "this is id "
+                     );
+                     if (
+                       serviceIDS?.service?.toString() ===
+                       "64d3512171bf84a64c1e6539"
+                     ) {
+                       if (stageCode === 2) {
+                         console.log("write message here");
+                         await herniaHowVideo(whatsNumber);
+                         await herniaHowText(whatsNumber);
+                       }
+                       if (stageCode === 3) {
+                         console.log("2  how are the 3rd stage ");
+                         await herniaRecoveryImage(whatsNumber);
+                         await herniaRecoveryText(whatsNumber);
+                       }
+                       if (stageCode === 4) {
+                         console.log("2  how are the 3rd stage ");
+                         await herniaUntreatedImage(whatsNumber);
+                         await herniaUntreatedText(whatsNumber);
+                       }
+                     } else if (
+                       serviceIDS?.service?.toString() ===
+                       "64d3516871bf84a64c1e653a"
+                     ) {
+                       if (stageCode === 2) {
+                         console.log("write message here");
+                         await hysterectomyHowVideo(whatsNumber);
+                         await hysterectomyHowText(whatsNumber);
+                       }
+                       if (stageCode === 3) {
+                         console.log("2  how are the 3rd stage ");
+                         await hysterectomyRecoveryText(whatsNumber);
+                         await hysterectomyRecoveryImage(whatsNumber);
+                       }
+                       if (stageCode === 4) {
+                         console.log("2  how are the 3rd stage ");
+                         await hysterectomyUntreatedImage(whatsNumber);
+                         await hysterectomyUntreatedText(whatsNumber);
+                       }
+                     } else if (
+                       serviceIDS?.service?.toString() ===
+                       "64d3518171bf84a64c1e653b"
+                     ) {
+                       if (stageCode === 2) {
+                         console.log("write message here");
+                         await cabgHowImage(whatsNumber);
+                         await cabgHowText(whatsNumber);
+                       }
+                       if (stageCode === 3) {
+                         console.log("2  how are the 3rd stage ");
+                         await cabgRecoveryText(whatsNumber);
+                         await cabgRecoveryImage(whatsNumber);
+                       }
+                       if (stageCode === 4) {
+                         console.log("2  how are the 3rd stage ");
+                         await cabgUntreatedImage(whatsNumber);
+                         await cabgUntreatedText(whatsNumber);
+                       }
+                     }
+                   }, 3000);
                  
                 
 //                  const headreeLink = messageFind.headerLink ;
@@ -734,7 +802,7 @@ const service = ticketData.prescription ;
 // // await sendStageChangeMessageMedia(whatsNumber, headreeLink);
 // const newMera= sendStageChangeMessageInteractive(whatsNumber);
 // await sendMessage(whatsNumber, newMera);
-              }
+              // }
 
       res.status(200).json({ result: `Stage updated to ${stage.name}!` });
     } catch (e) {
