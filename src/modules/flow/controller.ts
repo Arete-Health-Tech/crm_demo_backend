@@ -116,53 +116,54 @@ export const HandleWebhook = async (
                 "63ce59964dca242deb6a4d4c",
                 "63ce59314dca242deb6a4d48",
               ]);
-              if (prescription && ticket && ticket?._id) {
+              if (
+                prescription &&
+                ticket &&
+                ticket?._id 
+               
+              ) {
                 if (!departmentSet.has(prescription?.departments[0].toString()))
                   return;
                 if (message.button) {
-                  console.log(
-                    JSON.stringify(message.button.text.toLowerCase()),
-                    "this is message for button"
-                  );
-                  if(message.button.text.toLowerCase() === "hindi"){
-                  await findAndSendNodeHindi(
-                    prescription.service
-                      ? prescription.service.toString()
-                      : "DF",
-                    changes.value.contacts[mi].wa_id,
-                    ticket._id.toString(),
-                    "hindi"
-                  );}
-                  else{
-                     await findAndSendNode(
-                       prescription.service
-                         ? prescription.service.toString()
-                         : "DF",
-                       changes.value.contacts[mi].wa_id,
-                       ticket._id.toString(),
-                       "english"
-                     );
+                 
+                  if (message.button.text.toLowerCase() === "hindi") {
+                    await findAndSendNodeHindi(
+                      prescription.service
+                        ? prescription.service.toString()
+                        : "DF",
+                      changes.value.contacts[mi].wa_id,
+                      ticket._id.toString(),
+                      "hindi"
+                    );
+                  } else {
+                    await findAndSendNode(
+                      prescription.service
+                        ? prescription.service.toString()
+                        : "DF",
+                      changes.value.contacts[mi].wa_id,
+                      ticket._id.toString(),
+                      "english"
+                    );
                   }
                 } else if (message.interactive) {
-                console.log(message.interactive,"this is interactive messag for buttom");
-                console.log(message.interactive?.type," this is type for interactive meddahe");
+               
                   const nodeIdentifier =
                     message.interactive.type === "button_reply"
                       ? message.interactive.button_reply.id
                       : message.interactive.list_reply.id;
-                  // await findAndSendNode(
+                  await findAndSendNode(
+                    nodeIdentifier,
+                    changes.value.contacts[mi].wa_id,
+                    ticket._id.toString(),
+                    ""
+
+                  );
+                  // await findAndSendNodeHindi(
                   //   nodeIdentifier,
                   //   changes.value.contacts[mi].wa_id,
                   //   ticket._id.toString(),
-                  //   ""
-                   
+                  //   "hindi"
                   // );
-                   await findAndSendNodeHindi(
-                     nodeIdentifier,
-                     changes.value.contacts[mi].wa_id,
-                     ticket._id.toString(),
-                     "hindi"
-                   );
                 }
                 await saveMessageFromWebhook(
                   body,
@@ -170,6 +171,7 @@ export const HandleWebhook = async (
                   ticket._id.toString()
                 ); // saving message
               }
+
             } catch (error: any) {
               console.log(error.message);
             }

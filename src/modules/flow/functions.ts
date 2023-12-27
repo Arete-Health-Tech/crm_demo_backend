@@ -243,7 +243,7 @@ export const createNodeIndexes = async () => {
   });
 };
 export const findNodeByDiseaseId = async (flowQuery: string) => {
-  return await MongoService.collection(Collections.FLOW_HINDI)   
+  return await MongoService.collection(Collections.FLOW)   
     .find({ $text: { $search: flowQuery } })
     .toArray();
 };
