@@ -158,12 +158,12 @@ export const HandleWebhook = async (
                     ""
 
                   );
-                  // await findAndSendNodeHindi(
-                  //   nodeIdentifier,
-                  //   changes.value.contacts[mi].wa_id,
-                  //   ticket._id.toString(),
-                  //   "hindi"
-                  // );
+                  await findAndSendNodeHindi(
+                    nodeIdentifier,
+                    changes.value.contacts[mi].wa_id,
+                    ticket._id.toString(),
+                    "hindi"
+                  );
                 }
                 await saveMessageFromWebhook(
                   body,
