@@ -146,18 +146,18 @@ export const HandleWebhook = async (
                     );
                   }
                 } else if (message.interactive) {
-               
+               console.log(message.interactive," this is interactive message")
                   const nodeIdentifier =
                     message.interactive.type === "button_reply"
                       ? message.interactive.button_reply.id
                       : message.interactive.list_reply.id;
-                  await findAndSendNode(
-                    nodeIdentifier,
-                    changes.value.contacts[mi].wa_id,
-                    ticket._id.toString(),
-                    ""
+                  // await findAndSendNode(
+                  //   nodeIdentifier,
+                  //   changes.value.contacts[mi].wa_id,
+                  //   ticket._id.toString(),
+                  //   ""
 
-                  );
+                  // );
                   await findAndSendNodeHindi(
                     nodeIdentifier,
                     changes.value.contacts[mi].wa_id,
