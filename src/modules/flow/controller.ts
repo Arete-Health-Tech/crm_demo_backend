@@ -152,19 +152,34 @@ export const HandleWebhook = async (
                     message.interactive.type === "button_reply"
                       ? message.interactive.button_reply.id
                       : message.interactive.list_reply.id;
-                  // await findAndSendNode(
-                  //   nodeIdentifier,
-                  //   changes.value.contacts[mi].wa_id,
-                  //   ticket._id.toString(),
-                  //   ""
+                  try {
+                    // Try executing the first function
+                    await findAndSendNode(
+                      nodeIdentifier,
+                      changes.value.contacts[mi].wa_id,
+                      ticket._id.toString(),
+                      ""
+                    );
+                  } catch (error) {
+                    // Handle the error from the first function
+                    console.error("Error in findAndSendNode:", error);
 
-                  // );
-                  await findAndSendNodeHindi(
-                    nodeIdentifier,
-                    changes.value.contacts[mi].wa_id,
-                    ticket._id.toString(),
-                    "hindi"
-                  );
+                    // Continue with the second function even if the first one had an error
+                    try {
+                      await findAndSendNodeHindi(
+                        nodeIdentifier,
+                        changes.value.contacts[mi].wa_id,
+                        ticket._id.toString(),
+                        "hindi"
+                      );
+                    } catch (secondError) {
+                      // Handle the error from the second function
+                      console.error(
+                        "Error in findAndSendNodeHindi:",
+                        secondError
+                      );
+                    }
+                  }
                 }
                 await saveMessageFromWebhook(
                   body,
