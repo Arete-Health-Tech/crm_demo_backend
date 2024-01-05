@@ -9,12 +9,18 @@ export const createDepartment = async (department: iDepartment) => {
   return department;
 };
 
-export const findOneDepartment = async (query: object): Promise<iDepartment | null> => {
-  return await MongoService.collection(DEPARTMENT_DB).findOne<iDepartment>(query);
+export const findOneDepartment = async (
+  query: object
+): Promise<iDepartment | null> => {
+  return await MongoService.collection(DEPARTMENT_DB).findOne<iDepartment>(
+    query
+  );
 };
 
 export const findDepartment = async (query: object) => {
-  return await MongoService.collection(DEPARTMENT_DB).find<iDepartment>(query).toArray();
+  return await MongoService.collection(DEPARTMENT_DB)
+    .find<iDepartment>(query)
+    .toArray();
 };
 
 // doctor crud
@@ -28,7 +34,9 @@ export const findOneDoctor = async (query: object) => {
 };
 
 export const findDoctor = async (query: object): Promise<iDoctor[]> => {
-  return await MongoService.collection(DOCTOR_DB).find<iDoctor>(query).toArray();
+  return await MongoService.collection(DOCTOR_DB)
+    .find<iDoctor>(query)
+    .toArray();
 };
 
 // tags crud
@@ -39,5 +47,7 @@ export const insertOneDeptTag = async (tag: iTag): Promise<iTag> => {
 };
 
 export const findDeptTag = async (query: any) => {
-  return await MongoService.collection(DEPARTMENT_TAG_DB).find<iTag>(query).toArray();
+  return await MongoService.collection(DEPARTMENT_TAG_DB)
+    .find<iTag>(query)
+    .toArray();
 };

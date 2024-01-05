@@ -1,5 +1,4 @@
 import { body } from "express-validator";
-
 export const create = [
   body("firstName").notEmpty().toLowerCase(),
   body("lastName").notEmpty().toLowerCase(),
@@ -12,6 +11,7 @@ export const create = [
         "REPRESENTATIVE",
         "LEADER",
         "MANAGER",
+        "TEAMLEADER",
         "EXECUTIVE",
         "ADMIN",
         "REPRESENTATIVEONE",
@@ -27,5 +27,7 @@ export const create = [
   body("image").notEmpty(),
   body("password").notEmpty().isStrongPassword({ minLength: 6 }),
 ];
-
-export const login = [body("phone").isMobilePhone("en-IN").isInt().toInt(), body("password").notEmpty()];
+export const login = [
+  body("phone").isMobilePhone("en-IN").isInt().toInt(),
+  body("password").notEmpty(),
+];

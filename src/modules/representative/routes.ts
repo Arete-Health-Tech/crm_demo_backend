@@ -11,5 +11,5 @@ router
 router.route("/login").post(validations.login, controllers.login);
 
 router.route("/all").get(controllers.getAllRepresentative);
-
+router.route("/logOut").post(controllers.logout);
 export default router;

@@ -1,6 +1,5 @@
 import { body, param } from "express-validator";
 import { ObjectId } from "mongodb";
-
 export const create = [
   body("consumer")
     .notEmpty()
@@ -39,7 +38,6 @@ export const create = [
     .isMobilePhone("en-IN")
     .customSanitizer((value) => "91" + value),
 ];
-
 export const createEstimate = [
   body("icuType")
     .custom((value, { req }) => {
@@ -65,9 +63,7 @@ export const createEstimate = [
     .notEmpty()
     .customSanitizer((value) => new ObjectId(value))
     .notEmpty(),
-  body("prescription")
-   
-    .customSanitizer((value) => new ObjectId(value)),
+  body("prescription").customSanitizer((value) => new ObjectId(value)),
   body("ticket")
     .notEmpty()
     .customSanitizer((value) => new ObjectId(value)),
@@ -112,16 +108,13 @@ export const createEstimate = [
   body("bloodAmount").optional().notEmpty().isNumeric(),
   body("additionalAmount").optional().notEmpty().isNumeric(),
 ];
-
 export const updateTicketSubStage = [
   body("ticket")
     .notEmpty()
     .isString()
     .customSanitizer((value) => new ObjectId(value)),
 ];
-
 export const get_estimate = [param("ticketId").notEmpty()];
-
 export const create_note = [
   body("text").notEmpty().isString(),
   body("ticket")
@@ -129,19 +122,15 @@ export const create_note = [
     .isString()
     .customSanitizer((value) => new ObjectId(value)),
 ];
-
 export const get_notes = [param("ticketId").notEmpty()];
-
 export const upload_estimate = [param("ticketId").notEmpty().isHexadecimal()];
-
-export const patientStatusValidate = [body("paymentRefId").isString().optional(),
-body("ticket")
-  .notEmpty()
-  .isString()
-  .customSanitizer((value) => new ObjectId(value)),
-body("consumer")
-  .notEmpty()
-  .isString(),
+export const patientStatusValidate = [
+  body("paymentRefId").isString().optional(),
+  body("ticket")
+    .notEmpty()
+    .isString()
+    .customSanitizer((value) => new ObjectId(value)),
+  body("consumer").notEmpty().isString(),
   body("note").isString().optional(),
   body("dropReason").isString().optional(),
   body("paymentRefId").isString().optional(),

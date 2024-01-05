@@ -1,6 +1,5 @@
 import { Db, MongoClient, ObjectId } from "mongodb";
 import MONGODB_WATCH_COLLECTIONS from "./mongoWatcher";
-
 export const Collections = {
   PRESCRIPTION: "prescription",
   CONSUMER: "consumer",
@@ -12,18 +11,21 @@ export const Collections = {
   WARD: "ward",
   ESTIMATE: "estimate",
   FLOW: "flow",
-  STAGEFLOW:"stageflow",
+  STAGEFLOW: "stageflow",
   Note: "note",
-  STAGE_FLOW:"stageflow",
+  STAGE_FLOW: "stageflow",
   FLOW_CONNECT: "flow_connect",
+  FLOW_HINDI:"flow_hindi",
   MESSAGES: "messages",
   SCRIPT: "script",
   REMINDER: "reminder",
   TODO: "todo",
   FOLLOWUP: "followup",
-  SKIP:"skip"
+  SKIP: "skip",
+  FLOWDATA: "flowdata",
+  QUERY: "query",
+  GROUP: "group",
 };
-
 abstract class MongoService {
   private static _db: Db = null!;
   private static _client: MongoClient = null!;
@@ -34,16 +36,13 @@ abstract class MongoService {
     MongoService._db = MongoService._client.db(MongoService._MONGO_DB_NAME);
     await MONGODB_WATCH_COLLECTIONS();
   }
-
   public static collection(collectionName: string) {
     return MongoService._db.collection(collectionName);
   }
-
   public static get session() {
     return MongoService._client.startSession();
   }
 }
-
 export const getCreateDate = (id: ObjectId) => {
   return id.getTimestamp();
 };
@@ -52,5 +51,4 @@ export const getCreateDate = (id: ObjectId) => {
 //   createDate.setDate(createDate.getDate());
 //   return createDate;
 // };
-
 export default MongoService;

@@ -1,4 +1,9 @@
-import { ChangeStreamDocument, ClientSession, Collection, ObjectId } from "mongodb";
+import {
+  ChangeStreamDocument,
+  ClientSession,
+  Collection,
+  ObjectId,
+} from "mongodb";
 import { findConsumerFromWAID } from "../../services/whatsapp/webhook";
 import {
   sendMessage,
@@ -11,7 +16,6 @@ import {
   ifollowUp,
   iNote,
   iPrescription,
-  
   iSkip,
   iTicket,
   iTicketUpdate,
@@ -19,6 +23,7 @@ import {
 } from "../../types/ticket/ticket";
 import MongoService, { Collections } from "../../utils/mongo";
 import {
+  TICKET_DB,
   createOneFollowUp,
   createOnePrescription,
   createOneTicket,
@@ -35,23 +40,36 @@ export const createTicketHandler = async (
   const createdTicket = await createOneTicket(ticket, session);
   return { status: 200, body: createdTicket };
 };
-
 export const getAllTicketHandler = async () => {
   return await MongoService.collection(Collections.TICKET).find({}).toArray();
 };
-
+export const getFlowData = async (_id: string) => {
+  try {
+    const document = await MongoService.collection(
+      Collections.FLOWDATA
+    ).findOne({ _id });
+    if (document) {
+      // Extract the specific fields you need
+      const { _id, vedio, image, text } = document;
+      return { _id, vedio, image, text };
+    } else {
+      return null; // Document with the given _id not found
+    }
+  } catch (error) {
+    console.error("Error retrieving document by ID:", error);
+    throw error;
+  }
+};
 export const findOneTicket = async (ticketId: ObjectId) => {
   return await MongoService.collection(Collections.TICKET).findOne<iTicket>({
     _id: ticketId,
   });
 };
-
 export const getConsumerTickets = async (consumerId: ObjectId) => {
   return await MongoService.collection(Collections.TICKET)
     .find<iTicket>({ consumer: consumerId })
     .toArray();
 };
-
 export const updateTicket = async (
   ticketId: string,
   body: iTicketUpdate,
@@ -65,30 +83,25 @@ export const updateTicket = async (
     { session }
   );
 };
-
 export const triggerTicketChanges = async (
-  event: ChangeStreamDocument<any>,
+  event: ChangeStreamDocument<any>
 ) => {
   // console.log("tkt event", event);
-  const { operationType} = event;
+  const { operationType } = event;
   if (operationType === "insert") {
     // New ticket created
-    await RedisUpdateSingleTicketLookUp(event?.documentKey._id.toString());  
+    await RedisUpdateSingleTicketLookUp(event?.documentKey._id.toString());
     IO.emit(REFETCH_TICKETS); //trigger client side ticket re-fetch
   } else if (operationType === "update") {
     // Ticket updated
     await RedisUpdateSingleTicketLookUp(event?.documentKey._id.toString());
   }
 };
-
 export const watchTicketChangesEvent = async () => {
   const changeStream = MongoService.collection(Collections.TICKET).watch();
   // console.log("stream", changeStream);
-  return changeStream.on("change", (event) =>
-    triggerTicketChanges(event)
-  );
+  return changeStream.on("change", (event) => triggerTicketChanges(event));
 };
-
 export const updateSubStage = async (
   ticketId: ObjectId,
   subStageCode: subStageCodeType,
@@ -100,25 +113,21 @@ export const updateSubStage = async (
     { session }
   );
 };
-
 export const getConsumerPrescriptions = async (consumerId: ObjectId) => {
   return await MongoService.collection(Collections.PRESCRIPTION)
     .find<iPrescription>({ consumer: consumerId })
     .toArray();
 };
-
 export const createPrescription = async (
   prescription: iPrescription,
   session: ClientSession
 ) => {
   return await createOnePrescription(prescription, session);
 };
-
 ///follow
 export const createFollowUp = async (followUp: ifollowUp) => {
   return await createOneFollowUp(followUp);
 };
-
 export const searchService = async (
   searchQuery: string,
   departmentType: string
@@ -128,15 +137,12 @@ export const searchService = async (
   const consumers = await findServices(query);
   return { status: 200, body: consumers };
 };
-
 //prescription
-
 export const getPrescriptionById = async (id: ObjectId) => {
   return await MongoService.collection(
     Collections.PRESCRIPTION
   ).findOne<iPrescription>({ _id: id });
 };
-
 export const findTicketAndPrescriptionFromWAID = async (waid: string) => {
   const consumer = await MongoService.collection("consumer")
     .find<CONSUMER>({ phone: waid })
@@ -157,7 +163,6 @@ export const findTicketAndPrescriptionFromWAID = async (waid: string) => {
   });
   return { prescription, ticket };
 };
-
 //estimate
 export const createEstimate = async (
   estimate: iEstimate,
@@ -168,7 +173,6 @@ export const createEstimate = async (
   });
   return estimate;
 };
-
 export const findEstimateById = async (
   estimateId: ObjectId,
   session?: ClientSession
@@ -178,13 +182,11 @@ export const findEstimateById = async (
     { session }
   );
 };
-
 export const getTicketEstimates = async (ticketId: ObjectId) => {
   return await MongoService.collection(Collections.ESTIMATE)
     .find<iEstimate>({ ticket: ticketId })
     .toArray();
 };
-
 export const updateEstimateTotal = async (
   estimateId: ObjectId,
   total: number,
@@ -196,25 +198,19 @@ export const updateEstimateTotal = async (
     { session }
   );
 };
-
 // notes
-
 export const createNote = async (note: iNote, session: ClientSession) => {
   await MongoService.collection(Collections.Note).insertOne(note, { session });
   return note;
 };
-
 export const getTicketNotes = async (ticketId: ObjectId) => {
   return await MongoService.collection(Collections.Note)
     .find<iNote>({ ticket: ticketId })
     .toArray();
 };
-
 //follow up messages
 // export const followUpData=async ()=>{
-
 //   return await MongoService.collection()
-
 // }
 export const updateTicketLocation = async (
   ticketId: ObjectId,
@@ -225,12 +221,30 @@ export const updateTicketLocation = async (
     { _id: ticketId },
     { $set: { location: uploadedPDFUrl } },
     { session }
-  )
-}
-
+  );
+};
 export const createResult = async (result: iSkip, session: ClientSession) => {
   await MongoService.collection(Collections.SKIP).insertOne(result, {
     session,
   });
   return result;
+};
+
+export const updateSubStage2 = async (
+  ticketId: ObjectId,
+  subStageCode: subStageCodeType
+) => {
+  const result = await MongoService.collection(Collections.TICKET).updateOne(
+    { _id: ticketId },
+    { $set: { subStageCode } }
+  );
+  // if not working uncomment thi code
+
+  // if (result.modifiedCount === 1) {
+  //   // The update was successful, return the updated document or a success indicator
+  //   return { success: true };
+  // } else {
+  //   // The update failed or didn't modify any documents
+  //   return { success: false };
+  // }
 };

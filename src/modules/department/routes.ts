@@ -5,25 +5,25 @@ import * as controllers from "./controllers";
 import * as validations from "./validations";
 
 const router: Router = Router();
-router.use(isLoggedIn);
+
 router
   .route("/")
-  .post(isAdmin, validations.create, controllers.addDepartment)
+  .post(validations.create, controllers.addDepartment)
   .get(controllers.getDepartments);
 
 router
   .route("/doctor")
-  .post(isAdmin, validations.createDoctor, controllers.createDoctor)
+  .post(validations.createDoctor, controllers.createDoctor)
   .get(controllers.getDoctors);
 
 router
   .route("/tag")
-  .post(isAdmin, validations.createDepartmentTag, controllers.createDepartmentTag)
+  .post(validations.createDepartmentTag, controllers.createDepartmentTag)
   .get(controllers.getDepartmentTags);
 
 router
   .route("/ward")
-  .post(isAdmin, validations.createWard, controllers.createWardController)
+  .post(validations.createWard, controllers.createWardController)
   .get(controllers.getAllWardsController);
 
 export default router;

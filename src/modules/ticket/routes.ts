@@ -7,14 +7,13 @@ import MongoService from "../../utils/mongo";
 import * as controllers from "./controllers";
 import * as validations from "./validations";
 import { updateSubStage } from "./functions";
-
 const upload = multer();
-
 const router: Router = Router();
 router.use(isLoggedIn);
 router
   .route("/")
   .post(upload.single("image"), validations.create, controllers.createTicket)
+  // .get(isLoggedIn ,controllers.createTicket )
   .get(isRepresentative, controllers.getRepresentativeTickets);
 router.route("/:consumerId").get(controllers.ticketsWithPrescription);
 router.route("/ticketUpdate").put(controllers.updateTicketData);
@@ -36,12 +35,16 @@ router.route("/note").post(validations.create_note, controllers.CreateNote);
 router
   .route("/note/:ticketId")
   .get(validations.get_notes, controllers.GetTicketNotes);
-
-  router
+router
   .route("/patientStatus")
-  .post(upload.single("image"),validations.patientStatusValidate ,controllers.createPatientStatus);
-
-  router.route("/validateTicket").put(controllers.validateTicket)
+  .post(
+    upload.single("image"),
+    validations.patientStatusValidate,
+    controllers.createPatientStatus
+  );
+router.route("/validateTicket").put(controllers.validateTicket);
+router.route("/skip").post( controllers.skipResult);
+router.route("/skipEstimate").post(controllers.skipEstimate);
 // router.route("/search/:key").get(async (req, resp) => {
 //   const query = { firstName: { $regex: /name-to-search/i } };
 //   const consumers = await MongoService.collection("consumer")

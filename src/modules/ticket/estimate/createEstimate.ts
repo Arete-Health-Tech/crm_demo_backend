@@ -30,7 +30,7 @@ const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
 const generateEstimate = async (
   estimateId: ObjectId,
   session: ClientSession
-) => {
+) => { 
   let estimate: iEstimate,
     ticket: iTicket,
     prescription: iPrescription,
@@ -110,14 +110,14 @@ const generateEstimate = async (
                   estimate.icuDays > 0
                 ) {
                   roomCharge += icu.charges[1].roomRent * estimate.icuDays;
-                  console.log(roomCharge , "this is icu")
+                  // console.log(roomCharge , "this is icu")
                 }
                 if (item.charges) {
                   roomCharge += item.charges[0].roomRent * estimate.wardDays;
-                  console.log(roomCharge, " this ward roomCharge");
+                  // console.log(roomCharge, " this ward roomCharge");
                 }
 
-                charges.room.push(roomCharge);
+                // charges.room.push(roomCharge);
                 // console.log(charges.room , " this is Room charge s"); // this should now output the room charges array
 
                 if (estimate.type === 1) {
@@ -128,7 +128,7 @@ const generateEstimate = async (
 
                   services.forEach((service: Record<string, any>) => {
                     const charges = service.charges;
-                    console.log(service, " this is service ");
+                    // console.log(service, " this is service ");
                     if (charges) {
                       const chargeObj = charges.find((c: Record<string, any>) =>
                         c.hasOwnProperty(item.code)
@@ -286,7 +286,7 @@ const generateEstimate = async (
               department?.name.toUpperCase()
             );
 
-            console.log(departmentNames);
+            // console.log(departmentNames);
 
             const document = new PDFDocument();
             let buffers: any = [];
@@ -539,7 +539,6 @@ const generateEstimate = async (
               .moveTo(50, 410)
               .lineTo(550, 410)
               .stroke();
-
             document.end();
            document.on("end", async () => {
              const file = {
@@ -547,23 +546,24 @@ const generateEstimate = async (
                buffer: Buffer.concat(buffers),
                mimetype: "application/pdf",
              };
+             console.log(file , " this is file of estimate ")
              const { Location } = await putMedia(
                file,
                `patients/${consumer!._id}/${estimate.ticket}/estimates`,
                BUCKET_NAME
              );
              const uploadedPDFUrl = Location;
+            //  console.log(uploadedPDFUrl , " thisnskosmc")
              await estimateTemplateMessage(
                consumer!.phone,
                "patient_estimate",
                "en",
                uploadedPDFUrl
              );
-
-             console.log(uploadedPDFUrl, " this is what is was founding 2 ");
+            //  console.log(uploadedPDFUrl, " this is what is was founding 2 ");
              // await updateTicketLocation(estimate.ticket ,uploadedPDFUrl , session );
              const { ticket } = await findConsumerFromWAID(consumer!.phone);
-             console.log("hello this is before ticket");
+            //  console.log(ticket , "hello this is before ticket");
              saveMessage(ticket.toString(), {
                consumer: consumer!._id.toString(),
                messageType: "file",
@@ -571,7 +571,7 @@ const generateEstimate = async (
                ticket: ticket.toString(),
                type: "sent",
              });
-             console.log("hello this is after ticket");
+            //  console.log("hello this is after ticket");
 
              await updateEstimateTotal(estimateId, charges.total[0], session);
              await updateTicketLocation(

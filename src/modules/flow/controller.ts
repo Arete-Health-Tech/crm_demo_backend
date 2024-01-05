@@ -8,7 +8,10 @@ import {
   saveMessageFromWebhook,
   saveTextMessage,
 } from "../../services/whatsapp/webhook";
-import { followUpMessage, sendPdfMessage } from "../../services/whatsapp/whatsapp";
+import {
+  followUpMessage,
+  sendPdfMessage,
+} from "../../services/whatsapp/whatsapp";
 import { iWebhookPayload } from "../../types/flow/webhook";
 import ErrorHandler from "../../utils/errorHandler";
 import { findConsumerById } from "../consumer/functions";
@@ -19,6 +22,7 @@ import {
   createListNode,
   createReplyNode,
   findAndSendNode,
+  findAndSendNodeHindi,
   findFlowConnectorByTemplateIdentifier,
   findNodeByDiseaseId,
   getConnector,
@@ -58,11 +62,11 @@ export const ConnectFlow = PromiseWrapper(
     session: ClientSession
   ) => {
     const service = await findOneService({ _id: req.body.serviceId });
- 
+
     if (service === null) throw new ErrorHandler("Invalid Service Id", 400);
     const connector = await connectFlow(req.body, session);
     console.log(connector.nodeId);
-   
+
     res.status(200).json(connector);
   }
 );
@@ -72,23 +76,20 @@ export const verifyWhatsap = async (
   res: Response,
   next: NextFunction
 ) => {
-console.log("query web hook", req.query)
-    let mode=req.query["hub.mode"];
-    let challange=req.query["hub.challenge"];
-    let token=req.query["hub.verify_token"];
- 
- 
-     if(mode && token){
- 
-         if(mode==="subscribe" && token==="arete-health-tech"){
-             res.status(200).send(challange);
-         }else{
-          console.log("credential not match");
-             res.status(403);
-         }
- 
-     }
-}
+  console.log("query web hook", req.query);
+  let mode = req.query["hub.mode"];
+  let challange = req.query["hub.challenge"];
+  let token = req.query["hub.verify_token"];
+
+  if (mode && token) {
+    if (mode === "subscribe" && token === "arete-health-tech") {
+      res.status(200).send(challange);
+    } else {
+      console.log("credential not match");
+      res.status(403);
+    }
+  }
+};
 
 export const HandleWebhook = async (
   req: Request,
@@ -102,9 +103,7 @@ export const HandleWebhook = async (
     body.entry.forEach((entry) => {
       entry.changes.forEach((changes) => {
         changes.value.messages.forEach((message, mi) => {
-        
           (async function () {
-           
             try {
               const { prescription, ticket } =
                 await findTicketAndPrescriptionFromWAID(
@@ -119,26 +118,63 @@ export const HandleWebhook = async (
                 if (!departmentSet.has(prescription?.departments[0].toString()))
                   return;
                 if (message.button) {
-                  await findAndSendNode(
-                    
-                    prescription.service
-                      ? prescription.service.toString()
-                      : "DF",
-                    changes.value.contacts[mi].wa_id,
-                    ticket._id.toString(),
-                   
-                  );
+                  if (message.button.text.toLowerCase() === "hindi") {
+                    await findAndSendNodeHindi(
+                      prescription.service
+                        ? prescription.service.toString()
+                        : "DF",
+                      changes.value.contacts[mi].wa_id,
+                      ticket._id.toString(),
+                      "hindi"
+                    );
+                  } else {
+                    await findAndSendNode(
+                      prescription.service
+                        ? prescription.service.toString()
+                        : "DF",
+                      changes.value.contacts[mi].wa_id,
+                      ticket._id.toString(),
+                      "english"
+                    );
+                  }
                 } else if (message.interactive) {
+                  console.log(message.button, " this i9s message .button");
+                  console.log(
+                    message.interactive,
+                    " this is interactive message"
+                  );
                   const nodeIdentifier =
                     message.interactive.type === "button_reply"
                       ? message.interactive.button_reply.id
                       : message.interactive.list_reply.id;
-                  await findAndSendNode(
-                    nodeIdentifier,
-                    changes.value.contacts[mi].wa_id,
-                    ticket._id.toString(),
-                   
-                  );
+                  try {
+                    // Try executing the first function
+                    await findAndSendNode(
+                      nodeIdentifier,
+                      changes.value.contacts[mi].wa_id,
+                      ticket._id.toString(),
+                      ""
+                    );
+                  } catch (error) {
+                    // Handle the error from the first function
+                    console.error("Error in findAndSendNode:", error);
+
+                    // Continue with the second function even if the first one had an error
+                    try {
+                      await findAndSendNodeHindi(
+                        nodeIdentifier,
+                        changes.value.contacts[mi].wa_id,
+                        ticket._id.toString(),
+                        "hindi"
+                      );
+                    } catch (secondError) {
+                      // Handle the error from the second function
+                      console.error(
+                        "Error in findAndSendNodeHindi:",
+                        secondError
+                      );
+                    }
+                  }
                 }
                 await saveMessageFromWebhook(
                   body,
@@ -154,10 +190,10 @@ export const HandleWebhook = async (
       });
     });
     return res.sendStatus(200);
-   
+    //  return "webhook message sent";
   } catch (error: any) {
     return res.sendStatus(200);
-  
+    //  return { err: "error occured", error };
   }
 };
 export const SendMessage = PromiseWrapper(
@@ -167,21 +203,21 @@ export const SendMessage = PromiseWrapper(
     next: NextFunction,
     session: ClientSession
   ) => {
-    const { message, consumerId, ticketID} = req.body;
-  
-   
-  
-    console.log(req.body,"req body")
-    
+    const { message, consumerId, ticketID } = req.body;
+
+    console.log(req.body, "req body");
+
     const consumer = await findConsumerById(consumerId);
     // console.log(consumer, "hello")
     if (consumer === null) throw new ErrorHandler("Consumer Not Found", 400);
-    const sender = consumer.firstName
-    console.log(sender ,"sender ",(consumer._id).toString(),"\n",consumer)
-    await sendTextMessage(message, consumer.phone, sender);
+    const sender = consumer.firstName;
+    console.log(sender, "sender ", consumer._id.toString(), "\n", consumer);
+    // await sendTextMessage(message, consumer.phone, sender);
+    await sendTextMessage(message, consumer.phone);
+
     const { ticket } = await findConsumerFromWAID(consumer.phone);
     await saveMessage(ticketID, {
-      consumer: (consumer._id).toString(),
+      consumer: consumer._id.toString(),
       messageType: "text",
       sender: consumer.phone,
       text: message,
@@ -197,11 +233,11 @@ export const FindNode = PromiseWrapper(
     req: Request,
     res: Response,
     next: NextFunction,
-    session: ClientSession 
+    session: ClientSession
   ) => {
     const { flowQuery } = req.query as unknown as { flowQuery: string };
     const node = await findNodeByDiseaseId(flowQuery);
-console.log(node);
+    console.log(node);
     return res.status(200).json(node);
   }
 );
@@ -229,68 +265,69 @@ export const whatsappImageStatus = PromiseWrapper(
     next: NextFunction,
     session: ClientSession
   ) => {
-    const {consumerId,ticketID} = req.body
+    const { consumerId, ticketID } = req.body;
     const newConsumerID = new ObjectId(consumerId);
-   console.log(ticketID,"this is ticketID for image");
-   console.log(req.file,"this is request of file")
+    console.log(ticketID, "this is ticketID for image");
+    console.log(req.file, "this is request of file");
     const { Location } = await putMedia(
-    req.file,
+      req.file,
       `patients/whatsappImageStatus`,
       BUCKET_NAME
     );
-    const location=Location;
-     console.log(location, "thi sis image from fromt end");
+    const location = Location;
+    console.log(location, "thi sis image from fromt end");
     const consumer = await findConsumerById(newConsumerID);
     // console.log(consumer, "hello")
     if (consumer === null) throw new ErrorHandler("Consumer Not Found", 400);
     const sender = consumer.firstName;
     console.log(sender, "sender ", consumer._id.toString(), "\n", consumer);
-     const messageType = req.file?.mimetype.startsWith("image") ? "image" : "pdf";
-  
-      if (messageType === "image") {
-      console.log("this is image from fromnt end fsdfkjddddg")
-        await sendImage(location, consumer.phone, sender);
-         await saveMessage(ticketID, {
-           consumer: consumer._id.toString(),
-           messageType: messageType,
-           sender: consumer.phone,
-           imageURL: location,
-           ticket: ticketID,
-           type: "sent",
-           createdAt: Date.now(),
-         });
-         return res.status(200).json({ message: "message sent." });
-      } else if (messageType === "pdf") {
-        // Handle PDF upload
-        console.log("this is pdf");
-        console.log(location, "yeh wo wali location hai dlkh lo ");
-        console.log(
-          consumer.phone,
-          "fjksdgksffffffffffffffffffffffffffffffffffffffffffg"
-        );
-        await sendPdfMessage(consumer.phone, location);
-        await saveMessage(ticketID, {
-          consumer: consumer._id.toString(),
-          messageType: messageType,
-          sender: consumer.phone,
-          imageURL: location,
-          ticket: ticketID,
-          type: "sent",
-          createdAt: Date.now(),
-        });
-        return res.status(200).json({ message: "message sent." });
-        // await sendPdf(location, consumer.phone, sender); // Implement the sendPdf function
-      }
-  // await saveMessage(ticketID, {
-  //   consumer: consumer._id.toString(),
-  //   messageType: fileType,
-  //   sender: consumer.phone,
-  //   imageURL: location,
-  //   ticket: ticketID,
-  //   type: "sent",
-  //   createdAt: Date.now(),
-  // });
-  // return res.status(200).json({ message: "message sent." });
-   
+    const messageType = req.file?.mimetype.startsWith("image")
+      ? "image"
+      : "pdf";
+
+    if (messageType === "image") {
+      console.log("this is image from fromnt end fsdfkjddddg");
+      await sendImage(location, consumer.phone, sender);
+      await saveMessage(ticketID, {
+        consumer: consumer._id.toString(),
+        messageType: messageType,
+        sender: consumer.phone,
+        imageURL: location,
+        ticket: ticketID,
+        type: "sent",
+        createdAt: Date.now(),
+      });
+      return res.status(200).json({ message: "message sent." });
+    } else if (messageType === "pdf") {
+      // Handle PDF upload
+      console.log("this is pdf");
+      console.log(location, "yeh wo wali location hai dlkh lo ");
+      console.log(
+        consumer.phone,
+        "fjksdgksffffffffffffffffffffffffffffffffffffffffffg"
+      );
+      await sendPdfMessage(consumer.phone, location);
+      await saveMessage(ticketID, {
+        consumer: consumer._id.toString(),
+        messageType: messageType,
+        sender: consumer.phone,
+        imageURL: location,
+        ticket: ticketID,
+        type: "sent",
+        createdAt: Date.now(),
+      });
+      return res.status(200).json({ message: "message sent." });
+      // await sendPdf(location, consumer.phone, sender); // Implement the sendPdf function
+    }
+    // await saveMessage(ticketID, {
+    //   consumer: consumer._id.toString(),
+    //   messageType: fileType,
+    //   sender: consumer.phone,
+    //   imageURL: location,
+    //   ticket: ticketID,
+    //   type: "sent",
+    //   createdAt: Date.now(),
+    // });
+    // return res.status(200).json({ message: "message sent." });
   }
 );

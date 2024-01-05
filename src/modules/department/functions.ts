@@ -62,7 +62,11 @@ export const createDoctorHandler = async (
   departments: string[]
 ) => {
   await doctorDepartmentValidation(departments);
-  const doctor = await insertOneDoctor({ name, departments });
+  const doctor = await insertOneDoctor({
+    name,
+    departments,
+    phone: "",
+  });
   return { status: 200, body: doctor };
 };
 
