@@ -25,14 +25,15 @@ export interface iWebhookPayload {
           button?: iButtonMessagePayload;
           interactive?: iReplyMessagePayload | iListMessagePayload;
           text?: iTextMessagePayload;
-          image?: iImageMessagePayload  ;
-          document?:iDocumentMessagePayload
+          image?: iImageMessagePayload;
+          document?: iDocumentMessagePayload;
         }[];
         statuses: [];
       };
       field: "messages";
     }[];
   }[];
+  stageCode?: number | undefined;
 }
 
 interface iButtonMessagePayload {

@@ -1,9 +1,11 @@
 import axios from "axios";
 import ErrorHandler from "../../utils/errorHandler";
+import { createHeader } from "../../modules/flow/utils";
 const { WA_ACCOUNT_ID, WA_TOKEN } = process.env;
 
 const WHATSAPP_URL = `https://graph.facebook.com/v15.0/${WA_ACCOUNT_ID}/messages`;
 export const sendMessage = async (receiver: string, payload: any) => {
+  console.log("this is send message receiver")
   try {
     const { data } = await axios.post(
       WHATSAPP_URL,
@@ -121,6 +123,7 @@ export const sendTemplateMessage = async (
         "Content-Type": "application/json",
       },
     });
+    console.log(data ,"data from whatsaapp")
     return data;
   } catch (error: any) {
     throw new ErrorHandler(error.response.data.error.message, 500);
@@ -240,14 +243,14 @@ export const herniaHowVideo = async (
 ) => {
   try {
    
-console.log(receiver);
+console.log(receiver,"this is hernia video ");
     const templatePayload: any = {
       messaging_product: "whatsapp",
       recipient_type: "individual",
       to: receiver,
       type: "video",
       video: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/Hernia%20Medanta%20Demo/HERNIORHAPHY%20(1).mp4",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Hernia+Medanta+Demo/HERNIORHAPHY+(2).mp4",
       },
     };
 
@@ -330,7 +333,7 @@ export const herniaRecoveryImage = async (
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/CABG%20Medanta%20Demo/RECOVERY.jpg",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/CABG+Medanta+Demo/RECOVERY.jpg",
       },
     };
 
@@ -383,7 +386,7 @@ export const herniaUntreatedImage = async (receiver: string) => {
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/Hernia%20Medanta%20Demo/UNTREATED_HERNIORRHAPHY.jpg",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Hernia+Medanta+Demo/UNTREATED_HERNIORRHAPHY.jpg",
       },
     };
 
@@ -412,7 +415,7 @@ export const hysterectomyHowVideo = async (receiver: string) => {
       to: receiver,
       type: "video",
       video: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/Hysterectomy%20Medanta%20Demo%20/HYSTERECTOMY.mp4",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Hysterectomy+Medanta+Demo+/HYSTERECTOMY+(1).mp4",
       },
     };
 
@@ -488,7 +491,7 @@ export const hysterectomyRecoveryImage = async (receiver: string) => {
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/CABG%20Medanta%20Demo/RECOVERY.jpg",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/CABG+Medanta+Demo/RECOVERY.jpg",
       },
     };
 
@@ -538,7 +541,7 @@ export const hysterectomyUntreatedImage = async (receiver: string) => {
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/Hysterectomy%20Medanta%20Demo%20/HYSTERECTOMY_UNTREATED.jpg",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Hysterectomy+Medanta+Demo+/HYSTERECTOMY_UNTREATED.jpg",
       },
     };
 
@@ -564,7 +567,7 @@ export const cabgHowImage = async (receiver: string) => {
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/CABG%20Medanta%20Demo/CABG_PROCEDURE.jpg",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/CABG+Medanta+Demo/CABG_WHAT.jpg",
       },
     };
 
@@ -637,7 +640,7 @@ export const cabgRecoveryImage = async (receiver: string) => {
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/CABG%20Medanta%20Demo/RECOVERY.jpg",
+        link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/CABG+Medanta+Demo/RECOVERY.jpg",
       },
     };
 
@@ -687,7 +690,7 @@ export const cabgUntreatedImage = async (receiver: string) => {
       to: receiver,
       type: "image",
       image: {
-        link: "https://aretewhatsappbucket.s3.amazonaws.com/CABG%20Medanta%20Demo/Untitled%20design.png",
+        link: "hhttps://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/CABG+Medanta+Demo/UNTREATED+CABGA.jpg",
       },
     };
 
@@ -702,3 +705,161 @@ export const cabgUntreatedImage = async (receiver: string) => {
     throw new ErrorHandler(error.response.data.error.message, 500);
   }
 };
+
+export const sendTemplateMessageWon = async (
+  templateName: string,
+  templateLanguage: string,
+  receiver: string,
+ 
+) => {
+  try {
+    const templatePayload: any = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: receiver,
+      type: "template",
+      template: {
+        name: templateName,
+        language: {
+          code: templateLanguage,
+        },
+      },
+    };
+  
+    const { data } = await axios.post(WHATSAPP_URL, templatePayload, {
+      headers: {
+        Authorization: `Bearer ${WA_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return data;
+  } catch (error: any) {
+    throw new ErrorHandler(error.response.data.error.message, 500);
+  }
+};
+
+
+
+
+export const sendStageChangeMessageText = async (receiver: string, message: string) => {
+  try {
+    const templatePayload: any = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: receiver,
+      type: "text",
+      text: {
+        body: message,
+      },
+    };
+
+    const { data } = await axios.post(WHATSAPP_URL, templatePayload, {
+      headers: {
+        Authorization: `Bearer ${WA_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return data;
+  } catch (error: any) {
+    throw new ErrorHandler(error.response.data.error.message, 500);
+  }
+};
+
+
+
+export const sendStageChangeMessageMedia = async (receiver: string, headreeLink:string) => {
+  try {
+    const templatePayload: any = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: receiver,
+      type: "image" || "video",
+      image: {
+        link: headreeLink,
+      },
+    };
+
+    const { data } = await axios.post(WHATSAPP_URL, templatePayload, {
+      headers: {
+        Authorization: `Bearer ${WA_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return data;
+  } catch (error: any) {
+    throw new ErrorHandler(error.response.data.error.message, 500);
+  }
+};
+
+
+
+// export const sendStageChangeMessageInteractive = async (receiver: string) => {
+//   try {
+//     const templatePayload: any = {
+//       messaging_product: "whatsapp",
+//       recipient_type: "individual",
+//       to: receiver,
+//       type: "interactive",
+//       interactive: {
+//         type: "list",
+//         header: {
+//           type: "video",
+//           video: {
+//             link: "https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Manipal+Hospital+Demo/Hysterectomy+Manipal/HYSTERECTOMY+(3).mp4",
+//           },
+//         },
+//         body: {
+         
+//           text: 
+//            "⚠️There are several serious complications of CAD. These can occur after years of untreated CAD when the arteries become so badly diseased that complete obstruction of blood flow through the coronary arteries occurs. \n 💁‍♀️This causes insufficient oxygen and nutrient delivery to the heart muscles, potentially causing the death of the heart muscle cells and subsequent dysfunction of a portion of the heart muscle itself which can lead to  sudden heart attacks and untimely heart failure.😥",
+          
+//         },
+//         action:{
+//           button:"Agree",
+
+//         }
+//       },
+//     };
+
+//     const { data } = await axios.post(WHATSAPP_URL, templatePayload, {
+//       headers: {
+//         Authorization: `Bearer ${WA_TOKEN}`,
+//         "Content-Type": "application/json",
+//       },
+//     });
+//     return data;
+//   } catch (error: any) {
+//     throw new ErrorHandler(error.response.data.error.message, 500);
+//   }
+// };
+
+// export const sendStageChangeMessageInteractive = (receiver: string) => {
+//   console.log("this is interavtive message")
+//   const payload: any = {
+//     type: "interactive",
+//     interactive: {
+//       type: "button",
+//       body: {
+//         text: "⚠️There are several serious complications of CAD. These can occur after years of untreated CAD when the arteries become so badly diseased that complete obstruction of blood flow through the coronary arteries occurs. \n 💁‍♀️This causes insufficient oxygen and nutrient delivery to the heart muscles, potentially causing the death of the heart muscle cells and subsequent dysfunction of a portion of the heart muscle itself which can lead to  sudden heart attacks and untimely heart failure.😥",
+//       },
+//       action: {
+//         buttons: [
+//           {
+//             type: "reply",
+//             reply: {
+//               id: "one",
+//               title: "meri",
+//             },
+//           },
+//         ],
+//       },
+//     },
+//   };
+ 
+    
+//     payload.interactive.header = createHeader("video","https://aretewhatsappbucket.s3.ap-south-1.amazonaws.com/Manipal+Hospital+Demo/Hysterectomy+Manipal/HYSTERECTOMY+(3).mp4" );
+  
+ 
+  
+//   return payload;
+// }

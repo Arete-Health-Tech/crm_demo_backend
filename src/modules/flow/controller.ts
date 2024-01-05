@@ -114,7 +114,12 @@ export const HandleWebhook = async (
                 "63ce59964dca242deb6a4d4c",
                 "63ce59314dca242deb6a4d48",
               ]);
-              if (prescription && ticket && ticket?._id) {
+              if (
+                prescription &&
+                ticket &&
+                ticket?._id 
+               
+              ) {
                 if (!departmentSet.has(prescription?.departments[0].toString()))
                   return;
                 if (message.button) {
@@ -182,6 +187,7 @@ export const HandleWebhook = async (
                   ticket._id.toString()
                 ); // saving message
               }
+
             } catch (error: any) {
               console.log(error.message);
             }

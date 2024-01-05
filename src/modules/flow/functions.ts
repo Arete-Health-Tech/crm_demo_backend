@@ -60,32 +60,38 @@ const findFlowByIdhindi = async (nodeId: string) => {
   >({ nodeId });
 };
 
+
+
+
 export const findAndSendNode = async (
   nodeIdentifier: string,
   receiver: string,
   ticket: string,
-  message: string
+  message:string
+
 ) => {
-  console.log(nodeIdentifier, "this is node identifier before ");
-  console.log(message, "this is click here to start");
-
-  let node = await findNodeWithId(nodeIdentifier);
-  console.log(node, "this is node after finfnodewith id");
-
+  console.log(nodeIdentifier,"this is node identifier before ");
+  console.log(message,"this is click here to start")
+  
+   let node = await findNodeWithId(nodeIdentifier);
+  console.log(node,"this is node after finfnodewith id");
+  
   if (node === null) throw new Error("Node not found");
   if (node.type === "reply") {
     const replyPayload = createReplyPayload(node);
-    console.log(replyPayload, "this is a reply payload");
+    console.log(replyPayload,"this is a reply payload");
     await sendMessage(receiver, replyPayload);
   } else if (node.type === "list") {
     const listPayload = createListPayload(node);
-    console.log(listPayload, "thuis is a list payload");
+    console.log(listPayload,"thuis is a list payload");
     await sendMessage(receiver, listPayload);
   }
   delete node._id;
   // await saveFlowMessages(ticket, node._id!);
   await saveSentFlowMessage(ticket, node);
+
 };
+
 
 export const findAndSendNodeHindi = async (
   nodeIdentifier: string,
@@ -93,7 +99,7 @@ export const findAndSendNodeHindi = async (
   ticket: string,
   message: string
 ) => {
-  if (message === "hindi") {
+   if (message === "hindi") {
     let node = await findFlowByIdhindi(nodeIdentifier);
     console.log(node, "this is node after finfnodewith id");
 
@@ -110,8 +116,12 @@ export const findAndSendNodeHindi = async (
     delete node._id;
     // await saveFlowMessages(ticket, node._id!);
     await saveSentFlowMessage(ticket, node);
+ 
+     
   }
 };
+
+
 
 // export const findAndSendNode = async (
 //   nodeIdentifier: string,
@@ -150,6 +160,46 @@ export const findAndSendNodeHindi = async (
 //   // await saveFlowMessages(ticket, node._id!);
 //   await saveSentFlowMessage(ticket, node);
 // };
+
+
+// export const findAndSendNode = async (
+//   nodeIdentifier: string,
+//   receiver: string,
+  
+//   ticket: string,
+//   stageCode?: number | undefined
+// ) => {
+//   let node = await findNodeWithId(nodeIdentifier);
+//   console.log(node ,"this is node for node identifier")
+//   console.log("stagecode",stageCode);
+//   let nodeName = null;
+//   if (stageCode === 2) {
+//     nodeName = "How";
+//   }
+//   if (stageCode === 3) {
+//     nodeName = "Recovery";
+//   }
+//   if (stageCode === 4) {
+//     nodeName = "Untreated";
+//   }
+
+//   // let node = await findNodeWithId(nodeIdentifier, nodeName);
+//   if (node === null) {
+//     node = await findNodeWithId("DF");
+//   }
+//   if (node === null) throw new Error("Node not found");
+//   if (node.type === "reply") {
+//     const replyPayload = createReplyPayload(node);
+//     await sendMessage(receiver, replyPayload);
+//   } else if (node.type === "list") {
+//     const listPayload = createListPayload(node);
+//     await sendMessage(receiver, listPayload);
+//   }
+//   delete node._id;
+//   // await saveFlowMessages(ticket, node._id!);
+//   await saveSentFlowMessage(ticket, node);
+// };
+
 
 export const saveSentFlowMessage = async (ticket: string, node: any) => {
   return await firestore

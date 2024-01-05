@@ -8,7 +8,6 @@ export const createTextPayload = (message: string) => {
       preview_url: true,
       //i want sender then use this
       // body: `*${sender}*\n ${message}`,
-
       body: ` ${message}`,
     },
   };

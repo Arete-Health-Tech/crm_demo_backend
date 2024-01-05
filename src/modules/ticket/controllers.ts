@@ -25,7 +25,11 @@ import {
   hysterectomyUntreatedImage,
   hysterectomyUntreatedText,
   sendMessage,
+ 
+  sendStageChangeMessageMedia,
+  sendStageChangeMessageText,
   sendTemplateMessage,
+  sendTemplateMessageWon,
 } from "../../services/whatsapp/whatsapp";
 
 import {
@@ -1393,7 +1397,6 @@ export const updateTicketData = PromiseWrapper(
       //   },
       //   session
       // ); //update next ticket stage
-
       const result = await updateTicket(
         req.body.ticket,
         {
@@ -1580,6 +1583,8 @@ export const EstimateUploadAndSend = PromiseWrapper(
 
 
 const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
+
+
 
 export const createPatientStatus = PromiseWrapper(
   async (
