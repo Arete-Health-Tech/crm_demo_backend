@@ -715,82 +715,82 @@ const service = ticketData.prescription ;
               const msgId = await findOnePrescription(service);
               const oneService : string | undefined= msgId?.service?.toString();
               console.log(oneService , "oneService i sthe oneService in the nont")
-              if (stageCode === 2 && oneService !== undefined) {
-                const messageFind : any= await findMeassage(oneService);
+              // if (stageCode === 2 && oneService !== undefined) {
+              //   const messageFind : any= await findMeassage(oneService);
 
-                console.log(messageFind , " this is messageFind")
+              //   console.log(messageFind , " this is messageFind")
                
-                   const replyPayload = createReplyPayload(messageFind);
-                   console.log(replyPayload, "this is a reply payload");
-                   await sendMessage(whatsNumber, replyPayload);
-                  //  setTimeout(async () => {
-                  //    const serviceIDS: any = await findOnePrescription(
-                  //      ticketData.prescription
-                  //    );
-                  //    console.log(serviceIDS, " bdyufgdhw body of pre");
-                  //    console.log(
-                  //      serviceIDS?.service?.toString(),
-                  //      "this is id "
-                  //    );
-                  //    if (
-                  //      serviceIDS?.service?.toString() ===
-                  //      "64d3512171bf84a64c1e6539"
-                  //    ) {
-                  //      if (stageCode === 2) {
-                  //        console.log("write message here");
-                  //        await herniaHowVideo(whatsNumber);
-                  //        await herniaHowText(whatsNumber);
-                  //      }
-                  //      if (stageCode === 3) {
-                  //        console.log("2  how are the 3rd stage ");
-                  //        await herniaRecoveryImage(whatsNumber);
-                  //        await herniaRecoveryText(whatsNumber);
-                  //      }
-                  //      if (stageCode === 4) {
-                  //        console.log("2  how are the 3rd stage ");
-                  //        await herniaUntreatedImage(whatsNumber);
-                  //        await herniaUntreatedText(whatsNumber);
-                  //      }
-                  //    } else if (
-                  //      serviceIDS?.service?.toString() ===
-                  //      "64d3516871bf84a64c1e653a"
-                  //    ) {
-                  //      if (stageCode === 2) {
-                  //        console.log("write message here");
-                  //        await hysterectomyHowVideo(whatsNumber);
-                  //        await hysterectomyHowText(whatsNumber);
-                  //      }
-                  //      if (stageCode === 3) {
-                  //        console.log("2  how are the 3rd stage ");
-                  //        await hysterectomyRecoveryText(whatsNumber);
-                  //        await hysterectomyRecoveryImage(whatsNumber);
-                  //      }
-                  //      if (stageCode === 4) {
-                  //        console.log("2  how are the 3rd stage ");
-                  //        await hysterectomyUntreatedImage(whatsNumber);
-                  //        await hysterectomyUntreatedText(whatsNumber);
-                  //      }
-                  //    } else if (
-                  //      serviceIDS?.service?.toString() ===
-                  //      "64d3518171bf84a64c1e653b"
-                  //    ) {
-                  //      if (stageCode === 2) {
-                  //        console.log("write message here");
-                  //        await cabgHowImage(whatsNumber);
-                  //        await cabgHowText(whatsNumber);
-                  //      }
-                  //      if (stageCode === 3) {
-                  //        console.log("2  how are the 3rd stage ");
-                  //        await cabgRecoveryText(whatsNumber);
-                  //        await cabgRecoveryImage(whatsNumber);
-                  //      }
-                  //      if (stageCode === 4) {
-                  //        console.log("2  how are the 3rd stage ");
-                  //        await cabgUntreatedImage(whatsNumber);
-                  //        await cabgUntreatedText(whatsNumber);
-                  //      }
-                  //    }
-                  //  }, 3000);
+                  //  const replyPayload = createReplyPayload(messageFind);
+                  //  console.log(replyPayload, "this is a reply payload");
+                  //  await sendMessage(whatsNumber, replyPayload);
+                   setTimeout(async () => {
+                     const serviceIDS: any = await findOnePrescription(
+                       ticketData.prescription
+                     );
+                     console.log(serviceIDS, " bdyufgdhw body of pre");
+                     console.log(
+                       serviceIDS?.service?.toString(),
+                       "this is id "
+                     );
+                     if (
+                       serviceIDS?.service?.toString() ===
+                       "657a83447701108642bbe470"
+                     ) {
+                       if (stageCode === 2) {
+                         console.log("write message here");
+                         await herniaHowVideo(whatsNumber);
+                         await herniaHowText(whatsNumber);
+                       }
+                       if (stageCode === 3) {
+                         console.log("2  how are the 3rd stage ");
+                         await herniaRecoveryImage(whatsNumber);
+                         await herniaRecoveryText(whatsNumber);
+                       }
+                       if (stageCode === 4) {
+                         console.log("2  how are the 3rd stage ");
+                         await herniaUntreatedImage(whatsNumber);
+                         await herniaUntreatedText(whatsNumber);
+                       }
+                     } else if (
+                       serviceIDS?.service?.toString() ===
+                       "657a83057701108642bbe46f"
+                     ) {
+                       if (stageCode === 2) {
+                         console.log("write message here");
+                         await hysterectomyHowVideo(whatsNumber);
+                         await hysterectomyHowText(whatsNumber);
+                       }
+                       if (stageCode === 3) {
+                         console.log("2  how are the 3rd stage ");
+                         await hysterectomyRecoveryText(whatsNumber);
+                         await hysterectomyRecoveryImage(whatsNumber);
+                       }
+                       if (stageCode === 4) {
+                         console.log("2  how are the 3rd stage ");
+                         await hysterectomyUntreatedImage(whatsNumber);
+                         await hysterectomyUntreatedText(whatsNumber);
+                       }
+                     } else if (
+                       serviceIDS?.service?.toString() ===
+                       "657a83787701108642bbe471"
+                     ) {
+                       if (stageCode === 2) {
+                         console.log("write message here");
+                         await cabgHowImage(whatsNumber);
+                         await cabgHowText(whatsNumber);
+                       }
+                       if (stageCode === 3) {
+                         console.log("2  how are the 3rd stage ");
+                         await cabgRecoveryText(whatsNumber);
+                         await cabgRecoveryImage(whatsNumber);
+                       }
+                       if (stageCode === 4) {
+                         console.log("2  how are the 3rd stage ");
+                         await cabgUntreatedImage(whatsNumber);
+                         await cabgUntreatedText(whatsNumber);
+                       }
+                     }
+                   }, 3000);
                  
                 
 //                  const headreeLink = messageFind.headerLink ;
@@ -803,7 +803,7 @@ const service = ticketData.prescription ;
 // const newMera= sendStageChangeMessageInteractive(whatsNumber);
 // await sendMessage(whatsNumber, newMera);
               // }
-              }
+              // }
       res.status(200).json({ result: `Stage updated to ${stage.name}!` });
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
@@ -865,13 +865,6 @@ export const EstimateUploadAndSend = PromiseWrapper(
   }
 );
 
-function capitalizeFirstLetter(part: string): any {
-  throw new Error("Function not implemented.");
-}
-
-function capitalizeName(name: any): any {
-  throw new Error("Function not implemented.");
-}
 
 
 
@@ -911,79 +904,79 @@ export const createPatientStatus = PromiseWrapper(
         image: imageKey,
       };
 
-      if (receive !== undefined && consumer !== null) {
-        const components = [
-          {
-            type: "body",
-            parameters: [
-              {
-                type: "text",
-                text:
-                  consumer.firstName.toUpperCase() +
-                  " " +
-                  (consumer.lastName ? consumer.lastName.toUpperCase() : ""),
-              },
-            ],
-          },
-        ];
+      // if (receive !== undefined && consumer !== null) {
+      //   const components = [
+      //     {
+      //       type: "body",
+      //       parameters: [
+      //         {
+      //           type: "text",
+      //           text:
+      //             consumer.firstName.toUpperCase() +
+      //             " " +
+      //             (consumer.lastName ? consumer.lastName.toUpperCase() : ""),
+      //         },
+      //       ],
+      //     },
+      //   ];
 
-        // Function to send templates with a 2-minute delay
-        const sendTemplatesWithDelay = async () => {
-          await startTemplateFlow(
-            "admission",
-            "en",
-            consumer.phone,
-            components
-          );
+      //   // Function to send templates with a 2-minute delay
+      //   const sendTemplatesWithDelay = async () => {
+      //     await startTemplateFlow(
+      //       "admission",
+      //       "en",
+      //       consumer.phone,
+      //       components
+      //     );
 
-          const delay = async (ms: number) => {
-            return new Promise<void>((resolve) => {
-              setTimeout(() => {
-                resolve();
-              }, ms);
-            });
-          };
+      //     const delay = async (ms: number) => {
+      //       return new Promise<void>((resolve) => {
+      //         setTimeout(() => {
+      //           resolve();
+      //         }, ms);
+      //       });
+      //     };
 
-          await delay(20000); // 20-sec delay
-          await startTemplateFlow(
-            "admission_two",
-            "en",
-            consumer.phone,
-            components
-          );
-          await delay(20000); // 20-sec delay
-          await startTemplateFlow(
-            "admission_2_hours",
-            "en",
-            consumer.phone,
-            components
-          );
-          await delay(20000); // 2-minute delay
-          await startTemplateFlow(
-            "admission_one_day",
-            "en",
-            consumer.phone,
-            components
-          );
-          await delay(20000);
-          await startTemplateFlow(
-            "admission_morning",
-            "en",
-            consumer.phone,
-            components
-          );
-          await delay(20000);
-          await startTemplateFlow(
-            "admission_one_hour",
-            "en",
-            consumer.phone,
-            components
-          );
-          await delay(20000);// Add more delays and template calls as needed
-        };
+      //     await delay(20000); // 20-sec delay
+      //     await startTemplateFlow(
+      //       "admission_two",
+      //       "en",
+      //       consumer.phone,
+      //       components
+      //     );
+      //     await delay(20000); // 20-sec delay
+      //     await startTemplateFlow(
+      //       "admission_2_hours",
+      //       "en",
+      //       consumer.phone,
+      //       components
+      //     );
+      //     await delay(20000); // 2-minute delay
+      //     await startTemplateFlow(
+      //       "admission_one_day",
+      //       "en",
+      //       consumer.phone,
+      //       components
+      //     );
+      //     await delay(20000);
+      //     await startTemplateFlow(
+      //       "admission_morning",
+      //       "en",
+      //       consumer.phone,
+      //       components
+      //     );
+      //     await delay(20000);
+      //     await startTemplateFlow(
+      //       "admission_one_hour",
+      //       "en",
+      //       consumer.phone,
+      //       components
+      //     );
+      //     await delay(20000);// Add more delays and template calls as needed
+      //   };
 
-        sendTemplatesWithDelay();
-      }
+      //   sendTemplatesWithDelay();
+      // }
 
       const result = await insertPatientStatusDetail(payload, session);
 
