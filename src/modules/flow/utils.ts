@@ -8,7 +8,6 @@ export const createTextPayload = (message: string) => {
       preview_url: true,
       //i want sender then use this
       // body: `*${sender}*\n ${message}`,
-      
       body: ` ${message}`,
     },
   };
@@ -80,7 +79,7 @@ export const createListPayload = (node: iListNode) => {
               {
                 id: node.listId0,
                 title: node.listTitle0,
-                description: node.listDesc0? node.listDesc0 : node.listTitle0,
+                description: node.listDesc0 ? node.listDesc0 : node.listTitle0,
               },
             ],
           },
@@ -157,7 +156,10 @@ export const createListPayload = (node: iListNode) => {
   return payload;
 };
 
-export const createHeader = (type: "video" | "document" | "image", link: string) => {
+export const createHeader = (
+  type: "video" | "document" | "image",
+  link: string
+) => {
   switch (type) {
     case "video":
       return {
@@ -194,10 +196,3 @@ export const createImagePayload = (location: string, sender: string) => {
     },
   };
 };
-
-
-
-
-
-
-

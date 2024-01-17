@@ -23,15 +23,17 @@ export const createReplyNode = async (
   nodes: iReplyNode[],
   session: ClientSession
 ) => {
-  return await MongoService.collection(Collections.FLOW_HINDI).insertMany(nodes, {
-    session,
-  });
+  return await MongoService.collection(Collections.FLOW_HINDI).insertMany(
+    nodes,
+    {
+      session,
+    }
+  );
 };
 type ImagePayload = {
   url: string;
   caption: string;
 };
-
 
 export const createListNode = async (
   nodes: iListNode[],
@@ -45,23 +47,21 @@ export const createListNode = async (
   );
 };
 
-
-
 const findNodeWithId = async (nodeId: string) => {
-  console.log(nodeId, "node id for web hook")
+  console.log(nodeId, "node id for web hook");
   return await MongoService.collection(Collections.FLOW).findOne<
     iReplyNode | iListNode
   >({ nodeId });
-
 };
-
 
 const findFlowByIdhindi = async (nodeId: string) => {
- 
   return await MongoService.collection(Collections.FLOW_HINDI).findOne<
     iReplyNode | iListNode
-  >({nodeId});
+  >({ nodeId });
 };
+
+
+
 
 export const findAndSendNode = async (
   nodeIdentifier: string,
@@ -126,6 +126,45 @@ export const findAndSendNodeHindi = async (
 // export const findAndSendNode = async (
 //   nodeIdentifier: string,
 //   receiver: string,
+
+//   ticket: string,
+//   stageCode?: number | undefined
+// ) => {
+//   let node = await findNodeWithId(nodeIdentifier);
+//   console.log(node ,"this is node for node identifier")
+//   console.log("stagecode",stageCode);
+//   let nodeName = null;
+//   if (stageCode === 2) {
+//     nodeName = "How";
+//   }
+//   if (stageCode === 3) {
+//     nodeName = "Recovery";
+//   }
+//   if (stageCode === 4) {
+//     nodeName = "Untreated";
+//   }
+
+//   // let node = await findNodeWithId(nodeIdentifier, nodeName);
+//   if (node === null) {
+//     node = await findNodeWithId("DF");
+//   }
+//   if (node === null) throw new Error("Node not found");
+//   if (node.type === "reply") {
+//     const replyPayload = createReplyPayload(node);
+//     await sendMessage(receiver, replyPayload);
+//   } else if (node.type === "list") {
+//     const listPayload = createListPayload(node);
+//     await sendMessage(receiver, listPayload);
+//   }
+//   delete node._id;
+//   // await saveFlowMessages(ticket, node._id!);
+//   await saveSentFlowMessage(ticket, node);
+// };
+
+
+// export const findAndSendNode = async (
+//   nodeIdentifier: string,
+//   receiver: string,
   
 //   ticket: string,
 //   stageCode?: number | undefined
@@ -168,12 +207,9 @@ export const saveSentFlowMessage = async (ticket: string, node: any) => {
     .doc(ticket)
     .collection(fsCollections.MESSAGES)
     .doc()
-    
+
     .set({ ...node, createdAt: Date.now(), type: "sent" });
 };
-
-
-
 
 export const startTemplateFlow = async (
   templateName: string,
@@ -189,7 +225,6 @@ export const startTemplateFlow = async (
   );
 };
 // connect flow
-
 
 export const connectFlow = async (
   connector: iFlowConnect,
@@ -216,7 +251,7 @@ export const findFlowConnectorByTemplateIdentifier = async (
 };
 export const sendTextMessage = async (
   message: string,
-  receiver: string,
+  receiver: string
   // sender: string
 ) => {
   // const textPayload = createTextPayload(message, sender);
@@ -224,7 +259,6 @@ export const sendTextMessage = async (
 
   await sendMessage(receiver, textPayload);
 };
-
 
 export const sendImage = async (
   location: string,
@@ -243,7 +277,7 @@ export const createNodeIndexes = async () => {
   });
 };
 export const findNodeByDiseaseId = async (flowQuery: string) => {
-  return await MongoService.collection(Collections.FLOW)   
+  return await MongoService.collection(Collections.FLOW)
     .find({ $text: { $search: flowQuery } })
     .toArray();
 };
@@ -252,7 +286,7 @@ export const getConnector = async (pageLength: number, page: number) => {
   return await MongoService.collection(Collections.FLOW_CONNECT)
     .find<iFlowConnect>({})
     .limit(pageLength)
-    .skip(pageLength * page) 
+    .skip(pageLength * page)
     .toArray();
 };
 

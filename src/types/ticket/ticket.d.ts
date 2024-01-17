@@ -1,19 +1,20 @@
 import { ObjectId } from "mongodb";
-
 export interface subStageCodeType {
   active: boolean;
   code: number;
 }
-
 export interface iTicket {
   _id?: ObjectId;
   consumer: ObjectId;
   stage: ObjectId;
   subStageCode: subStageCodeType;
   modifiedDate: Date | null;
+  department: ObjectId | null;
   prescription: ObjectId;
   creator: ObjectId;
   assigned: ObjectId;
+  logged: boolean;
+  group: ObjectId | null;
   value?: number;
   highlights?: string[];
   date: Date;
@@ -23,15 +24,14 @@ export interface iTicketUpdate {
   subStageCode?: subStageCodeType;
   modifiedDate?: Date | null;
 }
-
 export interface iPrescription {
   consumer: ObjectId;
   departments: ObjectId[]; // remove sub department
   doctor: name;
-  condition: string; //-
-  symptoms: string; //-
+  condition: string;
+  symptoms: string;
   followUp: Date;
-  isPharmacy:string;
+  isPharmacy: string;
   image: string;
   medicines: string[] | null; //-
   diagnostics: string[] | null;
@@ -43,7 +43,6 @@ export interface iPrescription {
   created_Date: Date | number | string;
   // care giver
 }
-
 export interface iEstimate {
   _id: ObjectId;
   type: number; // 0 packaged, 1 non packaged
@@ -71,14 +70,12 @@ export interface iEstimate {
   prescription: ObjectId;
   ticket: ObjectId;
 }
-
 export interface iNote {
   text: string;
   ticket: ObjectId;
   creator: ObjectId;
   createdAt: string | number;
 }
-
 export interface ifollowUp {
   id?: ObjectId;
   name: string;
@@ -90,10 +87,17 @@ export interface ifollowUp {
   followUpDate1: Date | string | number | null;
   followUpDate2: Date | string | number | null;
 }
-
 export interface iSkip {
   text: string;
   ticket: ObjectId;
   creator: ObjectId;
   createdAt: string | number;
+}
+export interface iflowData {
+  _id: string;
+  nodeName: string;
+  headerType: string;
+  vedio: string;
+  image: string;
+  text: string;
 }

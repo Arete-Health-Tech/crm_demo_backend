@@ -5,11 +5,9 @@ import { ifollowUp, iPrescription, iTicket } from "../../types/ticket/ticket";
 import MongoService, { Collections } from "../../utils/mongo";
 import getDatabase from "../../utils/mongo";
 export const FOLLOWUP = "followUp";
-
 export const TICKET_DB = "ticket";
 export const PRESCRIPTION_DB = "prescription";
-export const PATIENTSTATUS_DB = "patientStatus"
-
+export const PATIENTSTATUS_DB = "patientStatus";
 const createSearchIndex = async () => {
   await MongoService.collection(TICKET_DB).createIndex({
     serviceId: "text",
@@ -18,35 +16,28 @@ const createSearchIndex = async () => {
     departmentType: "text",
   });
 };
-
 // createSearchIndex();
-
 const createUniqueServiceIndex = async () => {
   await MongoService.collection(TICKET_DB).createIndex(
     { serviceId: 1 },
     { unique: true }
   );
 };
-
 // createUniqueServiceIndex();
-
 // service
 export const createManyServices = async (services: iTicket[]): Promise<any> => {
   await MongoService.collection(TICKET_DB).insertMany(services);
   return services;
 };
-
 export const findOneService = async (query: Object): Promise<CONSUMER> => {
   const consumer = await MongoService.collection(TICKET_DB).findOne(query);
   return consumer as CONSUMER;
 };
-
 export const findServices = async (query: Object) => {
   return await MongoService.collection(Collections.SERVICE)
     .find<iService>(query)
     .toArray();
 };
-
 // ticket
 export const createOneTicket = async (
   ticket: iTicket,
@@ -55,19 +46,16 @@ export const createOneTicket = async (
   await MongoService.collection(TICKET_DB).insertOne(ticket, { session });
   return ticket;
 };
-
 export const findTicket = async (query: object): Promise<iTicket[]> => {
   return await MongoService.collection(TICKET_DB)
     .find<iTicket>(query)
     .toArray();
 };
-
 export const findTicketById = async (ticketId: ObjectId) => {
   return await MongoService.collection(Collections.TICKET).findOne<iTicket>({
     _id: ticketId,
   });
 };
-
 //prescription
 export const createOnePrescription = async (
   prescription: iPrescription,
@@ -78,7 +66,6 @@ export const createOnePrescription = async (
   });
   return prescription;
 };
-
 export const findPrescriptionById = async (prescriptionId: ObjectId) => {
   return await MongoService.collection(
     Collections.PRESCRIPTION
@@ -87,17 +74,16 @@ export const findPrescriptionById = async (prescriptionId: ObjectId) => {
   });
 };
 
+
 export const findPrescription = async (query: any) => {
   return await MongoService.collection(Collections.PRESCRIPTION)
     .find<iPrescription>(query)
     .toArray();
 };
-
 export const createOneFollowUp = async (followUp: ifollowUp) => {
   await MongoService.collection(FOLLOWUP).insertOne(followUp);
   return followUp;
 };
-
 export const insertPatientStatusDetail = async (
   statusDetail: any,
   session: ClientSession
@@ -107,7 +93,6 @@ export const insertPatientStatusDetail = async (
   });
   return statusDetail;
 };
-
 export const findOnePrescription = async (query: any) => {
   return await MongoService.collection(
     Collections.PRESCRIPTION
