@@ -123,6 +123,7 @@ export const HandleWebhook = async (
                 if (!departmentSet.has(prescription?.departments[0].toString()))
                   return;
                 if (message.button) {
+                  console.log(message.button," this is button")
                   if (message.button.text.toLowerCase() === "hindi") {
                     await findAndSendNodeHindi(
                       prescription.service
