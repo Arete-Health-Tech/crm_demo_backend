@@ -30,6 +30,7 @@ export const CreateReminder = PromiseWrapper(
     console.log(req.user," this is user")
     console.log(req.body.user , " terin maaa ki chut")
     const reminderPayload: iReminder = { ...req.body};
+  
     const id = ticket.assigned;
     const stop = await findRepresentative(id);
     const mobile: any = stop?.phone;

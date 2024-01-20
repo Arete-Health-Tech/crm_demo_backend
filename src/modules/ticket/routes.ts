@@ -42,10 +42,18 @@ router
     validations.patientStatusValidate,
     controllers.createPatientStatus
   );
-router.route("/validateTicket").put(controllers.validateTicket);
-router.route("/skip").post( controllers.skipResult);
+// router.route("/validateTicket").put(controllers.validateTicket);
+// router.route("/skip").post( controllers.skipResult);
 router.route("/skipEstimate").post(controllers.skipEstimate);
 
 router.route("/ticketResult").post(controllers.skipResult);
 router.route("/updateConsumer/:id").put(controllers.updateTicketHandler);
+// router.route("/search/:key").get(async (req, resp) => {
+//   const query = { firstName: { $regex: /name-to-search/i } };
+//   const consumers = await MongoService.collection("consumer")
+//     .find<CONSUMER>(query)
+//     .toArray();
+//   return consumers;
+// });
+// router.route("/ticketResult").post(controllers.skipResult);
 export default router;

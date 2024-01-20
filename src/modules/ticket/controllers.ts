@@ -1741,100 +1741,101 @@ export const updateTicketData = PromiseWrapper(
       const whatsNumber = consumerData.phone;
       console.log(whatsNumber, "this is whats up number");
 
-      const service = ticketData.prescription;
-      console.log(service, " this is service");
+const service = ticketData.prescription ;
+              console.log(service , " this is service");
 
-      const msgId = await findOnePrescription(service);
-      const oneService: string | undefined = msgId?.service?.toString();
-      console.log(oneService, "oneService i sthe oneService in the nont");
-      if (stageCode === 2 && oneService !== undefined) {
-        const messageFind: any = await findMeassage(oneService);
+              const msgId = await findOnePrescription(service);
+              const oneService : string | undefined= msgId?.service?.toString();
+              console.log(oneService , "oneService i sthe oneService in the nont")
+              if (stageCode === 2 && oneService !== undefined) {
+                const messageFind : any= await findMeassage(oneService);
 
-        console.log(messageFind, " this is messageFind");
-
-        const replyPayload = createReplyPayload(messageFind);
-        console.log(replyPayload, "this is a reply payload");
-        await sendMessage(whatsNumber, replyPayload);
-        //  setTimeout(async () => {
-        //    const serviceIDS: any = await findOnePrescription(
-        //      ticketData.prescription
-        //    );
-        //    console.log(serviceIDS, " bdyufgdhw body of pre");
-        //    console.log(
-        //      serviceIDS?.service?.toString(),
-        //      "this is id "
-        //    );
-        //    if (
-        //      serviceIDS?.service?.toString() ===
-        //      "64d3512171bf84a64c1e6539"
-        //    ) {
-        //      if (stageCode === 2) {
-        //        console.log("write message here");
-        //        await herniaHowVideo(whatsNumber);
-        //        await herniaHowText(whatsNumber);
-        //      }
-        //      if (stageCode === 3) {
-        //        console.log("2  how are the 3rd stage ");
-        //        await herniaRecoveryImage(whatsNumber);
-        //        await herniaRecoveryText(whatsNumber);
-        //      }
-        //      if (stageCode === 4) {
-        //        console.log("2  how are the 3rd stage ");
-        //        await herniaUntreatedImage(whatsNumber);
-        //        await herniaUntreatedText(whatsNumber);
-        //      }
-        //    } else if (
-        //      serviceIDS?.service?.toString() ===
-        //      "64d3516871bf84a64c1e653a"
-        //    ) {
-        //      if (stageCode === 2) {
-        //        console.log("write message here");
-        //        await hysterectomyHowVideo(whatsNumber);
-        //        await hysterectomyHowText(whatsNumber);
-        //      }
-        //      if (stageCode === 3) {
-        //        console.log("2  how are the 3rd stage ");
-        //        await hysterectomyRecoveryText(whatsNumber);
-        //        await hysterectomyRecoveryImage(whatsNumber);
-        //      }
-        //      if (stageCode === 4) {
-        //        console.log("2  how are the 3rd stage ");
-        //        await hysterectomyUntreatedImage(whatsNumber);
-        //        await hysterectomyUntreatedText(whatsNumber);
-        //      }
-        //    } else if (
-        //      serviceIDS?.service?.toString() ===
-        //      "64d3518171bf84a64c1e653b"
-        //    ) {
-        //      if (stageCode === 2) {
-        //        console.log("write message here");
-        //        await cabgHowImage(whatsNumber);
-        //        await cabgHowText(whatsNumber);
-        //      }
-        //      if (stageCode === 3) {
-        //        console.log("2  how are the 3rd stage ");
-        //        await cabgRecoveryText(whatsNumber);
-        //        await cabgRecoveryImage(whatsNumber);
-        //      }
-        //      if (stageCode === 4) {
-        //        console.log("2  how are the 3rd stage ");
-        //        await cabgUntreatedImage(whatsNumber);
-        //        await cabgUntreatedText(whatsNumber);
-        //      }
-        //    }
-        //  }, 3000);
-
-        //                  const headreeLink = messageFind.headerLink ;
-        //                  const message = messageFind?.body
-        //                  console.log(headreeLink,"this is header link ");
-        //                  const newData = JSON.stringify(message);
-        // console.log(message, "this is body");
-        // // await sendStageChangeMessageText(whatsNumber, message);
-        // // await sendStageChangeMessageMedia(whatsNumber, headreeLink);
-        // const newMera= sendStageChangeMessageInteractive(whatsNumber);
-        // await sendMessage(whatsNumber, newMera);
-        // }
-      }
+                console.log(messageFind , " this is messageFind")
+               
+                   const replyPayload = createReplyPayload(messageFind);
+                   console.log(replyPayload, "this is a reply payload");
+                   await sendMessage(whatsNumber, replyPayload);
+                  //  setTimeout(async () => {
+                  //    const serviceIDS: any = await findOnePrescription(
+                  //      ticketData.prescription
+                  //    );
+                  //    console.log(serviceIDS, " bdyufgdhw body of pre");
+                  //    console.log(
+                  //      serviceIDS?.service?.toString(),
+                  //      "this is id "
+                  //    );
+                  //    if (
+                  //      serviceIDS?.service?.toString() ===
+                  //      "657a83447701108642bbe470"
+                  //    ) {
+                  //      if (stageCode === 2) {
+                  //        console.log("write message here");
+                  //        await herniaHowVideo(whatsNumber);
+                  //        await herniaHowText(whatsNumber);
+                  //      }
+                  //      if (stageCode === 3) {
+                  //        console.log("2  how are the 3rd stage ");
+                  //        await herniaRecoveryImage(whatsNumber);
+                  //        await herniaRecoveryText(whatsNumber);
+                  //      }
+                  //      if (stageCode === 4) {
+                  //        console.log("2  how are the 3rd stage ");
+                  //        await herniaUntreatedImage(whatsNumber);
+                  //        await herniaUntreatedText(whatsNumber);
+                  //      }
+                  //    } else if (
+                  //      serviceIDS?.service?.toString() ===
+                  //      "657a83057701108642bbe46f"
+                  //    ) {
+                  //      if (stageCode === 2) {
+                  //        console.log("write message here");
+                  //        await hysterectomyHowVideo(whatsNumber);
+                  //        await hysterectomyHowText(whatsNumber);
+                  //      }
+                  //      if (stageCode === 3) {
+                  //        console.log("2  how are the 3rd stage ");
+                  //        await hysterectomyRecoveryText(whatsNumber);
+                  //        await hysterectomyRecoveryImage(whatsNumber);
+                  //      }
+                  //      if (stageCode === 4) {
+                  //        console.log("2  how are the 3rd stage ");
+                  //        await hysterectomyUntreatedImage(whatsNumber);
+                  //        await hysterectomyUntreatedText(whatsNumber);
+                  //      }
+                  //    } else if (
+                  //      serviceIDS?.service?.toString() ===
+                  //      "657a83787701108642bbe471"
+                  //    ) {
+                  //      if (stageCode === 2) {
+                  //        console.log("write message here");
+                  //        await cabgHowImage(whatsNumber);
+                  //        await cabgHowText(whatsNumber);
+                  //      }
+                  //      if (stageCode === 3) {
+                  //        console.log("2  how are the 3rd stage ");
+                  //        await cabgRecoveryText(whatsNumber);
+                  //        await cabgRecoveryImage(whatsNumber);
+                  //      }
+                  //      if (stageCode === 4) {
+                  //        console.log("2  how are the 3rd stage ");
+                  //        await cabgUntreatedImage(whatsNumber);
+                  //        await cabgUntreatedText(whatsNumber);
+                  //      }
+                  //    }
+                  //  }, 3000);
+                 
+                
+//                  const headreeLink = messageFind.headerLink ;
+//                  const message = messageFind?.body
+//                  console.log(headreeLink,"this is header link ");
+//                  const newData = JSON.stringify(message);
+// console.log(message, "this is body");
+// // await sendStageChangeMessageText(whatsNumber, message);
+// // await sendStageChangeMessageMedia(whatsNumber, headreeLink);
+// const newMera= sendStageChangeMessageInteractive(whatsNumber);
+// await sendMessage(whatsNumber, newMera);
+              // }
+              }
       res.status(200).json({ result: `Stage updated to ${stage.name}!` });
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
@@ -1901,7 +1902,6 @@ export const EstimateUploadAndSend = PromiseWrapper(
 );
 
 
-
 const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
 
 
@@ -1952,72 +1952,32 @@ export const createPatientStatus = PromiseWrapper(
     next: NextFunction,
     session: ClientSession
   ) => {
-    try {
-      const requestBody = req.body;
-      console.log(requestBody ,"requestBody");
-      let imageKey: string | null = null;
-      
-      if (req.file) {
-        const { Key } = await putMedia(
-          req.file,
-         ` patients/${requestBody.consumer}/${requestBody.ticket}/patientStatus`,
-          BUCKET_NAME
-        );
-        imageKey = `https://${BUCKET_NAME}.s3.ap-south-1.amazonaws.com/${Key}`;
-        console.log(imageKey, "image key is after");
-      }
-      const payload = {
-        parentTicketId: requestBody.ticket,
-        consumer: requestBody.consumer,
-        note: requestBody.note || "",
-        dropReason: requestBody.dropReason || "",
-        paymentRefId: requestBody.paymentRefId || "",
-        image: imageKey,
-      };
-      
-      const result = await insertPatientStatusDetail(payload, session);
-      const remove = await UpdateDate(requestBody.ticket , { modifiedDate: new Date()} , session);
+    const requestBody = req.body;
+    console.log(requestBody, "under the hood");
+    console.log(req.file, "under under");
+    let imageKey: string | null = null;
 
-      if (payload.note?.length > 0) {
-        const hardcodedObjectId = '65991601a62baad220000001';
-        try {
-          if (hardcodedObjectId) {
-            const wonId = hardcodedObjectId.toString();
-            const ticketId = requestBody.ticket.toString();
-            await addFilterWon(ticketId, wonId, session);
-          } else {
-            console.error('Invalid ObjectId format');
-            // Handle the case where the provided string doesn't match ObjectId format
-          }
-        } catch (error) {
-          console.error('Error while constructing ObjectId:', error);
-          // Handle any potential errors during ObjectId creation
-        }
-      }
-      if(payload.dropReason?.length > 0){
-        const hardcodedObjectId = '65991601a62baad220000002';
-        try {
-          if (hardcodedObjectId) {
-            const lossId = hardcodedObjectId.toString();
-            const ticketId = requestBody.ticket.toString();
-            await addFilterlass (ticketId, lossId, session);
-          } else {
-            console.error('Invalid ObjectId format');
-            // Handle the case where the provided string doesn't match ObjectId format
-          }
-        } catch (error) {
-          console.error('Error while constructing ObjectId:', error);
-          // Handle any potential errors during ObjectId creation
-        }
-      }
-      
-      
- 
-      res.status(200).json({ result,  status: "Success" });
-    } catch (error) {
-      console.error("Error in createPatientStatus:", error);
-      res.status(500).json({ status: 500, error: "Internal Server Error" });
+    if (req.file) {
+      const { Key } = await putMedia(
+        req.file,
+        `patients/${requestBody.consumer}/${requestBody.ticket}/patientStatus`,
+        BUCKET_NAME
+      );
+      imageKey = `https://${BUCKET_NAME}.s3.ap-south-1.amazonaws.com/${Key}`;
+      console.log(imageKey, "image key is after");
     }
+
+    const payload = {
+      parentTicketId: requestBody.ticket,
+      consumer: requestBody.consumer,
+      note: requestBody.note || "",
+      dropReason: requestBody.dropReason || "",
+      paymentRefId: requestBody.paymentRefId || "",
+      image: imageKey,
+    };
+
+    const result = await insertPatientStatusDetail(payload, session);
+    res.status(200).json({ result, status: "Success" });
   }
 );
 
