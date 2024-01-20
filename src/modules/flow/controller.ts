@@ -123,8 +123,8 @@ export const HandleWebhook = async (
                 ticket?._id 
                
               ) {
-                if (!departmentSet.has(prescription?.departments[0].toString()))
-                  return;
+                // if (!departmentSet.has(prescription?.departments[0].toString()))
+                //   return;
                 if (message.button) {
                   console.log(message.button," this is button")
                   if (message.button.text.toLowerCase() === "hindi") {
