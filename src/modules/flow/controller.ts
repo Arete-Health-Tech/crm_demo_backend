@@ -105,10 +105,13 @@ export const HandleWebhook = async (
         changes.value.messages.forEach((message, mi) => {
           (async function () {
             try {
+              console.log(message.button," this is button  ")
               const { prescription, ticket } =
                 await findTicketAndPrescriptionFromWAID(
                   changes.value.contacts[mi].wa_id
                 );
+                console.log(prescription," yif skdjsdjisfsfgdsggdg");
+                console.log(ticket," this is ticket ");
               const departmentSet = new Set([
                 "63ce58474dca242deb6a4d41",
                 "63ce59964dca242deb6a4d4c",
