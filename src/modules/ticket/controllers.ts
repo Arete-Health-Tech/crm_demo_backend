@@ -93,6 +93,11 @@ import {
   createResult,
   getFlowData,
   updateSubStage2,
+  UpdateDate,
+  addFilterWon,
+  addFilterlass,
+  updateTicketConsumer,
+ 
 } from "./functions";
 
 import { CONSUMER } from "../../types/consumer/consumer";
@@ -117,6 +122,7 @@ import { REPRESENTATIVE } from "../../types/representative/representative";
 import isLoggedIn from "../../middleware/authorization/isLoggedIn";
 import { link } from "pdfkit";
 import { createReplyPayload } from "../flow/utils";
+import { ObjectIdLike } from "bson";
 // import JWT from "jsonwebtoken";
 
 type ticketBody = iTicket & iPrescription;
@@ -253,6 +259,8 @@ export const createTicket = PromiseWrapper(
           group: new ObjectId(groupId2),
           modifiedDate: null,
           department: null,
+          result: null,
+          status: null,
         },
         session
       );
@@ -350,9 +358,9 @@ export const getRepresentativeTickets = PromiseWrapper(
   async (req: Request, res: Response, next: NextFunction) => {
     const requestQuery: any = req.query;
     console.log(requestQuery, " this is request query ");
-    console.log(requestQuery.phonev, "this is number");
+    // console.log(requestQuery.phonev, "this is number");
     const phone = parseInt(requestQuery.phonev);
-    console.log(phone, " this is numbe");
+    // console.log(phone, " this is numbe");
     const download = requestQuery.downloadAll;
     const pageNum: any = parseInt(requestQuery?.page) || 1;
     const skipCount = download !== "true" ? (parseInt(pageNum) - 1) * 10 : 0;
@@ -362,14 +370,33 @@ export const getRepresentativeTickets = PromiseWrapper(
           ?.split(",")
           .map((id: string) => new ObjectId(id))
       : [];
+      const stageList2 = requestQuery.results
+        ? requestQuery.results
+            .split(",")
+            .filter((id: string) => id && id !== "null" && id !== "undefined") // Filtering out invalid values
+            .map(
+              (
+                id:
+                  | string
+                  | number
+                  | Buffer
+                  | Uint8Array
+                  | ObjectId
+                  | ObjectIdLike
+                  | undefined
+              ) => new ObjectId(id)
+            )
+        : [];
+    const result = requestQuery.results ? requestQuery.results : [];
+    console.log(result , " this is result");
     const rep = await MongoService.collection(REPRESENTATIVE_DB).findOne({
       phone: phone,
     });
-    console.log(rep, " india");
+    // console.log(rep, " india");
     const admin = rep?.role;
-    console.log(admin, " this is admin");
+    // console.log(admin, " this is admin");
     const TBH = rep?._id;
-    console.log(TBH, " THB");
+    // console.log(TBH, " THB");
     const representative = requestQuery?.representative;
     // if (rep && rep.departement) {
     //   const ticketIdToUpdate = "your_ticket_id"; // Replace with the actual ticket ID you want to update
@@ -395,6 +422,16 @@ export const getRepresentativeTickets = PromiseWrapper(
 
       if (stageList?.length > 0) {
         filters = { ...filters, stage: { $in: stageList } };
+      }
+
+      if (stageList2?.length > 0 && requestQuery.results !== "null") {
+        filters = { ...filters, result: { $in: stageList2 } };
+      }
+      
+      let filter = {};
+      if(result?.length > 0){
+          filter = { ...filter, stage: { $in: result } };
+        
       }
 
       if (representative !== undefined && representative !== "null") {
@@ -428,10 +465,13 @@ export const getRepresentativeTickets = PromiseWrapper(
             const ticketsResult = await createTicketLookUps();
             const listOfTicketObjects = ticketsResult?.tickets;
 
+            // if (listOfTicketObjects.length < 1)
+            //   return res
+            //     .status(500)
+            //     .json({ message: "NO Tickets Found In DB", ...ticketsResult });
+
             if (listOfTicketObjects.length < 1)
-              return res
-                .status(500)
-                .json({ message: "NO Tickets Found In DB", ...ticketsResult });
+              return res.status(200).json({ tickets: [], count: 0 });
 
             let TicketCacheObj: any = {};
             listOfTicketObjects.forEach((currentTicket: any) => {
@@ -644,6 +684,10 @@ export const getRepresentativeTickets = PromiseWrapper(
         filters = { ...filters, stage: { $in: stageList } };
       }
 
+      if (stageList2?.length > 0 && requestQuery.results !== "null") {
+        filters = { ...filters, result: { $in: stageList2 } };
+      }
+
       if (representative !== undefined && representative !== "null") {
         filters = { ...filters, creator: new ObjectId(representative) };
       }
@@ -668,16 +712,14 @@ export const getRepresentativeTickets = PromiseWrapper(
           //}
         }
         try {
-          const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
+          const data = await(await redisClient).GET(TICKET_CACHE_OBJECT);
           if (data === null) {
             console.log("No cache in redis!");
             const ticketsResult = await createTicketLookUps();
             const listOfTicketObjects = ticketsResult?.tickets;
 
-            if (listOfTicketObjects.length < 1)
-              return res
-                .status(500)
-                .json({ message: "NO Tickets Found In DB", ...ticketsResult });
+           if (listOfTicketObjects.length < 1)
+             return res.status(200).json({ tickets: [], count: 0 });
 
             let TicketCacheObj: any = {};
             listOfTicketObjects.forEach((currentTicket: any) => {
@@ -687,9 +729,10 @@ export const getRepresentativeTickets = PromiseWrapper(
 
             const finalTicketCaches = JSON.stringify(TicketCacheObj);
 
-            await (
-              await redisClient
-            ).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
+            await(await redisClient).SET(
+              TICKET_CACHE_OBJECT,
+              finalTicketCaches
+            );
 
             console.log("final tickets cache being saved to redis!");
 
@@ -885,18 +928,14 @@ export const getRepresentativeTickets = PromiseWrapper(
         tickets: tickets[0].data,
         count: tickets[0]?.count[0]?.totalCount || 0,
       });
-    } else {
-      console.log("come inside representative");
-      const alltickets = await MongoService.collection(Collections.TICKET)
-        .find({ assigned: TBH })
-        .toArray();
-      const lastTicket = alltickets[alltickets.length - 1];
-
-      const filterAssigned = lastTicket.assigned.toString();
-
+    } else if (requestQuery.phonev === "null") {
       let filters = {};
       if (stageList?.length > 0) {
         filters = { ...filters, stage: { $in: stageList } };
+      }
+
+      if (stageList2?.length > 0 && requestQuery.results !== "null") {
+        filters = { ...filters, result: { $in: stageList2 } };
       }
 
       if (representative !== undefined && representative !== "null") {
@@ -923,7 +962,269 @@ export const getRepresentativeTickets = PromiseWrapper(
           //}
         }
         try {
-          const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
+          const data = await(await redisClient).GET(TICKET_CACHE_OBJECT);
+          if (data === null) {
+            console.log("No cache in redis!");
+            const ticketsResult = await createTicketLookUps();
+            const listOfTicketObjects = ticketsResult?.tickets;
+
+          if (listOfTicketObjects.length < 1)
+            return res.status(200).json({ tickets: [], count: 0 });
+
+            let TicketCacheObj: any = {};
+            listOfTicketObjects.forEach((currentTicket: any) => {
+              let ticket_ID: string = currentTicket._id.toString();
+              TicketCacheObj[ticket_ID] = currentTicket;
+            }); // setting {id: ticketdata} pair
+
+            const finalTicketCaches = JSON.stringify(TicketCacheObj);
+
+            await(await redisClient).SET(
+              TICKET_CACHE_OBJECT,
+              finalTicketCaches
+            );
+
+            console.log("final tickets cache being saved to redis!");
+
+            const sortedData = applyPagination(listOfTicketObjects, 1, 10);
+
+            const ticketsJson: iTicketsResultJSON = {
+              tickets: sortedData,
+              count: listOfTicketObjects.length,
+            };
+
+            console.log("sending to client...");
+            return res.status(200).json(ticketsJson) && console.log("DONE!");
+          } else {
+            console.log("Cache being fetched from redis...");
+
+            let ticketObjCache = JSON.parse(data);
+            //  const appapa = await createsortedData(filterAssigned);
+            // const lalala = appapa.tickets.length;
+            // console.log(lalala , " kya hai  yeah ");
+
+            if (fetchUpdated === "true") {
+              ticketObjCache = await pushToUpdatedTicketTop(
+                fetchUpdated,
+                ticketId,
+                ticketObjCache
+              );
+            } // tempTicketcache === null ? JSON.parse(data) : tempTicketcache;
+            const listOfTicketsObj1 = Object.values(ticketObjCache);
+            //  console.log(listOfTicketsObj , "listOfTicketsObj.length");
+            const sortedTicketData = applyPagination(
+              listOfTicketsObj1,
+              pageNum,
+              10
+            );
+            //  console.log("page", pageNum, "\n");
+            const ticketsResultJson: iTicketsResultJSON = {
+              tickets: sortedTicketData,
+              count: listOfTicketsObj1.length,
+            };
+            return res.status(200).json(ticketsResultJson);
+          }
+        } catch (err: any) {
+          console.log("error : cache data", err);
+          return res.status(500).json("Error occurred while fetching from DB");
+        }
+      }
+
+      const searchQry: any[] =
+        requestQuery?.name !== UNDEFINED ? [requestQuery.name] : [];
+      //  console.log(filterAssigned , " this is Something 3  ");
+      const nameSearchQuery = {
+        $or: [
+          {
+            "consumer.firstName": {
+              $all: searchQry,
+            },
+          },
+          {
+            "consumer.lastName": {
+              $all: searchQry,
+            },
+          },
+          {
+            "consumer.phone": {
+              $all: searchQry,
+            },
+          },
+          {
+            "consumer.uid": {
+              $all: searchQry,
+            },
+          },
+        ],
+      };
+      const matchCondition =
+        download !== "true"
+          ? ticketId !== UNDEFINED
+            ? {
+                _id: new ObjectId(ticketId),
+              }
+            : searchQry.length > 0
+            ? nameSearchQuery
+            : filterFlag
+            ? {}
+            : modificationDateQuery
+          : {};
+
+      let tickets: any = await MongoService.collection(Collections.TICKET)
+        .aggregate([
+          {
+            $lookup: {
+              from: Collections.CONSUMER,
+              localField: "consumer",
+              foreignField: "_id",
+              let: { consumer: "$consumer" },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$_id", "$$consumer"] } } },
+                { $limit: 1 },
+              ],
+              as: "consumer",
+            },
+          },
+
+          {
+            $match: matchCondition,
+          },
+          {
+            $match: filters,
+          },
+          {
+            $lookup: {
+              from: Collections.PRESCRIPTION,
+              localField: "prescription",
+              let: { prescription: "$prescription" },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$_id", "$$prescription"] } } },
+                { $limit: 1 },
+              ],
+              foreignField: "_id",
+              as: "prescription",
+            },
+          },
+          {
+            $lookup: {
+              from: Collections.ESTIMATE,
+              let: { id: "$_id" },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$$id", "$ticket"] } } },
+                { $sort: { _id: -1 } },
+                { $limit: 1 },
+              ],
+              as: "estimate",
+            },
+          },
+          {
+            $lookup: {
+              from: Collections.REPRESENTATIVE,
+              localField: "creator",
+              let: { creator: "$creator" },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$_id", "$$creator"] } } },
+                { $limit: 1 },
+                { $project: { firstName: 1, lastName: 1, email: 1, phone: 1 } },
+              ],
+              foreignField: "_id",
+              as: "creator",
+            },
+          },
+          {
+            $sort: {
+              _id: -1,
+            },
+          },
+          {
+            $facet: {
+              count: [{ $count: "totalCount" }],
+              data: [{ $skip: skipCount }, { $limit: limitCount }],
+            },
+          },
+        ])
+        .toArray();
+      for await (const ticket of tickets[0].data) {
+        ticket.prescription[0].image = getMedia(ticket.prescription[0].image);
+        if (ticket.prescription[0].service) {
+          const presService = await getServiceById(
+            ticket.prescription[0].service
+          );
+          if (presService) {
+            ticket.prescription[0].service = presService;
+          }
+        }
+        ticket.createdAt = getCreateDate(ticket._id);
+        ticket.prescription[0].createdAt = getCreateDate(
+          ticket.prescription[0]._id
+        );
+
+        if (ticket.estimate[0]) {
+          const service = await findOneService({
+            _id: ticket.estimate[0].service[0]?._id,
+          });
+          ticket.estimate[0].service[0] = {
+            ...ticket.estimate[0].service[0],
+            ...service,
+          };
+          ticket.estimate[0].createdAt = getCreateDate(ticket.estimate[0]._id);
+        }
+      }
+
+      return res.status(200).json({
+        tickets: tickets[0].data,
+        count: tickets[0]?.count[0]?.totalCount || 0,
+      });
+    } else {
+      console.log("come inside representative");
+      const alltickets = await MongoService.collection(Collections.TICKET)
+        .find({ assigned: TBH })
+        .toArray();
+      // const lastTicket = alltickets[alltickets.length - 1];
+      const lastTicket =
+        alltickets.length > 0 ? alltickets[alltickets.length - 1] : null;
+
+      if (!lastTicket) {
+        // No tickets found, respond with an empty array
+        return res.status(200).json({ tickets: [], count: 0 });
+      }
+
+      const filterAssigned = lastTicket.assigned.toString();
+
+      let filters = {};
+      if (stageList?.length > 0) {
+        filters = { ...filters, stage: { $in: stageList } };
+      }
+
+      if (stageList2?.length > 0 && requestQuery.results !== "null") {
+        filters = { ...filters, result: { $in: stageList2 } };
+      }
+
+      if (representative !== undefined && representative !== "null") {
+        filters = { ...filters, creator: new ObjectId(representative) };
+      }
+      const filterFlag = Object.keys(filters).length > 0;
+      const ticketId = requestQuery.ticketId;
+      const fetchUpdated = requestQuery.fetchUpdated;
+
+      if (
+        requestQuery.name === UNDEFINED &&
+        !filterFlag &&
+        download !== "true"
+      ) {
+        // let tempTicketcache = null;
+        if (ticketId !== UNDEFINED && fetchUpdated !== "true") {
+          // if (fetchUpdated === "true") {
+          //   console.log("cache updating...")
+          //   //HERE TICKET WILL UPDATED IN CACHE IF MONGODB DATA HAS CHANGED
+          //   tempTicketcache = await RedisUpdateSingleTicketLookUp(ticketId);
+          // } else {
+          const result = await createTicketLookUps(ticketId);
+          return res.json(result);
+          //}
+        }
+        try {
+          const data = await(await redisClient).GET(TICKET_CACHE_OBJECT);
           if (data === null) {
             console.log("No cache in redis!");
             const ticketsResult = await createTicketLookUps();
@@ -942,9 +1243,10 @@ export const getRepresentativeTickets = PromiseWrapper(
 
             const finalTicketCaches = JSON.stringify(TicketCacheObj);
 
-            await (
-              await redisClient
-            ).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
+            await(await redisClient).SET(
+              TICKET_CACHE_OBJECT,
+              finalTicketCaches
+            );
 
             console.log("final tickets cache being saved to redis!");
 
@@ -994,6 +1296,7 @@ export const getRepresentativeTickets = PromiseWrapper(
           return res.status(500).json("Error occurred while fetching from DB");
         }
       }
+      const filterAssignedArray = [new ObjectId(filterAssigned)] 
 
       const searchQry: any[] =
         requestQuery?.name !== UNDEFINED ? [requestQuery.name] : [];
@@ -1029,10 +1332,10 @@ export const getRepresentativeTickets = PromiseWrapper(
             ? {}
             : modificationDateQuery
           : {};
-
+      
       const matchAssigned = {
         $match: {
-          assigned: filterAssigned, // Convert filterAssigned to ObjectId
+          assigned: { $in: filterAssignedArray }, // Convert filterAssigned to ObjectId
         },
       };
       let tickets: any = await MongoService.collection(Collections.TICKET)
@@ -1155,33 +1458,49 @@ export const createEstimateController = PromiseWrapper(
     session: ClientSession
   ) => {
     const estimateBody: iEstimateBody = req.body;
-
-    if (req.body.icuType) {
-      const icuTypeCheck = await getWardById(estimateBody.icuType);
+    console.log(estimateBody, "this bodey");
+    if (req.body.ward) {
+      const wards = new ObjectId(req.body.ward);
+      const icuTypeCheck = await getWardById(wards);
+      console.log(icuTypeCheck, "icuTypeCheck");
       if (icuTypeCheck === null)
         throw new ErrorHandler("Invalid ICU Type", 400);
     }
-    estimateBody.service.forEach(async (item) => {
-      const service = await getServiceById(item.id);
-      if (service === null) {
-        return res.status(400).json({ message: "Invalid Service Id" });
-      }
-    });
+    
+   estimateBody.service.forEach(async (item) => {
+     try {
+       const serviceId = new ObjectId(item.id); // Convert to ObjectId
+       const service = await getServiceById(serviceId);
+console.log(service," this is serviceddd");
+       if (service === null) {
+         return res.status(400).json({ message: "Invalid Service Id" });
+       }
+
+       // ... rest of your code for each service ...
+     } catch (error) {
+       console.error(error);
+       return res.status(500).json({ message: "Internal Server Error" });
+     }
+   });
     // const prescription = await getPrescriptionById(estimateBody.prescription);
     // if (prescription === null) {
     //   throw new ErrorHandler("Invalid Prescription", 400);
     // }
     // const consumer = await findConsumerById(prescription.consumer);
+    const create = req.user!._id;
+    console.log(create," this is crarte type");
     const estimate = await createEstimate(
-      { ...estimateBody, creator: new ObjectId(req.user!._id) },
+      { ...estimateBody, creator: new ObjectId(req.user?._id) },
       session
     );
+    
+    console.log(estimate ," thuis is esimate");
     await generateEstimate(estimate._id, session); // creates and send estimate pdf
-
-    const ticketData: iTicket | null = await findOneTicket(estimateBody.ticket);
+const newTicket=new ObjectId(estimateBody.ticket)
+    const ticketData: iTicket | null = await findOneTicket(newTicket);
 
     console.log("ticket data", estimateBody.ticket);
-
+ 
     if (ticketData !== null) {
       if (ticketData?.subStageCode.code < 2) {
         console.log("Im in estimation");
@@ -1535,6 +1854,7 @@ export const updateTicketSubStageCode = PromiseWrapper(
   ) => {
     try {
       let ticketId = req.body?.ticket;
+      console.log(req.body," this is currentStatus data for won")
       ticketId = new ObjectId(ticketId);
       const subStageCode = req.body?.subStageCode;
       const result = await updateSubStage(ticketId, subStageCode, session);
@@ -1586,6 +1906,45 @@ const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
 
 
 
+// export const createPatientStatus = PromiseWrapper(
+//   async (
+//     req: Request,
+//     res: Response,
+//     next: NextFunction,
+//     session: ClientSession
+//   ) => {
+//     const requestBody = req.body;
+//     console.log(requestBody, "under the hood");
+//     console.log(req.file, "under under");
+//     let imageKey: string | null = null;
+
+//     if (req.file) {
+//       const { Key } = await putMedia(
+//         req.file,
+//         `patients/${requestBody.consumer}/${requestBody.ticket}/patientStatus`,
+//         BUCKET_NAME
+//       );
+//       imageKey = `https://${BUCKET_NAME}.s3.ap-south-1.amazonaws.com/${Key}`;
+//       console.log(imageKey, "image key is after");
+//     }
+
+//     const payload = {
+//       parentTicketId: requestBody.ticket,
+//       consumer: requestBody.consumer,
+//       note: requestBody.note || "",
+//       dropReason: requestBody.dropReason || "",
+//       paymentRefId: requestBody.paymentRefId || "",
+//       image: imageKey,
+//     };
+
+//     const result = await insertPatientStatusDetail(payload, session);
+//     res.status(200).json({ result, status: "Success" });
+//   }
+// );
+
+
+
+
 export const createPatientStatus = PromiseWrapper(
   async (
     req: Request,
@@ -1593,32 +1952,72 @@ export const createPatientStatus = PromiseWrapper(
     next: NextFunction,
     session: ClientSession
   ) => {
-    const requestBody = req.body;
-    console.log(requestBody, "under the hood");
-    console.log(req.file, "under under");
-    let imageKey: string | null = null;
+    try {
+      const requestBody = req.body;
+      console.log(requestBody ,"requestBody");
+      let imageKey: string | null = null;
+      
+      if (req.file) {
+        const { Key } = await putMedia(
+          req.file,
+         ` patients/${requestBody.consumer}/${requestBody.ticket}/patientStatus`,
+          BUCKET_NAME
+        );
+        imageKey = `https://${BUCKET_NAME}.s3.ap-south-1.amazonaws.com/${Key}`;
+        console.log(imageKey, "image key is after");
+      }
+      const payload = {
+        parentTicketId: requestBody.ticket,
+        consumer: requestBody.consumer,
+        note: requestBody.note || "",
+        dropReason: requestBody.dropReason || "",
+        paymentRefId: requestBody.paymentRefId || "",
+        image: imageKey,
+      };
+      
+      const result = await insertPatientStatusDetail(payload, session);
+      const remove = await UpdateDate(requestBody.ticket , { modifiedDate: new Date()} , session);
 
-    if (req.file) {
-      const { Key } = await putMedia(
-        req.file,
-        `patients/${requestBody.consumer}/${requestBody.ticket}/patientStatus`,
-        BUCKET_NAME
-      );
-      imageKey = `https://${BUCKET_NAME}.s3.ap-south-1.amazonaws.com/${Key}`;
-      console.log(imageKey, "image key is after");
+      if (payload.note?.length > 0) {
+        const hardcodedObjectId = '65991601a62baad220000001';
+        try {
+          if (hardcodedObjectId) {
+            const wonId = hardcodedObjectId.toString();
+            const ticketId = requestBody.ticket.toString();
+            await addFilterWon(ticketId, wonId, session);
+          } else {
+            console.error('Invalid ObjectId format');
+            // Handle the case where the provided string doesn't match ObjectId format
+          }
+        } catch (error) {
+          console.error('Error while constructing ObjectId:', error);
+          // Handle any potential errors during ObjectId creation
+        }
+      }
+      if(payload.dropReason?.length > 0){
+        const hardcodedObjectId = '65991601a62baad220000002';
+        try {
+          if (hardcodedObjectId) {
+            const lossId = hardcodedObjectId.toString();
+            const ticketId = requestBody.ticket.toString();
+            await addFilterlass (ticketId, lossId, session);
+          } else {
+            console.error('Invalid ObjectId format');
+            // Handle the case where the provided string doesn't match ObjectId format
+          }
+        } catch (error) {
+          console.error('Error while constructing ObjectId:', error);
+          // Handle any potential errors during ObjectId creation
+        }
+      }
+      
+      
+ 
+      res.status(200).json({ result,  status: "Success" });
+    } catch (error) {
+      console.error("Error in createPatientStatus:", error);
+      res.status(500).json({ status: 500, error: "Internal Server Error" });
     }
-
-    const payload = {
-      parentTicketId: requestBody.ticket,
-      consumer: requestBody.consumer,
-      note: requestBody.note || "",
-      dropReason: requestBody.dropReason || "",
-      paymentRefId: requestBody.paymentRefId || "",
-      image: imageKey,
-    };
-
-    const result = await insertPatientStatusDetail(payload, session);
-    res.status(200).json({ result, status: "Success" });
   }
 );
 
@@ -1697,3 +2096,34 @@ export const skipEstimate = PromiseWrapper(
     }
   }
 );
+
+
+//ticket update handler
+export const updateTicketHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const ticketId = new ObjectId(req.params.id);
+    console.log(ticketId, "ticketId"); // Assuming the ticket ID is in the URL params
+    const updateData = req.body; // Assuming the updated data is sent in the request body
+    console.log(updateData, "updateData");
+
+    // const ticketIdtoconsumer = await findOneTicket(ticketId);
+    // console.log(ticketIdtoconsumer , "ticketIdtoconsumer");
+    // const consumerObject : any  = ticketIdtoconsumer?.consumer;
+    // console.log(consumerObject , " consumerObject")
+    // const prevConsumer = await  findOneConsumer(consumerObject);
+    // console.log(prevConsumer , "prevConsumer ")
+    const updatedConsumer = await updateTicketConsumer(ticketId, updateData);
+    console.log(updatedConsumer, "updatedConsumer");
+    if (!updatedConsumer) {
+      return res.status(404).json({ message: "Consumer not found" });
+    }
+    return res.status(200).json(updatedConsumer);
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

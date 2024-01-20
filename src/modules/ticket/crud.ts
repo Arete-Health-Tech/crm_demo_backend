@@ -98,3 +98,9 @@ export const findOnePrescription = async (query: any) => {
     Collections.PRESCRIPTION
   ).findOne<iPrescription>(query);
 };
+
+export const findServicesPck = async (query: Object) => {
+  return await MongoService.collection(Collections.SERVICEPCK)
+    .find<iService>(query)
+    .toArray();
+};

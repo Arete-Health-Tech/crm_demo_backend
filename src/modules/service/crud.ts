@@ -1,7 +1,8 @@
-import { iService } from "../../types/service/service";
+import { iService, iServicePackage } from "../../types/service/service";
 import MongoService from "../../utils/mongo";
 
 export const SERVICE_DB = "service";
+export const SERVICE_DB_PACK = "servicepck";
 
 export const createSearchIndex = async () => {
   await MongoService.collection(SERVICE_DB).createIndex({
@@ -25,6 +26,22 @@ export const findOneService = async (query: Object) => {
   return await MongoService.collection(SERVICE_DB).findOne<iService>(query);
 };
 
+// export const findServices = async (query: Object) => {
+//   return await MongoService.collection(SERVICE_DB).find<iService>(query).toArray();
+// };
+
 export const findServices = async (query: Object) => {
-  return await MongoService.collection(SERVICE_DB).find<iService>(query).toArray();
+  return await MongoService.collection(SERVICE_DB)
+    .find<iService>(query)
+    .toArray();
+};
+
+export const findServicesPack = async () => {
+  return await MongoService.collection(SERVICE_DB_PACK)
+    .find()
+    .toArray();
+};
+
+export const findServicesAll = async () => {
+  return await MongoService.collection(SERVICE_DB).find().toArray();
 };

@@ -3,6 +3,23 @@ export interface subStageCodeType {
   active: boolean;
   code: number;
 }
+// export interface iTicket {
+//   _id?: ObjectId;
+//   consumer: ObjectId;
+//   stage: ObjectId;
+//   subStageCode: subStageCodeType;
+//   modifiedDate: Date | null;
+//   department: ObjectId | null;
+//   prescription: ObjectId;
+//   creator: ObjectId;
+//   assigned: ObjectId;
+//   logged: boolean;
+//   group: ObjectId | null;
+//   value?: number;
+//   highlights?: string[];
+//   date: Date;
+// }
+
 export interface iTicket {
   _id?: ObjectId;
   consumer: ObjectId;
@@ -18,6 +35,8 @@ export interface iTicket {
   value?: number;
   highlights?: string[];
   date: Date;
+  result: ObjectId | null;
+  status: string | null;
 }
 export interface iTicketUpdate {
   stage?: ObjectId;
@@ -46,26 +65,27 @@ export interface iPrescription {
 export interface iEstimate {
   _id: ObjectId;
   type: number; // 0 packaged, 1 non packaged
-  wardDays: number;
-  icuDays: number;
-  icuType: ObjectId;
+  ward? : ObjectId ;
+  wardDays?: number;
+  icuDays?: number;
   isEmergency: boolean;
   paymentType: number; // 0 cash, 1 insurance, 2 cghs/echg
   insuranceCompany?: string;
   insurancePolicyNumber?: string;
   insurancePolicyAmount?: number;
+  OTCharge? : number ;
+  OTgas? : number ;
+  AnaesthetistCharge ?: number ; 
   service: {
     id: ObjectId;
     isSameSite: boolean;
   }[];
-  investigation?: ObjectId[];
-  procedure?: ObjectId[];
-  investigationAmount?: number;
-  procedureAmount?: number;
-  medicineAmount?: number;
+  mrd?: number;
+  pharmacy?: number;
+  pathology?: number;
   equipmentAmount?: number;
-  bloodAmount?: number;
-  additionalAmount?: number;
+  Diet?: number;
+  Admission?: number;
   creator: ObjectId;
   prescription: ObjectId;
   ticket: ObjectId;
@@ -101,3 +121,48 @@ export interface iflowData {
   image: string;
   text: string;
 }
+
+export interface iTicketDate {
+  modifiedDate?: Date | null;
+}
+
+
+export interface iUpdateTicketData {
+  consumer?: Partial<{
+    _id: ObjectId;
+    firstName: string;
+    lastName: string | null;
+    email: string | null;
+    phone: string;
+    uid: string;
+    age: string;
+    gender: string;
+    dob: Date;
+  }>;
+  prescription?: Partial<{
+    _id: ObjectId;
+    admission: string;
+    service: ObjectId;
+    condition: string | null;
+    departments: ObjectId[];
+    diagnostics: ObjectId[];
+    medicines: ObjectId[]; // Assuming ObjectId for each medicine
+    doctor: ObjectId;
+    followUp: Date;
+    isPharmacy: string;
+    image: string;
+    symptoms: string | null;
+    caregiver_name: string | null;
+    caregiver_phone: string | null;
+    created_Date: Date;
+  }>;
+}
+
+
+
+
+
+
+
+
+

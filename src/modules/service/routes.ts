@@ -11,5 +11,9 @@ router
   .post( controllers.createService)
   .get(validations.get_services, controllers.GetServices);
 router.route("/search").get(controllers.search);
+router.route("/searchPck").get(controllers.searchPck);
+router.route("/searchService").get(controllers.searchServiceAllEst);
+
+
 
 export default router;

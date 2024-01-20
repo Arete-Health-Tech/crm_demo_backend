@@ -18,21 +18,27 @@ import {
   iPrescription,
   iSkip,
   iTicket,
+  iTicketDate,
   iTicketUpdate,
+  iUpdateTicketData,
   subStageCodeType,
 } from "../../types/ticket/ticket";
 import MongoService, { Collections } from "../../utils/mongo";
 import {
+  PRESCRIPTION_DB,
   TICKET_DB,
   createOneFollowUp,
   createOnePrescription,
   createOneTicket,
+  findOnePrescription,
   findServices,
   findTicket,
+  findTicketById,
 } from "./crud";
 import { RedisUpdateSingleTicketLookUp } from "./ticketUtils/utilFunctions";
 import { IO } from "../../server";
 import { REFETCH_TICKETS } from "../../utils/socket/constants";
+import { CONSUMER_DB, findOneConsumer } from "../consumer/crud";
 export const createTicketHandler = async (
   ticket: iTicket,
   session: ClientSession
@@ -139,6 +145,7 @@ export const searchService = async (
 };
 //prescription
 export const getPrescriptionById = async (id: ObjectId) => {
+  console.log(id," this is id")
   return await MongoService.collection(
     Collections.PRESCRIPTION
   ).findOne<iPrescription>({ _id: id });
@@ -247,4 +254,94 @@ export const updateSubStage2 = async (
   //   // The update failed or didn't modify any documents
   //   return { success: false };
   // }
+};
+
+
+export const UpdateDate = async (
+  ticketId: string,
+  body: iTicketDate,
+  session: ClientSession
+) => {
+  return await MongoService.collection(Collections.TICKET).updateOne(
+    {
+      _id: new ObjectId(ticketId),
+    },
+    { $set: body },
+    { session }
+  );
+};
+
+export const addFilterWon = async (ticketId: string, wonId: string, session?: ClientSession) => {
+  try {
+    const wonObjectId = new ObjectId(wonId) ;
+    const ticketObjectId = new ObjectId(ticketId);
+    console.log(ticketObjectId , "cat");
+    console.log(wonId , "wonid");
+    
+    return await MongoService.collection(Collections.TICKET).findOneAndUpdate(
+      { _id: ticketObjectId },
+      { $set: { result: wonObjectId } },
+      { session }
+    );
+  } catch (error : any) {
+    throw new Error(`Error in addFilterWon: ${error.message}`);
+  }
+};
+
+export const addFilterlass = async (ticketId: string, lossId: string, session?: ClientSession) => {
+  try {
+    const lossObjectId = new ObjectId(lossId) ;
+    const ticketObjectId = new ObjectId(ticketId);
+
+    return await MongoService.collection(Collections.TICKET).findOneAndUpdate(
+      { _id: ticketObjectId },
+      { $set: { result: lossObjectId } },
+      { session }
+    );
+  } catch (error : any) {
+    throw new Error(`Error in addFilterLoss: ${error.message}`);
+  }
+};
+
+export const updateTicketConsumer = async (
+  ticketId: ObjectId,
+  updateData: iUpdateTicketData
+) => {
+  try {
+    const ticket = await findTicketById(ticketId);
+    if (!ticket) {
+      throw new Error("Ticket not found");
+    }
+    // Update consumer data
+    const consumerId = ticket.consumer;
+    const consumerUpdate = updateData.consumer;
+    if (consumerId) {
+      await MongoService.collection(CONSUMER_DB).updateOne(
+        { _id: consumerId },
+        { $set: consumerUpdate }
+      );
+    }
+    // Update prescription data
+    const prescriptionId = ticket.prescription;
+    const prescriptionUpdate = updateData.prescription;
+    if (prescriptionId) {
+      await MongoService.collection(PRESCRIPTION_DB).updateOne(
+        { _id: prescriptionId },
+        { $set: prescriptionUpdate }
+      );
+    }
+    // Update the ticket in Redis after MongoDB updates
+    await RedisUpdateSingleTicketLookUp(ticketId.toString());
+    // Return the updated consumer and prescription
+    return {
+      consumer: consumerId ? await findOneConsumer(consumerId) : null,
+      prescription: prescriptionId
+        ? await findOnePrescription(prescriptionId)
+        : null,
+    };
+  } catch (error: any) {
+    throw new Error(
+      `Error updating consumer and prescription: ${error.message}`
+    );
+  }
 };

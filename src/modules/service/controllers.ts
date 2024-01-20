@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import PromiseWrapper from "../../middleware/promiseWrapper";
-import { createServiceHandler, getServices, getTotalServiceCount, searchService } from "./functions";
+import { createServiceHandler, getServices, getTotalServiceCount, searchService, searchServiceAll, searchServicePck,  } from "./functions";
 
 export const createService = PromiseWrapper(async (req: Request, res: Response, next: NextFunction) => {
+  console.log(req.body," this is request bofy service ")
   const { status, body } = await createServiceHandler(req.body);
   return res.status(status).json(body);
 });
@@ -19,3 +20,19 @@ export const search = PromiseWrapper(async (req: Request, res: Response, next: N
   const { status, body } = await searchService(search, tag);
   return res.status(status).json(body);
 });
+
+
+
+export const searchPck = PromiseWrapper(
+  async (req: Request, res: Response, next: NextFunction) => {
+  
+    const { status, body } = await searchServicePck();
+    return res.status(status).json(body);
+  }
+);
+export const searchServiceAllEst = PromiseWrapper(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { status, body } = await searchServiceAll();
+    return res.status(status).json(body);
+  }
+);

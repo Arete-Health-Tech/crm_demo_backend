@@ -15,7 +15,7 @@ export const Collections = {
   Note: "note",
   STAGE_FLOW: "stageflow",
   FLOW_CONNECT: "flow_connect",
-  FLOW_HINDI:"flow_hindi",
+  FLOW_HINDI: "flow_hindi",
   MESSAGES: "messages",
   SCRIPT: "script",
   REMINDER: "reminder",
@@ -25,6 +25,8 @@ export const Collections = {
   FLOWDATA: "flowdata",
   QUERY: "query",
   GROUP: "group",
+  RESCHEDULAR: "Rescheduler",
+  SERVICEPCK: "servicepck",
 };
 abstract class MongoService {
   private static _db: Db = null!;

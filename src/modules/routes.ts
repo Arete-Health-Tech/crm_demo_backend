@@ -8,6 +8,7 @@ import ticket from "./ticket/routes";
 import flow from "./flow/routes";
 import script from "./script/routes";
 import task from "./task/routes";
+import dashboard from "./Dashboard/routes";
 // import { searchedTicketData } from "./ticket/controllers";
 const router = Router();
 
@@ -20,6 +21,7 @@ router.use("/ticket", ticket);
 router.use("/flow", flow);
 router.use("/script", script);
 router.use("/task", task);
+router.use("/dashboard", dashboard);
 // router.use("/search",searchedTicketData)
 // router.use("/uhid",uhidDetails)
 

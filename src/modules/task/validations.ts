@@ -30,3 +30,15 @@ export const update_todo_status = [
     .customSanitizer((value) => new ObjectId(value)),
   body("status").notEmpty().isBoolean(),
 ];
+
+
+export const create_reschedular = [
+  body("date").notEmpty().isInt().toInt(),
+  // body("title").notEmpty().isString(),
+  body("description").notEmpty().isString(),
+  body("ticket")
+    .notEmpty()
+    .isString()
+    .customSanitizer((value) => new ObjectId(value))
+    .notEmpty(),
+];

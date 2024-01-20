@@ -10,6 +10,15 @@ export interface iReminder {
   ticket: ObjectId;
 }
 
+export interface iRescheduler {
+  _id?: ObjectId;
+  date: Date;
+  title: string;
+  description: string;
+  creator: ObjectId;
+  ticket: ObjectId;
+}
+
 export interface iTodo {
   _id?: ObjectId;
   date: Date;

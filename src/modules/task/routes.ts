@@ -15,7 +15,15 @@ router.route("/allReminder").get(controllers.GetTicketReminders);
 router.route("/todo").post(validations.create_todo, controllers.CreateTodo)
   .get(controllers.GetCreatorTodo)
   .put(validations.update_todo_status, controllers.UpdateTodoStatus);
+  router
+    .route("/reschedular")
+    .post(validations.create_reschedular, controllers.CreateRescheduler)
+    .get(controllers.GetReschedular);
+    router.route("/allRescheduler").get(controllers.GetTicketRescheduler);
 router.route("/todo/:ticketId").get(controllers.GetTicketTodo);
+router.route("/ticketReschedluer").get(controllers.getAllReschedulet);
+router.route("/ticketRemainder").get(controllers.getAllRemainder);
+
 
 
 
