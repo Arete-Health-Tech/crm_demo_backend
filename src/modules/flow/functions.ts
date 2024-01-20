@@ -270,7 +270,7 @@ export const sendImage = async (
 };
 
 export const createNodeIndexes = async () => {
-  await MongoService.collection(Collections.FLOW_HINDI).createIndex({
+  await MongoService.collection(Collections.FLOW).createIndex({
     nodeId: "text",
     diseaseId: "text",
     templateName: "text",
