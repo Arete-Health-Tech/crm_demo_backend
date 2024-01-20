@@ -98,7 +98,7 @@ export const HandleWebhook = async (
 ) => {
   try {
     const body: iWebhookPayload = req.body;
-    // console.log("web hook body yahi hai", JSON.stringify(req.body));
+    console.log("web hook body yahi hai", JSON.stringify(req.body));
     //handling the responses
     body.entry.forEach((entry) => {
       entry.changes.forEach((changes) => {
