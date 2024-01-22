@@ -75,9 +75,10 @@ export const updateTicketStatusHandler = async (
       {
         active: true,
         code: 3,
-      },)
+      },
+      )
    }
-   
+
     const search: ObjectId | undefined = ticket._id;
 
     if (search) {
