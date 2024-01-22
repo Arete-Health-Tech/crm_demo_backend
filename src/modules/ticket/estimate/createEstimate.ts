@@ -45,7 +45,8 @@ const generateEstimate = async (
     estimate.service.forEach((item) => {
       servicesArray.push(item.id);
     });
-
+   const sacs = ticket!.prescription ;
+   console.log(sacs ,"sacs");
     findTicketById(estimate!.ticket)
       .then((ticketRes) => {
         ticket = ticketRes!;

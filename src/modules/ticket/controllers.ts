@@ -97,6 +97,7 @@ import {
   addFilterWon,
   addFilterlass,
   updateTicketConsumer,
+  updateTicketStatus1,
  
 } from "./functions";
 
@@ -150,6 +151,7 @@ export const createTicket = PromiseWrapper(
       throw new ErrorHandler("Prescription image not found", 400);
     }
     const ticket: ticketBody = req.body;
+    console.log(ticket , "ticket is the above");
     // console.log(ticket , "this is first ticket ");
 
     const consumer = await findConsumerById(ticket.consumer);
@@ -210,10 +212,12 @@ export const createTicket = PromiseWrapper(
       const engagementConfirm = req.body.admission;
       // group id
       const memberIdToCheck = departments[0];
+      console.log(memberIdToCheck, "memberIdToCheck");
       const groupId = await findGroupIdsForMember(memberIdToCheck);
+      console.log(groupId , "groupId");
       const groupId2 = groupId[0] as unknown as string;
       // console.log(groupId , "this is groupid");
-      // console.log(groupId2 , "this is groupid2");
+      console.log(groupId2 , "this is groupid2");
       if (!lastAssignedRepIndexMap[groupId2]) {
         lastAssignedRepIndexMap[groupId2] = 0;
       }
@@ -222,28 +226,43 @@ export const createTicket = PromiseWrapper(
       let representatives2 = await MongoService.collection(REPRESENTATIVE_DB)
         .find({ group: groupId2, logged: 1 })
         .toArray();
-      console.log(representatives2, "this is representatives2");
+      // console.log(representatives2, "this is representatives2");
       let nextRepIndex2 = lastAssignedRepIndexMap[groupId2];
-      console.log(nextRepIndex2, "this is nextRepIndex2");
+      // console.log(nextRepIndex2, "this is nextRepIndex2");
       let nextRepresentative2 = representatives2[nextRepIndex2];
-      console.log(nextRepresentative2, " this is nextRepresentative2");
+      // console.log(nextRepresentative2, " this is nextRepresentative2");
 
       if (representatives2.length === 0) {
         // If no logged representatives, proceed with existing round-robin logic
         representatives2 = await MongoService.collection(REPRESENTATIVE_DB)
           .find({ group: groupId2 })
           .toArray();
-        console.log(representatives2, "this is inside representatives2.length");
+        // console.log(representatives2, "this is inside representatives2.length");
         nextRepIndex2 = lastAssignedRepIndexMap[groupId2];
-        console.log(nextRepIndex2, "this is inside representatives2.length");
+        // console.log(nextRepIndex2, "this is inside representatives2.length");
         nextRepresentative2 = representatives2[nextRepIndex2];
-        console.log(
-          nextRepresentative2,
-          "this is inside representatives2.length"
-        );
+        // console.log(
+        //   nextRepresentative2,
+        //   "this is inside representatives2.length"
+        // );
       }
-
-      const { status, body } = await createTicketHandler(
+      const currentDate = ticket.followUp;;
+      // console.log(currentDate ,currentDate)
+      const createdDate = new Date(_id.getTimestamp());
+      // console.log(currentDate,"currentDate");
+      // Assuming _id is a MongoDB ObjectId
+      const timeDifferenceInHours = Math.abs(
+        (currentDate.getTime() - createdDate.getTime()) / (1000 * 60 * 60)
+      );
+      
+       // Declare status using 'let' instead of 'const'
+       let statusbody ;
+       if (timeDifferenceInHours < 24) {
+        statusbody ="todayTask";
+      } else {
+        statusbody ="pendingTask";
+      }
+      const { body } = await createTicketHandler(
         {
           consumer: ticket.consumer,
           prescription: _id,
@@ -260,14 +279,16 @@ export const createTicket = PromiseWrapper(
           modifiedDate: null,
           department: null,
           result: null,
-          status: null,
+          status: statusbody,
         },
         session
       );
       lastAssignedRepIndexMap[groupId2] =
         (lastAssignedRepIndexMap[groupId2] + 1) % representatives2.length;
-      console.log(lastAssignedRepIndexMap, "this is lastAssignedRepIndexMap");
-
+      // console.log(lastAssignedRepIndexMap, "this is lastAssignedRepIndexMap");
+    // console.log(body ,"bodybodybodybody")
+    
+   
       if (req.body.admission !== null) {
         const components = [
           {
@@ -304,7 +325,7 @@ export const createTicket = PromiseWrapper(
         });
       }
 
-      return res.status(status).json(body);
+      return res.json(body);
     }
   }
 );
@@ -1458,52 +1479,50 @@ export const createEstimateController = PromiseWrapper(
     session: ClientSession
   ) => {
     const estimateBody: iEstimateBody = req.body;
-    console.log(estimateBody, "this bodey");
+    console.log(req.body , "req.body is the id");
+
     if (req.body.ward) {
       const wards = new ObjectId(req.body.ward);
       const icuTypeCheck = await getWardById(wards);
-      console.log(icuTypeCheck, "icuTypeCheck");
+
       if (icuTypeCheck === null)
         throw new ErrorHandler("Invalid ICU Type", 400);
     }
-    
-   estimateBody.service.forEach(async (item) => {
-     try {
-       const serviceId = new ObjectId(item.id); // Convert to ObjectId
-       const service = await getServiceById(serviceId);
-console.log(service," this is serviceddd");
-       if (service === null) {
-         return res.status(400).json({ message: "Invalid Service Id" });
-       }
 
-       // ... rest of your code for each service ...
-     } catch (error) {
-       console.error(error);
-       return res.status(500).json({ message: "Internal Server Error" });
-     }
-   });
-    // const prescription = await getPrescriptionById(estimateBody.prescription);
-    // if (prescription === null) {
-    //   throw new ErrorHandler("Invalid Prescription", 400);
-    // }
-    // const consumer = await findConsumerById(prescription.consumer);
+    estimateBody.service.forEach(async (item) => {
+      try {
+        const serviceId = new ObjectId(item.id); // Convert to ObjectId
+        const service = await getServiceById(serviceId);
+        if (service === null) {
+          return res.status(400).json({ message: "Invalid Service Id" });
+        }
+
+        // ... rest of your code for each service ...
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal Server Error" });
+      }
+    });
+
+    const prescriptionId = new ObjectId(estimateBody.prescription); // Convert to ObjectId
+    const prescription = await getPrescriptionById(prescriptionId);
+    if (prescription === null) {
+      throw new ErrorHandler("Invalid Prescription", 400);
+    }
+
     const create = req.user!._id;
-    console.log(create," this is crarte type");
     const estimate = await createEstimate(
       { ...estimateBody, creator: new ObjectId(req.user?._id) },
       session
     );
-    
-    console.log(estimate ," thuis is esimate");
-    await generateEstimate(estimate._id, session); // creates and send estimate pdf
-const newTicket=new ObjectId(estimateBody.ticket)
+
+    await generateEstimate(estimate._id, session);
+
+    const newTicket = new ObjectId(estimateBody.ticket);
     const ticketData: iTicket | null = await findOneTicket(newTicket);
 
-    console.log("ticket data", estimateBody.ticket);
- 
     if (ticketData !== null) {
       if (ticketData?.subStageCode.code < 2) {
-        console.log("Im in estimation");
         const result = await updateSubStage(
           estimateBody.ticket,
           {
@@ -1511,15 +1530,16 @@ const newTicket=new ObjectId(estimateBody.ticket)
             code: 2,
           },
           session
-        ); //update estimation substage
+        );
       }
     } else {
-      throw new ErrorHandler("couldn't find ticket Id", 400);
+      throw new ErrorHandler("Couldn't find ticket Id", 400);
     }
+
     const ticketData1: iTicket | null = await findOneTicket(
       estimateBody.ticket
     );
-    console.log(ticketData1, "Estimation log is ");
+
     return res.status(200).json(estimate);
   }
 );

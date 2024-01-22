@@ -42,7 +42,7 @@ router
     validations.patientStatusValidate,
     controllers.createPatientStatus
   );
-// router.route("/validateTicket").put(controllers.validateTicket);
+router.route("/validateTicket").put(controllers.validateTicket);
 // router.route("/skip").post( controllers.skipResult);
 router.route("/skipEstimate").post(controllers.skipEstimate);
 

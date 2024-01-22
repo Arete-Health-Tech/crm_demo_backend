@@ -1,5 +1,5 @@
 import { createClient } from "redis";
-import settingCrons from "./jobs/setCrons";
+import {settingCrons  } from "./jobs/setCrons";
 
 const redisConnectionStart = async () => {
 
@@ -10,6 +10,7 @@ const redisConnectionStart = async () => {
   await redisClient.connect();
 
   settingCrons();
+
 
   return redisClient;
 }

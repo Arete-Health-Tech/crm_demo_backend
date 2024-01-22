@@ -32,6 +32,7 @@ export const updateRepresentative = async (
 ) => {
   const filter = { _id: representativeId };
   const update = { $set: updatedData };
+  console.log(update , "this is update ");
   const result = await MongoService.collection(REPRESENTATIVE_DB).updateOne(
     filter,
     update
@@ -58,7 +59,7 @@ export const deleteRepresentative = async (
 // Update a group with the provided ID and updated data
 export const updateGroup = async (
   groupId: ObjectId,
-  updateData: { Members: any[]; name?: string }
+  updateData: { Members: any[],name?: string }
 ): Promise<GROUP | null> => {
   try {
     const filter = { _id: groupId };

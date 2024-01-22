@@ -2,6 +2,7 @@ import MongoService, { Collections } from "../../utils/mongo";
 import { ClientSession, ObjectId } from "mongodb";
 import { iTicket } from "../../types/ticket/ticket";
 import { TICKET_DB } from "../ticket/crud";
+import { ObjectIdLike } from "bson";
 export const updateStatus = async (
   ticketId: ObjectId,
   newStatus: string | null
@@ -53,4 +54,12 @@ export const findTicketsByStageAndRepresentative = async (
     console.error("Error finding tickets:", error.message);
     throw new Error("Internal server error");
   }
+};
+
+export const updateTicketStatusPending = async (ticketId: string | number | ObjectId | Buffer | Uint8Array | ObjectIdLike | undefined, newStatus: any) => {
+  // Update the ticket status
+  await MongoService.collection(TICKET_DB).updateOne(
+    { _id: new ObjectId(ticketId) },
+    { $set: { status: newStatus } }
+  );
 };

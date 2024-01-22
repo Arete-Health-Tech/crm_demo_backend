@@ -14,6 +14,7 @@ import { connectSocketIO } from "./utils/socket/socket_io";
 import http from 'http';
 import morgan from 'morgan';
 import socketIO from "socket.io";
+import { settingCronPending } from "./utils/jobs/setCrons";
 const cron = require("node-cron");
 
 declare global {
@@ -125,6 +126,8 @@ export const io = new socketIO.Server(server, {
 export const IO = connectSocketIO(); //connected socket
 
 export const redisClient = redisConnectionStart();
+
+settingCronPending();
 
 MongoService.init().then(() => {
   server.listen(PORT, async () => {

@@ -1,5 +1,8 @@
 import { Console } from "console";
 import { RedisUpdateSingleTicketLookUp } from "../../modules/ticket/ticketUtils/utilFunctions";
+import MongoService, { Collections } from "../mongo";
+import { TICKET_DB } from "../../modules/ticket/crud";
+import { updateTicketStatusPending } from "../../modules/Dashboard/crud";
 const fs = require("fs");
 
 export const updateTicketLookUpCache = async () => {
@@ -25,3 +28,34 @@ export const updateTicketLookUpCache = async () => {
     );
   }
 };
+
+export const updatePendingTicket = async () => {
+  try {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    console.log(yesterday ,"yesterdayyesterdayyesterday")
+
+    // Find tickets with status "todayTask" and subStageCode.code < 3
+    const ticketsToUpdate = await MongoService.collection(TICKET_DB).find({
+      $or: [
+        { status: 'todayTask' },
+        { status: null },
+      ],
+      'subStageCode.code': { $lt: 3 },
+      date: { $lt: yesterday },
+    }).toArray();
+
+    console.log('Matching Tickets:', ticketsToUpdate);
+
+    // Update each ticket
+    for (const ticket of ticketsToUpdate) {
+      await updateTicketStatusPending(ticket._id, 'pendingTask');
+    }
+
+    console.log('Pending ticket update completed.');
+  } catch (error) {
+    console.error('Error updating pending tickets:', error);
+  }
+};
+
+

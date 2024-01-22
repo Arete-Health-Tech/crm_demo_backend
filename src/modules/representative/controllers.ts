@@ -59,6 +59,7 @@ export const createGroupController = async (
 ) => {
   try {
     const requestBody = req.body;
+    console.log(requestBody , "this sinijcsojnv ,v");
     const newGroup: GROUP = {
       _id: new ObjectId(),
       name: requestBody.name, // Generate a new ObjectId for the group
@@ -79,19 +80,28 @@ export const updateRepresentativeHandler = async (
   try {
     const representativeId = new ObjectId(req.params.id);
     const updatedData = req.body;
+
+    // Convert 'group' field to ObjectId if present
+    if (updatedData.group) {
+      updatedData.group = new ObjectId(updatedData.group);
+    }
+
     const updatedRepresentative = await updateRepresentative(
       representativeId,
       updatedData
     );
+
     if (!updatedRepresentative) {
       return res.status(404).json({ message: "Representative not found" });
     }
+
     return res.status(200).json(updatedRepresentative);
   } catch (error) {
     console.error("Error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 // delete api
 export const deleteRepresentativeHandler = async (
   req: Request,

@@ -13,6 +13,7 @@ export const updateTicketStatusHandler = async (
 ): Promise<FUNCTION_RESPONSE> => {
   try {
     const ticket = await findTicketById(ticketId);
+    
 
     if (!ticket) {
       return { status: 404, body: { error: "Ticket not found" } };
@@ -49,7 +50,7 @@ export const updateTicketStatusHandler = async (
           break;
         case "Rescheduled Call":
           // Remove the ticket from all lists
-          ticket.status = "RescheduleCall";
+          ticket.status = " ";
           break;
         // Add more cases as needed
         default:
@@ -102,7 +103,7 @@ export const findTicketsByStatusAndRepresentative = async (
     const tickets = await MongoService.collection(TICKET_DB)
       .find(query)
       .toArray();
-      console.log(tickets, "tickets");
+      // console.log(tickets, "tickets");
     return tickets;
   } catch (error: any) {
     console.error("Error finding tickets:", error.message);
@@ -110,14 +111,35 @@ export const findTicketsByStatusAndRepresentative = async (
   }
 };
 
+export const findTicketsByStatusAndRepresentativeforAdmin = async (
+  status: string,
+  representativeId?: ObjectId
+) => {
+  try {
+    // const filterAssignedArray = representativeId
+    //   ? [new ObjectId(representativeId)]
+    //   : [];
+    // console.log(filterAssignedArray, "filterAssignedArray");
 
+    let query: any = {
+      status,
+      // assigned: { $in: filterAssignedArray },
+    };
 
-
-
+    const tickets = await MongoService.collection(TICKET_DB)
+      .find(query)
+      .toArray();
+      // console.log(tickets, "tickets");
+    return tickets;
+  } catch (error: any) {
+    console.error("Error finding tickets:", error.message);
+    throw new Error("Internal server error");
+  }
+};
 
  export const findTicketsByWONandLOSS = async (representativeId?: ObjectId) => {
    try {
-    console.log(representativeId, "representativeId");
+
      const filterAssignedArray = representativeId
        ? [new ObjectId(representativeId)]
        : [];
@@ -134,7 +156,7 @@ export const findTicketsByStatusAndRepresentative = async (
      const tickets = await MongoService.collection(TICKET_DB)
        .find(query)
        .toArray();
-       console.log(tickets," this is win an dlo sssss")
+      //  console.log(tickets," this is win an dlo sssss")
      return tickets;
    } catch (error: any) {
      console.error("Error finding tickets:", error.message);
@@ -183,3 +205,44 @@ console.log(ticketsCountByStage,'ticketsCountByStage')
      throw new Error("Internal server error");
    }
  };
+
+ export const getTicketsCountByStageAdmin = async () => {
+  try {
+    const stages = [
+      new ObjectId("6494196d698ecd9a9db95e3a"), // newLead
+      new ObjectId("649598d9586b137ea9086788"), // Contacted
+      new ObjectId("649ace47bda0ea4d79a1ec38"), // Working
+      new ObjectId("649acdbbbda0ea4d79a1ec36"), // Orientation
+      new ObjectId("649ace20bda0ea4d79a1ec37"), // Nurturing
+    ];
+
+    const ticketsCountByStage = await MongoService.collection(TICKET_DB)
+      .aggregate([
+        {
+          $match: {
+            // assigned: representativeId,
+            stage: { $in: stages },
+          },
+        },
+        {
+          $group: {
+            _id: "$stage",
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            stage: "$_id",
+            count: 1,
+          },
+        },
+      ])
+      .toArray();
+console.log(ticketsCountByStage,'ticketsCountByStage')
+    return ticketsCountByStage;
+  } catch (error: any) {
+    console.error("Error getting tickets count by stage:", error.message);
+    throw new Error("Internal server error");
+  }
+};

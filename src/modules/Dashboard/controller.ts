@@ -3,8 +3,10 @@ import { ClientSession, ObjectId } from "mongodb";
 import PromiseWrapper from "../../middleware/promiseWrapper";
 import {
   findTicketsByStatusAndRepresentative,
+  findTicketsByStatusAndRepresentativeforAdmin,
   findTicketsByWONandLOSS,
   getTicketsCountByStage,
+  getTicketsCountByStageAdmin,
   updateTicketStatusHandler,
 } from "./function";
 import idashboard from "../../types/dashboard/dashboard";
@@ -40,15 +42,17 @@ export const getTicketsBydnd = PromiseWrapper(
   ) => {
     try {
       const representativeId = req.user?._id;
+      // console.log(representativeId ,"representativeId")
   
       const userRole = req.user?.role;
+      // console.log(userRole ,"userRole");
       const status = "dnd";
     
 
       // Call the function to get tickets based on user's role and status
       const tickets =
         userRole === "ADMIN"
-          ? await findTicketsByStatusAndRepresentative(status)
+          ? await findTicketsByStatusAndRepresentativeforAdmin(status)
           : await findTicketsByStatusAndRepresentative(
               status,
               representativeId
@@ -71,13 +75,15 @@ export const getTicketsByPending = PromiseWrapper(
   ) => {
     try {
       const representativeId = req.user?._id;
+      // console.log(representativeId ,"representativeId")
       const userRole = req.user?.role;
+      // console.log(userRole ,"userRole");
       const status = "pendingTask";
      
       // Call the function to get tickets based on user's role and status
       const tickets =
         userRole === "ADMIN"
-          ? await findTicketsByStatusAndRepresentative(status)
+          ? await findTicketsByStatusAndRepresentativeforAdmin(status)
           : await findTicketsByStatusAndRepresentative(
               status,
               representativeId
@@ -100,14 +106,15 @@ export const getTicketsBytodayTask = PromiseWrapper(
   ) => {
     try {
       const representativeId = req.user?._id;
+      // console.log(representativeId , "representativeId is ins rbdfjnsd"); 
       const userRole = req.user?.role;
+      // console.log(userRole ,"userRole");
       const status = "todayTask";
-     
 
       // Call the function to get tickets based on user's role and status
       const tickets =
         userRole === "ADMIN"
-          ? await findTicketsByStatusAndRepresentative(status)
+          ? await findTicketsByStatusAndRepresentativeforAdmin(status)
           : await findTicketsByStatusAndRepresentative(
               status,
               representativeId
@@ -130,14 +137,16 @@ export const getTicketsByCallCompleted = PromiseWrapper(
   ) => {
     try {
       const representativeId = req.user?._id;
+      // console.log(representativeId ,"representativeId")
       const userRole = req.user?.role;
+      // console.log(userRole ,"userRole");
       const status = "CallCompleted";
      
 
       // Call the function to get tickets based on user's role and status
       const tickets =
         userRole === "ADMIN"
-          ? await findTicketsByStatusAndRepresentative(status)
+          ? await findTicketsByStatusAndRepresentativeforAdmin(status)
           : await findTicketsByStatusAndRepresentative(
               status,
               representativeId
@@ -167,7 +176,7 @@ export const getTicketsByRescheduleCall = PromiseWrapper(
       // Call the function to get tickets based on user's role and status
       const tickets =
         userRole === "ADMIN"
-          ? await findTicketsByStatusAndRepresentative(status)
+          ? await findTicketsByStatusAndRepresentativeforAdmin(status)
           : await findTicketsByStatusAndRepresentative(
               status,
               representativeId
@@ -196,13 +205,6 @@ export const pieWONLoss = PromiseWrapper(
        console.log(representativeId, "representativeId");
        
        const userRole = req.user?.role;
-      
-    
-
-
-
-      
-      
 
       // Call the function to get won and loss tickets based on user's role
       const wonLossTickets =
@@ -230,7 +232,6 @@ console.log(wonLossTickets, "wonLossTickets");
   }
 );
 
-
 export const getTicketsCountByAssignedStage = PromiseWrapper(
   async (
     req: Request,
@@ -241,9 +242,11 @@ export const getTicketsCountByAssignedStage = PromiseWrapper(
     try {
 
       const representativeId = new ObjectId(req.user?._id);
+      const userRole = req.user?.role;
 
       // Call the function to get the count of tickets by stage for the assigned representative
-      const ticketsCountByStage = await getTicketsCountByStage(
+      const ticketsCountByStage =  userRole === "ADMIN"
+      ? await getTicketsCountByStageAdmin():await getTicketsCountByStage(
         representativeId
       );
 

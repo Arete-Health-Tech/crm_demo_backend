@@ -175,9 +175,15 @@ export const createEstimate = async (
   estimate: iEstimate,
   session: ClientSession
 ) => {
+  // If _id is not provided, generate a new ObjectId
+  if (!estimate._id) {
+    estimate._id = new ObjectId();
+  }
+
   await MongoService.collection(Collections.ESTIMATE).insertOne(estimate, {
     session,
   });
+
   return estimate;
 };
 export const findEstimateById = async (
@@ -343,5 +349,34 @@ export const updateTicketConsumer = async (
     throw new Error(
       `Error updating consumer and prescription: ${error.message}`
     );
+  }
+};
+
+// function to  update ticket 
+// Add a function to update the ticket status
+export const updateTicketStatus1 = async (
+  prescriptionId: ObjectId,
+  status: string,
+) => {
+  try {
+    console.log(prescriptionId , "prescriptionId inside the prep");
+    console.log(status ,"status nubfnidkvc");
+    const result = await MongoService.collection(TICKET_DB)
+      .updateOne(
+        { _id: prescriptionId },
+        { $set: { status: "todayTask" } },
+      );
+      console.log(result , "result bnucbsnkmlsc");
+
+    if (result.modifiedCount > 0) {
+      return { success: true };
+    } else {
+      console.error("No document updated in updateTicketStatus");
+      return { success: false, error: "No document updated" };
+    }
+  } catch (error: any) {
+    // Handle the error
+    console.error("Error updating ticket status:", error);
+    return { success: false, error: error.message || "Unknown error" };
   }
 };

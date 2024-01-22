@@ -87,7 +87,7 @@ export const fetchAllRepresentative = async () => {
     .toArray();
 };
 export const findGroupIdsForMember = async (memberId: any) => {
-  const db = MongoService.collection("group"); // Use the correct collection name
+  const db = MongoService.collection("group"); 
   // Query the groups that have the member in their 'Members' array
   const groupsWithMember = await db.find({ Members: memberId }).toArray();
   // Extract and return the group IDs
