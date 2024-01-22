@@ -2,7 +2,7 @@ import { FUNCTION_RESPONSE } from "../../types/api/api";
 import ErrorHandler from "../../utils/errorHandler";
 import MongoService, { Collections } from "../../utils/mongo";
 import { ObjectId } from "mongodb";
-import { updateTicket } from "../ticket/functions";
+import { updateSubStage3, updateTicket } from "../ticket/functions";
 import { findTicketsByStageAndRepresentative, updateStatus } from "./crud";
 import { TICKET_DB, findTicketById } from "../ticket/crud";
 import idashboard from "../../types/dashboard/dashboard";
@@ -13,12 +13,14 @@ export const updateTicketStatusHandler = async (
 ): Promise<FUNCTION_RESPONSE> => {
   try {
     const ticket = await findTicketById(ticketId);
+    // console.log(ticket,'ticket')
+    // console.log(payload ,"payload");
     
 
     if (!ticket) {
       return { status: 404, body: { error: "Ticket not found" } };
     }
-
+    
     const currentTime = new Date();
     const currentMillis = currentTime.getTime();
     const timeDifference = currentMillis - ticket.date.getTime();
@@ -64,7 +66,18 @@ export const updateTicketStatusHandler = async (
       // to:
       ticket.status = ticket.status;
     }
-
+   
+    const id :any =ticket._id
+    console.log(id ,"id");
+   if(payload.select == "Call Completed"){
+     await updateSubStage3(
+      id,
+      {
+        active: true,
+        code: 3,
+      },)
+   }
+   
     const search: ObjectId | undefined = ticket._id;
 
     if (search) {

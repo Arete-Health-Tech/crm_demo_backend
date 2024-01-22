@@ -380,3 +380,17 @@ export const updateTicketStatus1 = async (
     return { success: false, error: error.message || "Unknown error" };
   }
 };
+
+
+// for call
+
+export const updateSubStage3 = async (
+  ticketId: ObjectId,
+  subStageCode: subStageCodeType,
+) => {
+  console.log(subStageCode ,"subStageCode");
+  return await MongoService.collection(Collections.TICKET).updateOne(
+    { _id: ticketId },
+    { $set: { subStageCode } },
+  );
+};
