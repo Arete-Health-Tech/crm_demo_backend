@@ -10,6 +10,10 @@ export const putMedia = async (
   location: string,
   bucketName?: string
 ) => {
+  console.log(file ,"file");
+  console.log(location ,"location");
+  console.log(bucketName ,"bucketName");
+  
   const fileName = uuid() + "-" + Date.now();
   const params: PutObjectRequest = {
     Bucket: `${bucketName ? bucketName : BUCKET_NAME}/${location}`,
