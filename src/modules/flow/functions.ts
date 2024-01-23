@@ -23,7 +23,7 @@ export const createReplyNode = async (
   nodes: iReplyNode[],
   session: ClientSession
 ) => {
-  return await MongoService.collection(Collections.FLOW).insertMany(
+  return await MongoService.collection(Collections.FLOW_HINDI).insertMany(
     nodes,
     {
       session,
