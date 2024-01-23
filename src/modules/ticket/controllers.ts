@@ -159,6 +159,7 @@ export const createTicket = PromiseWrapper(
     if (consumer === null) {
       throw new ErrorHandler("consumer doesn't exist", 404);
     }
+    console.log(consumer,"this is consumer")
     const departments: string[] = JSON.parse(req.body.departments);
     for await (const department of departments) {
       const dept = await getDepartmentById(new ObjectId(department));
@@ -170,11 +171,15 @@ export const createTicket = PromiseWrapper(
     if (doctor === null) {
       throw new ErrorHandler("Invalid doctor id passed", 400);
     }
+    console.log(doctor,"ths is doctor")
     const { Key } = await putMedia(
       req.file,
       `patients/${ticket.consumer}/prescription`
     );
     //create prescription
+
+
+    console.log(Key," this is key")
     const { _id } = await createOnePrescription(
       {
         admission: ticket.admission,
