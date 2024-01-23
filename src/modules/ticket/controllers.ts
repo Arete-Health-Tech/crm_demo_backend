@@ -151,6 +151,7 @@ export const createTicket = PromiseWrapper(
       throw new ErrorHandler("Prescription image not found", 400);
     }
     const ticket: ticketBody = req.body;
+    // await sendTemplateMessageOne("9650496830","hello_world","en_us")
     console.log(ticket , "ticket is the above");
     // console.log(ticket , "this is first ticket ");
 
@@ -252,7 +253,7 @@ export const createTicket = PromiseWrapper(
       // console.log(currentDate,"currentDate");
       // Assuming _id is a MongoDB ObjectId
       const timeDifferenceInHours = Math.abs(
-        (currentDate.getTime() - createdDate.getTime()) / (1000 * 60 * 60)
+        (currentDate.getTime() - createdDate.getTime())/ (1000 * 60 * 60)
       );
       
        // Declare status using 'let' instead of 'const'

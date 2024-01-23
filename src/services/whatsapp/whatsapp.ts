@@ -3,7 +3,7 @@ import ErrorHandler from "../../utils/errorHandler";
 import { createHeader } from "../../modules/flow/utils";
 const { WA_ACCOUNT_ID, WA_TOKEN } = process.env;
 
-const WHATSAPP_URL = `https://graph.facebook.com/v15.0/${WA_ACCOUNT_ID}/messages`;
+const WHATSAPP_URL = `https://graph.facebook.com/v18.0/${WA_ACCOUNT_ID}/messages`;
 export const sendMessage = async (receiver: string, payload: any) => {
   console.log("this is send message receiver")
   try {
@@ -91,10 +91,6 @@ export const sendPdfMessage = async (receiver: string, location: string) => {
 };
 
 
-
-
-
-
 export const sendTemplateMessage = async (
   receiver: string,
   templateName: string,
@@ -114,8 +110,10 @@ export const sendTemplateMessage = async (
         },
       },
     };
+    console.log(components," this is components")
     if (components) {
       templatePayload.template.components = components;
+
     }
     const { data } = await axios.post(WHATSAPP_URL, templatePayload, {
       headers: {
@@ -123,12 +121,15 @@ export const sendTemplateMessage = async (
         "Content-Type": "application/json",
       },
     });
-    console.log(data ,"data from whatsaapp")
+    console.log(data ,"data from whatsaapp skbdsifml,sf");
     return data;
   } catch (error: any) {
     throw new ErrorHandler(error.response.data.error.message, 500);
   }
 };
+
+
+
 
 export const followUpMessage = async (
   patientName: string,

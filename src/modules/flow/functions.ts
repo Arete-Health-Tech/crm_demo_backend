@@ -217,11 +217,12 @@ export const startTemplateFlow = async (
   receiver: string,
   components: any
 ) => {
+  console.log("sbdhsvdjsndsd");
   return await sendTemplateMessage(
     receiver,
     templateName,
     templateLanguage,
-    components
+    components  
   );
 };
 // connect flow

@@ -145,7 +145,6 @@ export const searchService = async (
 };
 //prescription
 export const getPrescriptionById = async (id: ObjectId) => {
-  console.log(id," this is id")
   return await MongoService.collection(
     Collections.PRESCRIPTION
   ).findOne<iPrescription>({ _id: id });

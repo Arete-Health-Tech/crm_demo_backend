@@ -58,7 +58,7 @@ let config = {
   url: `https://graph.facebook.com/v18.0/${id}/`,
   headers: {
     Authorization:
-      "Bearer EAALU5Uh1hCoBAHOvIZAOLuJVrUltYe3uMCIQwKvayQCZC5zR45RO9iK5ZAeRNUKhZB3dShZBM4DugqeUtw9ZCIYOr39g3fqGsjYYycjNPb4CpMFZCQY4rqUSXaPHHam8utfUUzC4NBBSYLkoZCuSEW1oPl6TaZCK7hgmJ1h1E5DxXw8BEXKW1Vs2P",
+      "Bearer EAANBoLAwNiMBO6ciw1lsz5S16GoI4aEylvvkeURZCuZBdsBYbMxJuHEvKPHu7VD1u9PN0h4MxM5Xhw0dRYSkKW4KZAuzn8xQsdNWaDPiCpOQj8yOX7yqS3MHGQ4FU4K1nhXaKeT5VbKGjJaIlZC0kSpusPX6x04qeeu28YssAT0guueYEGZB6JZCBpZCXfriYJ0imvZCo5J6DEcQ",
   },
 };
 
@@ -75,7 +75,7 @@ let config = {
       responseType: "arraybuffer",
       headers: {
         Authorization:
-          "Bearer EAALU5Uh1hCoBAHOvIZAOLuJVrUltYe3uMCIQwKvayQCZC5zR45RO9iK5ZAeRNUKhZB3dShZBM4DugqeUtw9ZCIYOr39g3fqGsjYYycjNPb4CpMFZCQY4rqUSXaPHHam8utfUUzC4NBBSYLkoZCuSEW1oPl6TaZCK7hgmJ1h1E5DxXw8BEXKW1Vs2P", // Replace with your Facebook Graph API access token
+          "Bearer EAANBoLAwNiMBO6ciw1lsz5S16GoI4aEylvvkeURZCuZBdsBYbMxJuHEvKPHu7VD1u9PN0h4MxM5Xhw0dRYSkKW4KZAuzn8xQsdNWaDPiCpOQj8yOX7yqS3MHGQ4FU4K1nhXaKeT5VbKGjJaIlZC0kSpusPX6x04qeeu28YssAT0guueYEGZB6JZCBpZCXfriYJ0imvZCo5J6DEcQ", // Replace with your Facebook Graph API access token
       },
     });
 
