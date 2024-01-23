@@ -226,6 +226,20 @@ export const startTemplateFlow = async (
   );
 };
 // connect flow
+// for pharmacy 
+export const startTemplatePharmacy = async (
+  templateName: string,
+  templateLanguage: string,
+  receiver: string,
+  
+) => {
+  console.log("sbdhsvdjsndsd");
+  return await sendTemplateMessage(
+    receiver,
+    templateName,
+    templateLanguage, 
+  );
+};
 
 export const connectFlow = async (
   connector: iFlowConnect,
@@ -291,8 +305,21 @@ export const getConnector = async (pageLength: number, page: number) => {
     .toArray();
 };
 
-export const findMeassage = async (nodeId: string) => {
-  return await MongoService.collection(Collections.STAGEFLOW).findOne({
-    nodeId,
-  });
-};
+export const findMeassage = async (nodeId: string, desiredNodeName: string | undefined = undefined) => {
+  let query: { nodeId: string; nodeName?: string } = { nodeId };
+
+  if (desiredNodeName !== undefined) {
+    query.nodeName = desiredNodeName;
+  }
+
+  const messages = await MongoService.collection(Collections.STAGEFLOW).find(query).toArray();
+
+  if (messages.length === 0) {
+    // Handle the case when no messages are found
+    console.log(`No messages found for nodeId: ${nodeId} and nodeName: ${desiredNodeName}`);
+    return null;
+  }
+
+  return messages;
+};  
+

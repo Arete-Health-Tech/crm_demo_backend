@@ -52,6 +52,7 @@ import {
   findMeassage,
   sendTextMessage,
   startTemplateFlow,
+  startTemplatePharmacy,
 } from "../flow/functions";
 import {
   findGroupIdsForMember,
@@ -311,6 +312,10 @@ export const createTicket = PromiseWrapper(
           },
         ];
         await startTemplateFlow("flow", "en", consumer.phone, components);
+      }
+
+      if( req.body.isPharmacy === "Pharmacy Advised" && req.body.admission === null){
+        await startTemplatePharmacy("mediboth" , "en" , consumer.phone );
       }
 
       if (ticket.followUp !== null) {
@@ -1769,99 +1774,56 @@ export const updateTicketData = PromiseWrapper(
 
 const service = ticketData.prescription ;
               console.log(service , " this is service");
-
+              
               const msgId = await findOnePrescription(service);
               const oneService : string | undefined= msgId?.service?.toString();
               console.log(oneService , "oneService i sthe oneService in the nont")
               if (stageCode === 2 && oneService !== undefined) {
-                const messageFind : any= await findMeassage(oneService);
-
-                console.log(messageFind , " this is messageFind")
-               
-                   const replyPayload = createReplyPayload(messageFind);
-                   console.log(replyPayload, "this is a reply payload");
-                   await sendMessage(whatsNumber, replyPayload);
-                  //  setTimeout(async () => {
-                  //    const serviceIDS: any = await findOnePrescription(
-                  //      ticketData.prescription
-                  //    );
-                  //    console.log(serviceIDS, " bdyufgdhw body of pre");
-                  //    console.log(
-                  //      serviceIDS?.service?.toString(),
-                  //      "this is id "
-                  //    );
-                  //    if (
-                  //      serviceIDS?.service?.toString() ===
-                  //      "657a83447701108642bbe470"
-                  //    ) {
-                  //      if (stageCode === 2) {
-                  //        console.log("write message here");
-                  //        await herniaHowVideo(whatsNumber);
-                  //        await herniaHowText(whatsNumber);
-                  //      }
-                  //      if (stageCode === 3) {
-                  //        console.log("2  how are the 3rd stage ");
-                  //        await herniaRecoveryImage(whatsNumber);
-                  //        await herniaRecoveryText(whatsNumber);
-                  //      }
-                  //      if (stageCode === 4) {
-                  //        console.log("2  how are the 3rd stage ");
-                  //        await herniaUntreatedImage(whatsNumber);
-                  //        await herniaUntreatedText(whatsNumber);
-                  //      }
-                  //    } else if (
-                  //      serviceIDS?.service?.toString() ===
-                  //      "657a83057701108642bbe46f"
-                  //    ) {
-                  //      if (stageCode === 2) {
-                  //        console.log("write message here");
-                  //        await hysterectomyHowVideo(whatsNumber);
-                  //        await hysterectomyHowText(whatsNumber);
-                  //      }
-                  //      if (stageCode === 3) {
-                  //        console.log("2  how are the 3rd stage ");
-                  //        await hysterectomyRecoveryText(whatsNumber);
-                  //        await hysterectomyRecoveryImage(whatsNumber);
-                  //      }
-                  //      if (stageCode === 4) {
-                  //        console.log("2  how are the 3rd stage ");
-                  //        await hysterectomyUntreatedImage(whatsNumber);
-                  //        await hysterectomyUntreatedText(whatsNumber);
-                  //      }
-                  //    } else if (
-                  //      serviceIDS?.service?.toString() ===
-                  //      "657a83787701108642bbe471"
-                  //    ) {
-                  //      if (stageCode === 2) {
-                  //        console.log("write message here");
-                  //        await cabgHowImage(whatsNumber);
-                  //        await cabgHowText(whatsNumber);
-                  //      }
-                  //      if (stageCode === 3) {
-                  //        console.log("2  how are the 3rd stage ");
-                  //        await cabgRecoveryText(whatsNumber);
-                  //        await cabgRecoveryImage(whatsNumber);
-                  //      }
-                  //      if (stageCode === 4) {
-                  //        console.log("2  how are the 3rd stage ");
-                  //        await cabgUntreatedImage(whatsNumber);
-                  //        await cabgUntreatedText(whatsNumber);
-                  //      }
-                  //    }
-                  //  }, 3000);
-                 
-                
-//                  const headreeLink = messageFind.headerLink ;
-//                  const message = messageFind?.body
-//                  console.log(headreeLink,"this is header link ");
-//                  const newData = JSON.stringify(message);
-// console.log(message, "this is body");
-// // await sendStageChangeMessageText(whatsNumber, message);
-// // await sendStageChangeMessageMedia(whatsNumber, headreeLink);
-// const newMera= sendStageChangeMessageInteractive(whatsNumber);
-// await sendMessage(whatsNumber, newMera);
-              // }
+                const nodeName = 'How'; // Set the desired nodeName
+                const messageFind: any = await findMeassage(oneService, nodeName);
+              
+                if (!messageFind) {
+                  console.log(`No messages with nodeName '${nodeName}' found for nodeId: ${oneService}`);
+                } else {
+                  // Handle the case when no messages with nodeName 'How' are found
+                  console.log(messageFind, " this is messageFind");
+              
+                  const replyPayload = createReplyPayload(messageFind[0]);
+                  console.log(replyPayload, "this is a reply payload");
+                  await sendMessage(whatsNumber, replyPayload);
+                }
               }
+              if (stageCode === 3 && oneService !== undefined) {
+                const nodeName = 'Untreated'; // Set the desired nodeName
+                const messageFind: any = await findMeassage(oneService, nodeName);
+              
+                if (!messageFind) {
+                  console.log(`No messages with nodeName '${nodeName}' found for nodeId: ${oneService}`);
+                } else {
+                  // Handle the case when no messages with nodeName 'How' are found
+                  console.log(messageFind, " this is messageFind");
+              
+                  const replyPayload = createReplyPayload(messageFind[0]);
+                  console.log(replyPayload, "this is a reply payload");
+                  await sendMessage(whatsNumber, replyPayload);
+                }
+              }
+              if (stageCode === 4 && oneService !== undefined) {
+                const nodeName = 'Recovery'; // Set the desired nodeName
+                const messageFind: any = await findMeassage(oneService, nodeName);
+              
+                if (!messageFind) {
+                  console.log(`No messages with nodeName '${nodeName}' found for nodeId: ${oneService}`);
+                } else {
+                  // Handle the case when no messages with nodeName 'How' are found
+                  console.log(messageFind, " this is messageFind");
+              
+                  const replyPayload = createReplyPayload(messageFind[0]);
+                  console.log(replyPayload, "this is a reply payload");
+                  await sendMessage(whatsNumber, replyPayload);
+                }
+              }
+
       res.status(200).json({ result: `Stage updated to ${stage.name}!` });
     } catch (e) {
       res.status(500).json({ status: 500, error: e });
