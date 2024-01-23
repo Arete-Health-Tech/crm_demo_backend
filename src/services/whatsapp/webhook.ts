@@ -52,13 +52,14 @@ export const saveMessageFromWebhook = async (
           console.log(isDocumentId, "this is document id");
 const id = isImageID || isDocumentId;
 
+
 let config = {
   method: "get",
   maxBodyLength: Infinity,
   url: `https://graph.facebook.com/v18.0/${id}/`,
   headers: {
     Authorization:
-      "Bearer EAANBoLAwNiMBO6ciw1lsz5S16GoI4aEylvvkeURZCuZBdsBYbMxJuHEvKPHu7VD1u9PN0h4MxM5Xhw0dRYSkKW4KZAuzn8xQsdNWaDPiCpOQj8yOX7yqS3MHGQ4FU4K1nhXaKeT5VbKGjJaIlZC0kSpusPX6x04qeeu28YssAT0guueYEGZB6JZCBpZCXfriYJ0imvZCo5J6DEcQ",
+      `Bearer ${WA_TOKEN}`,
   },
 };
 
@@ -75,17 +76,9 @@ let config = {
       responseType: "arraybuffer",
       headers: {
         Authorization:
-          "Bearer EAANBoLAwNiMBO6ciw1lsz5S16GoI4aEylvvkeURZCuZBdsBYbMxJuHEvKPHu7VD1u9PN0h4MxM5Xhw0dRYSkKW4KZAuzn8xQsdNWaDPiCpOQj8yOX7yqS3MHGQ4FU4K1nhXaKeT5VbKGjJaIlZC0kSpusPX6x04qeeu28YssAT0guueYEGZB6JZCBpZCXfriYJ0imvZCo5J6DEcQ", // Replace with your Facebook Graph API access token
+          `Bearer ${WA_TOKEN}`,
       },
     });
-
-    
-
-    console.log(imageResponse.data,"without stringfy")
-
-
-
-
    
     const concatenatedBuffer = Buffer.concat([imageResponse.data]);
     if (message.image?.mime_type === "image/jpeg"){
