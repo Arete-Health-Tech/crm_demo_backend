@@ -216,6 +216,7 @@ const generateEstimate = async (
     charges.BedCharge.push(roomCharge);
     charges.AnaesthetistCharge.push(anaesthesiaFees);
     charges.OTCharge.push(otCharges);
+    charges.BedCharge.push(roomCharge);
     charges.OTgas.push(OTgas);
     charges.Diet.push(estimate.Diet || 0);
     charges.Admission.push(estimate.Admission || 0);
@@ -234,7 +235,7 @@ const generateEstimate = async (
         surgeonFees +
         anaesthesiaFees +
         otCharges +
-        OTgas
+        OTgas + roomCharge
     );
   }else{
     let maxPrice = 0;
@@ -312,7 +313,7 @@ const generateEstimate = async (
     servicePrice = maxPrice + minPrice;
   }
       charges.service.push(servicePrice);
-      charges.service.push(servicePrice)
+      // charges.service.push(servicePrice)
   }
 });
             const doctorName = await findDoctorById(prescription!.doctor).then(

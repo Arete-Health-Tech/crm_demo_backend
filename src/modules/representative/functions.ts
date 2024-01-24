@@ -64,17 +64,22 @@ export const loginRepresentativeHandler = async (
   if (!matchPassword) {
     throw new ErrorHandler("Incorrect phone or password!", 401);
   }
-  // Update the 'logged' field to 1
-  const updateResult = await updateRepresentativeLoggedStatus(
-    representative._id
-  );
-  if (!updateResult) {
-    throw new ErrorHandler("Failed to update logged status!", 500);
+
+  // Check if the role is "REPRESENTATIVE" before updating the 'logged' status
+  if (representative.role === "REPRESENTATIVE") {
+    const updateResult = await updateRepresentativeLoggedStatus(
+      representative._id
+    );
+    if (!updateResult) {
+      throw new ErrorHandler("Failed to update logged status!", 500);
+    }
   }
+
   delete representative.password;
   const { refresh, access } = createTokens(representative);
   return { status: 200, body: { ...representative, access, refresh } };
 };
+
 export const getSortedLeadCountRepresentatives = async () => {
   return await MongoService.collection(Collections.REPRESENTATIVE)
     .find<iRepresentative>({ role: "REPRESENTATIVE" })
