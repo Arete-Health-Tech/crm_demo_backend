@@ -39,13 +39,19 @@ const generateEstimate = async (
     servicesArray: any[] = [],
     investigationArray: any[] = [],
     procedureArray: any[] = [];
+
   findEstimateById(estimateId, session).then((res) => {
     if (res === null) throw new ErrorHandler("Invalid estimate", 400);
     estimate = res;
     estimate.service.forEach((item) => {
-      servicesArray.push(item.id);
+      const newid = new ObjectId(item.id);
+      console.log(newid , "dusgusnd");
+      servicesArray.push(newid);
+    
     }); 
-    findTicketById(estimate!.ticket)
+    console.log(servicesArray ,"servicesArrayservicesArray");
+    const allTicket=new ObjectId(estimate.ticket)
+    findTicketById(allTicket)
       .then((ticketRes) => {
         ticket = ticketRes!;
        
@@ -61,8 +67,7 @@ const generateEstimate = async (
           findServices({ _id: { $in: servicesArray } }),
           findServices({ _id: { $in: investigationArray } }),
           findServices({ _id: { $in: procedureArray } }),
-          findServicesPck({_id : {$in : servicesArray}}),
-          
+          // findServicesPck({_id : {$in : servicesArray}}),
         ]).then(
           async ([
             prescription,
@@ -73,6 +78,7 @@ const generateEstimate = async (
             // investigations,
             // procedures,
           ]) => {
+          
             const charges: {
               service: number[];
               MRD: number[];
@@ -107,14 +113,18 @@ const generateEstimate = async (
               mrd: []
             };
             const  wardcodelist = new ObjectId(estimate.ward);
+            
             const wardDetails = await getWardById(wardcodelist); 
+            console.log(wardDetails ,"wardDetails");
             const wardCode = wardDetails?.code;
+            console.log(wardCode ,"wardCode");
             const wardAccount : any = wardDetails?.name
+            const wardAmount : any = wardDetails?.roomRent;
             wards
               .filter((ward: any) => ward.code === wardCode)
               .forEach(async (item: any) => { 
                 
-                let roomCharge: any = (wardAccount && estimate.wardDays) ? wardAccount * estimate.wardDays : 0;
+                let roomCharge: any = (wardAmount && estimate.wardDays) ? wardAmount * estimate.wardDays : 0;
 
             
                 if (estimate.type === 1) {
@@ -125,12 +135,13 @@ const generateEstimate = async (
             
                   services.forEach((service: Record<string, any>) => {
                     const charges = service.charges;
+                    console.log(charges ,"chargescharges")
             
                     if (charges) {
                       const chargeObj = charges.find(
                         (c: Record<string, any>) => c.hasOwnProperty(wardCode ?? "")
                       );
-            
+                      console.log(chargeObj ,"chargeObj");
                       if (chargeObj && chargeObj.hasOwnProperty(wardCode ?? "")) {
                         const charge = chargeObj[wardCode ?? ""];
 
@@ -176,7 +187,7 @@ const generateEstimate = async (
            }
          }
         });
-
+           console.log(servicePrice ,"servicePrice");
     // Calculate the adjusted max and min prices if there is more than one service ID
     if (serviceCount > 1) {
       if (isSameSite) {
@@ -342,7 +353,7 @@ const generateEstimate = async (
               .fontSize(10)
               .font("Helvetica")
               .text("STATION, KANKARBAGH, PATNA - 800020", 50 ,67,{ align: "center" })
-              document.image('C:/Users/sk290/Downloads/Logo-Mediversal.png', 60, 67, { width: 80 })
+              // document.image('C:/Users/sk290/Downloads/Logo-Mediversal.png', 60, 67, { width: 80 })
               .fontSize(8)
               .font("Helvetica")
               .text("Phone No.: 06123500010", 50 , 80 , { align: "center" })
@@ -516,7 +527,7 @@ const generateEstimate = async (
             .fontSize(10)
             .font("Helvetica")
             .text("STATION, KANKARBAGH, PATNA - 800020", 50 ,67,{ align: "center" })
-            document.image('C:/Users/sk290/Downloads/Logo-Mediversal.png', 60, 67, { width: 80 })
+            // document.image('C:/Users/sk290/Downloads/Logo-Mediversal.png', 60, 67, { width: 80 })
             .fontSize(8)
             .font("Helvetica")
             .text("Phone No.: 06123500010", 50 , 80 , { align: "center" })
