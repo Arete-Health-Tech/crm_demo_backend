@@ -253,22 +253,26 @@ export const createTicket = PromiseWrapper(
         //   "this is inside representatives2.length"
         // );
       }
-      const currentDate = ticket.followUp;;
-      // console.log(currentDate ,currentDate)
-      const createdDate = new Date(_id.getTimestamp());
-      // console.log(currentDate,"currentDate");
-      // Assuming _id is a MongoDB ObjectId
-      const timeDifferenceInHours = Math.abs(
-        (currentDate.getTime() - createdDate.getTime())/ (1000 * 60 * 60)
-      );
-      
-       // Declare status using 'let' instead of 'const'
-       let statusbody ;
-       if (timeDifferenceInHours < 24) {
-        statusbody ="todayTask";
-      } else {
-        statusbody ="pendingTask";
-      }
+      let currentDate = ticket.followUp;
+let statusbody;
+
+// Check if ticket.followUp is present
+if (currentDate) {
+  // Assuming _id is a MongoDB ObjectId
+  const createdDate = new Date(_id.getTimestamp());
+  const timeDifferenceInHours = Math.abs(
+    (currentDate.getTime() - createdDate.getTime()) / (1000 * 60 * 60)
+  );
+
+  if (timeDifferenceInHours < 24) {
+    statusbody = "todayTask";
+  } else {
+    statusbody = "pendingTask";
+  }
+} else {
+  // Handle the case when ticket.followUp is not present
+  statusbody = "noFollowUp";
+}
       const { body } = await createTicketHandler(
         {
           consumer: ticket.consumer,
