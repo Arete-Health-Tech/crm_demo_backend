@@ -582,6 +582,11 @@ export const getRepresentativeTickets = PromiseWrapper(
               $all: searchQry,
             },
           },
+          {
+            "consumer.uid": {
+              $all: searchQry,
+            },
+           },
         ],
       };
       const matchCondition =
@@ -839,6 +844,11 @@ export const getRepresentativeTickets = PromiseWrapper(
               $all: searchQry,
             },
           },
+          {
+            "consumer.uid": {
+              $all: searchQry,
+            },
+           },
         ],
       };
       const matchCondition =
@@ -1354,6 +1364,11 @@ export const getRepresentativeTickets = PromiseWrapper(
               $all: searchQry,
             },
           },
+          {
+            "consumer.uid": {
+              $all: searchQry,
+            },
+           },
         ],
       };
       const matchCondition =
