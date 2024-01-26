@@ -95,6 +95,9 @@ export const getServiceById = async (id: ObjectId) => {
   return await MongoService.collection(Collections.SERVICE).findOne<iService>({ _id: id });
 };
 
+export const getServicepckById = async (id: ObjectId) => {
+  return await MongoService.collection(Collections.SERVICEPCK).findOne<iService>({ _id: id });
+};
 export const getTotalServiceCount = async () => {
   return await MongoService.collection(Collections.SERVICE).countDocuments();
 };

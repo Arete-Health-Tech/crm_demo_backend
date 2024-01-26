@@ -153,7 +153,7 @@ export const createTicket = PromiseWrapper(
     }
     const ticket: ticketBody = req.body;
     // await sendTemplateMessageOne("9650496830","hello_world","en_us")
-    console.log(ticket , "ticket is the above");
+    // console.log(ticket , "ticket is the above");
     // console.log(ticket , "this is first ticket ");
 
     const consumer = await findConsumerById(ticket.consumer);
@@ -253,8 +253,8 @@ export const createTicket = PromiseWrapper(
         //   "this is inside representatives2.length"
         // );
       }
-      let currentDate = ticket.followUp;
-let statusbody;
+      let currentDate = new Date(_id.getTimestamp())
+      let statusbody;
 
 // Check if ticket.followUp is present
 if (currentDate) {
@@ -1519,30 +1519,23 @@ export const createEstimateController = PromiseWrapper(
         throw new ErrorHandler("Invalid ICU Type", 400);
     }
 
-    estimateBody.service.forEach(async (item) => {
-      try {
-        const serviceId = new ObjectId(item.id); // Convert to ObjectId
-        const service = await getServiceById(serviceId);
-        if (service === null) {
-          return res.status(400).json({ message: "Invalid Service Id" });
-        }
-
-        // ... rest of your code for each service ...
-      } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: "Internal Server Error" });
-      }
-    });
-
     const prescriptionId = new ObjectId(estimateBody.prescription); // Convert to ObjectId
     const prescription = await getPrescriptionById(prescriptionId);
     if (prescription === null) {
       throw new ErrorHandler("Invalid Prescription", 400);
     }
 
-    const create = req.user!._id;
-    const estimate = await createEstimate(
-      { ...estimateBody, creator: new ObjectId(req.user?._id) },
+    // const create = req.user!._id;
+    const create1 = req.body.ticket;
+    console.log(create1 , "create1");
+    const create2 = create1.assigned ;
+    console.log(create2 ,"create2create2create2")
+    // const estimate = await createEstimate(
+    //   { ...estimateBody, creator: new ObjectId(req.user?._id) },
+    //   session
+    // );
+     const estimate = await createEstimate(
+      { ...estimateBody, creator: new ObjectId(create2) },
       session
     );
 

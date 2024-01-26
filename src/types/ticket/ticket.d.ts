@@ -65,13 +65,13 @@ export interface iPrescription {
 export interface iEstimate {
   _id: ObjectId;
   type: number; // 0 packaged, 1 non packaged
-  ward? : ObjectId ;
+  ward? : ObjectId | 0;
   wardDays?: number;
   icuDays?: number;
   isEmergency: boolean;
   paymentType: number; // 0 cash, 1 insurance, 2 cghs/echg
-  insuranceCompany?: string;
-  insurancePolicyNumber?: string;
+  insuranceCompany?: string | 0;
+  insurancePolicyNumber?: string | 0;
   insurancePolicyAmount?: number;
   OTCharge? : number ;
   OTgas? : number ;
