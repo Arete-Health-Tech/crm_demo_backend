@@ -1525,29 +1525,23 @@ export const createEstimateController = PromiseWrapper(
       throw new ErrorHandler("Invalid Prescription", 400);
     }
 
-    // const create = req.user!._id;
-    const create1 = req.body.ticket;
-    console.log(create1 , "create1");
-    const create2 = create1.assigned ;
-    console.log(create2 ,"create2create2create2")
-    // const estimate = await createEstimate(
-    //   { ...estimateBody, creator: new ObjectId(req.user?._id) },
-    //   session
-    // );
-     const estimate = await createEstimate(
-      { ...estimateBody, creator: new ObjectId(create2) },
+    const create = req.user!._id;
+
+    const estimate = await createEstimate(
+      { ...estimateBody, creator: new ObjectId(req.user?._id) },
       session
-    );
+    )
 
     await generateEstimate(estimate._id, session);
 
     const newTicket = new ObjectId(estimateBody.ticket);
     const ticketData: iTicket | null = await findOneTicket(newTicket);
+    console.log(ticketData , "ticketDataticketDataticketDataticketData busbfnisc cndkfn")
 
     if (ticketData !== null) {
       if (ticketData?.subStageCode.code < 2) {
         const result = await updateSubStage(
-          estimateBody.ticket,
+          newTicket,
           {
             active: true,
             code: 2,
