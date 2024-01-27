@@ -22,7 +22,10 @@ export const registerConsumerHandler = async (consumer: CONSUMER): Promise<FUNCT
 };
 
 export const searchConsumer = async (searchQuery: string): Promise<FUNCTION_RESPONSE> => {
-  const consumers = await findConsumer({ $text: { $search: searchQuery } });
+  console.log(searchQuery," thiws is seach query");
+  // const consumers = await findConsumer({ $text: { $search: searchQuery } });
+  const consumers = await findConsumer(searchQuery);
+
   return { status: 200, body: consumers };
 };
 

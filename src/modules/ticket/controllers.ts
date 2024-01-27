@@ -1837,9 +1837,6 @@ const service = ticketData.prescription ;
   }
 );
 
-
-
-
 export const updateTicketSubStageCode = PromiseWrapper(
   async (
     req: Request,

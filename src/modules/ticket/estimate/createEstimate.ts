@@ -25,7 +25,7 @@ import {
 import { getDoctors } from "../../department/controllers";
 import { findOneDoctor } from "../../department/crud";
 import { findConsumerFromWAID, saveMessage } from "../../../services/whatsapp/webhook";
-import { getServiceById } from "../../service/functions";
+import { getServiceById, getServicepckById } from "../../service/functions";
 
 const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
 
@@ -62,18 +62,17 @@ const generateEstimate = async (
 
           findConsumerById(ticket!.consumer),
           getAllWards(),
-
           findServices({ _id: { $in: servicesArray } }),
-          findServices({ _id: { $in: investigationArray } }),
-          findServices({ _id: { $in: procedureArray } }),
-          // findServicesPck({_id : {$in : servicesArray}}),
+          // findServices({ _id: { $in: investigationArray } }),
+          // findServices({ _id: { $in: procedureArray } }),
+          findServicesPck({_id : {$in : servicesArray}}),
         ]).then(
           async ([
             prescription,
             consumer,
             wards,
             services,
-            // servicepck ,
+            servicepck ,
             // investigations,
             // procedures,
           ]) => {
@@ -235,84 +234,87 @@ const generateEstimate = async (
       otCharges +
       OTgas 
   );}
-// else{
-//   let maxPrice = 0;
-// let minPrice = Infinity;
-// let serviceCount = 0;
-// let isSameSite = true;
+else{
+  let maxPrice = 0;
+let minPrice = Infinity;
+let serviceCount = 0;
+let isSameSite = true;
 
-// servicepck.forEach((service: Record<string, any>) => {
-//   const charges = service.charges;
+servicepck.forEach((service: Record<string, any>) => {
+  const charges = service.charges;
 
-//   if (charges) {
-//     const chargeObj = charges.find(
-//       (c: Record<string, any>) => c.hasOwnProperty(wardCode ?? "")
-//     );
+  if (charges) {
+    const chargeObj = charges.find(
+      (c: Record<string, any>) => c.hasOwnProperty(wardCode ?? "")
+    );
 
-//     if (chargeObj && chargeObj.hasOwnProperty(wardCode ?? "")) {
-//       const charge = chargeObj[wardCode ?? ""];
+    if (chargeObj && chargeObj.hasOwnProperty(wardCode ?? "")) {
+      const charge = chargeObj[wardCode ?? ""];
 
-//       if (typeof charge === "number") {
-//         serviceCount++;
+      if (typeof charge === "number") {
+        serviceCount++;
 
-//         if (charge > maxPrice) {
-//           maxPrice = charge;
-//         }
+        if (charge > maxPrice) {
+          maxPrice = charge;
+        }
 
-//         if (charge < minPrice) {
-//           minPrice = charge;
-//         }
-//       }
-//     }
-//   }
-//   // Check if any service is not on the same site
-//   if (service.service) {
-//     service.service.forEach((s: Record<string, any>) => {
-//       if (!s.isSameSite) {
-//         isSameSite = false;
-//       }
-//     });
-//   }
-// });
+        if (charge < minPrice) {
+          minPrice = charge;
+        }
+      }
+    }
+  }
+  // Check if any service is not on the same site
+  if (service.service) {
+    service.service.forEach((s: Record<string, any>) => {
+      if (!s.isSameSite) {
+        isSameSite = false;
+      }
+    });
+  }
+});
 
-// // Calculate the total service price
-// let servicePrice = 0;
+// Calculate the total service price
+let servicePrice = 0;
 
-// services.forEach((service: Record<string, any>) => {
-//   const charges = service.charges;
+services.forEach((service: Record<string, any>) => {
+  const charges = service.charges;
 
-//   if (charges) {
-//     const chargeObj = charges.find(
-//       (c: Record<string, any>) => c.hasOwnProperty(item.code)
-//     );
+  if (charges) {
+    const chargeObj = charges.find(
+      (c: Record<string, any>) => c.hasOwnProperty(item.code)
+    );
 
-//     if (chargeObj && chargeObj.hasOwnProperty(item.code)) {
-//       const charge: number = chargeObj[item.code];
+    if (chargeObj && chargeObj.hasOwnProperty(item.code)) {
+      const charge: number = chargeObj[item.code];
 
-//       if (typeof charge === "number") {
-//         servicePrice += charge;
-//       }
-//     }
-//   }
-// });
+      if (typeof charge === "number") {
+        servicePrice += charge;
+      }
+    }
+  }
+});
 
-// // Calculate the adjusted max and min prices if there is more than one service ID
-// if (serviceCount > 1) {
-//   if (isSameSite) {
-//     maxPrice = maxPrice * Math.floor(0.35 + 0.7 + 0.1);
-//     minPrice =
-//       Math.floor(minPrice * 0.5) * Math.floor(0.35 + 0.7 + 0.1);
-//   } else {
-//     maxPrice = maxPrice * Math.floor(0.35 + 0.7 + 0.1);
-//     minPrice = minPrice * Math.floor(0.35 + 0.7 + 0.7);
-//   }
+// Calculate the adjusted max and min prices if there is more than one service ID
+if (serviceCount > 1) {
+  if (isSameSite) {
+    maxPrice = maxPrice * Math.floor(0.35 + 0.7 + 0.1);
+    minPrice =
+      Math.floor(minPrice * 0.5) * Math.floor(0.35 + 0.7 + 0.1);
+  } else {
+    maxPrice = maxPrice * Math.floor(0.35 + 0.7 + 0.1);
+    minPrice = minPrice * Math.floor(0.35 + 0.7 + 0.7);
+  }
 
-//   // Add the adjusted max and min prices to the charges object
-//   servicePrice = maxPrice + minPrice;
-// }
-//     charges.service.push(servicePrice);
-//     // charges.service.push(servicePrice)
-// }
+  // Add the adjusted max and min prices to the charges object
+  servicePrice = maxPrice + minPrice;
+}
+    charges.service.push(servicePrice);
+    charges.total.push(
+      servicePrice 
+    );
+    // charges.service.push(servicePrice)
+}
 });
            
             const doctorName = await findDoctorById(prescription!.doctor).then(
@@ -331,8 +333,15 @@ const generateEstimate = async (
             );
            
             const serviceFind = estimate.service[0];
+            console.log( serviceFind , "check if it is working ");
             const id  = new ObjectId(serviceFind.id)
-            const servicesss = await getServiceById(id);
+            let servicesss ;
+            if(estimate.type === 1 ){
+               servicesss = await getServiceById(id);
+            }else{
+               servicesss = await getServicepckById(id);
+            }
+            
             const serviceName = servicesss?.name;
             // const s3ImageUrl = "https://arete-prescriptions.s3.ap-south-1.amazonaws.com/Logo-Mediversal+(1).png";
             const document = new PDFDocument();
@@ -1207,7 +1216,6 @@ const generateEstimate = async (
              );
            });
           }
-        
         );
       });
   });

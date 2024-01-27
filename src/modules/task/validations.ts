@@ -35,7 +35,7 @@ export const update_todo_status = [
 export const create_reschedular = [
   body("date").notEmpty().isInt().toInt(),
   // body("title").notEmpty().isString(),
-  body("description").notEmpty().isString(),
+  // body("description").notEmpty().isString(),
   body("ticket")
     .notEmpty()
     .isString()
