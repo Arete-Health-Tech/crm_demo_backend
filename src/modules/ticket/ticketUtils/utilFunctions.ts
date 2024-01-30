@@ -151,7 +151,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
   try {
     console.log("Entering RedisUpdateSingleTicketLookUp");
 
-    console.log("TicketId:", TicketId);
+    // console.log("TicketId:", TicketId);
     const result: iTicketsResultJSON = await createTicketLookUps(TicketId);
     const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
    
@@ -163,11 +163,13 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
 
     let ticketObjCache = JSON.parse(data);
 
+
     
     //SETTING UPDATED TICKET DATA TO REDIS TICKET CACHE BELOW
     const today = new Date(); // Get today's date
     today.setHours(0, 0, 0, 0);
     const ticketDetail = result.tickets[0];
+    const hasResult = result.tickets[0].result;
     if (TicketId) {
       // FILTER TICKET BY MODIFIED DATE
       const statusModified = ticketObjCache[TicketId]?.status !== ticketDetail.status;
@@ -184,7 +186,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
           ticketDetail.subStageCode.code >= 4 &&
           today >= modifiedDatePlus_3 &&
           today < modifiedDatePlus_45 &&
-          !statusModified
+          !statusModified &&  !hasResult
         ) {
           ticketObjCache[TicketId] = result.tickets[0];
         } else {

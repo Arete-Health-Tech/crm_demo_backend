@@ -156,3 +156,19 @@ export const updateRepresentativeLoggedStatusforlogout = async (
     return false;
   }
 };
+
+// Add this function to update the 'lastLogin' field
+export const updateRepresentativeLastLogin = async (
+  representativeId: ObjectId
+): Promise<boolean> => {
+  try {
+    const result = await MongoService.collection(REPRESENTATIVE_DB).updateOne(
+      { _id: representativeId },
+      { $set: { lastLogin: new Date() } }
+    );
+    return result.modifiedCount > 0;
+  } catch (error) {
+    console.error("Error updating last login:", error);
+    return false;
+  }
+};

@@ -15,6 +15,7 @@ import http from 'http';
 import morgan from 'morgan';
 import socketIO from "socket.io";
 import { settingCronPending } from "./utils/jobs/setCrons";
+import { logoutRepresentativeHandler } from "./modules/representative/functions";
 const cron = require("node-cron");
 
 declare global {
@@ -111,7 +112,6 @@ cron.schedule(" 30 04 * * *", () => {
   }
 });
 
-
 const server = http.createServer(app);
 
 export const io = new socketIO.Server(server, {
@@ -122,12 +122,32 @@ export const io = new socketIO.Server(server, {
 
 }).listen(5050);
 
-
 export const IO = connectSocketIO(); //connected socket
 
 export const redisClient = redisConnectionStart();
 
 settingCronPending();
+
+cron.schedule('0 * * * *', async () => {
+  try {
+    const nineHoursAgo = new Date();
+    nineHoursAgo.setHours(nineHoursAgo.getHours() - 9);
+
+    // Find representatives who logged in more than 9 hours ago
+    const representativesToLogout = await MongoService.collection(Collections.REPRESENTATIVE).find({
+      lastLogin: { $lt: nineHoursAgo },
+      role: "REPRESENTATIVE",
+      logged: 1,
+    }).toArray();
+
+    // Log out each representative
+    for (const representative of representativesToLogout) {
+      await logoutRepresentativeHandler(representative._id);
+    }
+  } catch (error) {
+    console.error("Error during scheduled logout:", error);
+  }
+});
 
 MongoService.init().then(() => {
   server.listen(PORT, async () => {

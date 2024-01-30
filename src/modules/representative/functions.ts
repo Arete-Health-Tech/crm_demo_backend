@@ -8,6 +8,7 @@ import {
   createRepresentative,
   findRepresentative,
   REPRESENTATIVE_DB,
+  updateRepresentativeLastLogin,
   updateRepresentativeLoggedStatus,
   updateRepresentativeLoggedStatusforlogout,
 } from "./crud";
@@ -49,21 +50,57 @@ export const registerRepresentativeHandler = async (
   const { refresh, access } = createTokens(representative);
   return { status: 200, body: { ...registeredUser, refresh, access } };
 };
+// export const loginRepresentativeHandler = async (
+//   phone: string,
+//   password: string
+// ): Promise<FUNCTION_RESPONSE> => {
+//   const representative = await findRepresentative({ phone });
+//   if (!representative) {
+//     throw new ErrorHandler("NOT FOUND", 404);
+//   }
+//   const matchPassword = await bcrypt.compare(
+//     password,
+//     representative.password as string
+//   );
+//   if (!matchPassword) {
+//     throw new ErrorHandler("Incorrect phone or password!", 401);
+//   }
+
+//   // Check if the role is "REPRESENTATIVE" before updating the 'logged' status
+//   if (representative.role === "REPRESENTATIVE") {
+//     const updateResult = await updateRepresentativeLoggedStatus(
+//       representative._id
+//     );
+//     if (!updateResult) {
+//       throw new ErrorHandler("Failed to update logged status!", 500);
+//     }
+//   }
+
+//   delete representative.password;
+//   const { refresh, access } = createTokens(representative);
+//   return { status: 200, body: { ...representative, access, refresh } };
+// };
 export const loginRepresentativeHandler = async (
   phone: string,
   password: string
 ): Promise<FUNCTION_RESPONSE> => {
   const representative = await findRepresentative({ phone });
+
   if (!representative) {
     throw new ErrorHandler("NOT FOUND", 404);
   }
+
   const matchPassword = await bcrypt.compare(
     password,
     representative.password as string
   );
+
   if (!matchPassword) {
     throw new ErrorHandler("Incorrect phone or password!", 401);
   }
+
+  // Update the 'lastLogin' field to the current timestamp
+  await updateRepresentativeLastLogin(representative._id);
 
   // Check if the role is "REPRESENTATIVE" before updating the 'logged' status
   if (representative.role === "REPRESENTATIVE") {
@@ -79,6 +116,7 @@ export const loginRepresentativeHandler = async (
   const { refresh, access } = createTokens(representative);
   return { status: 200, body: { ...representative, access, refresh } };
 };
+
 
 export const getSortedLeadCountRepresentatives = async () => {
   return await MongoService.collection(Collections.REPRESENTATIVE)

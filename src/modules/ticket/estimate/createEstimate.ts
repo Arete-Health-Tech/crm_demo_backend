@@ -240,8 +240,8 @@ let minPrice = Infinity;
 let serviceCount = 0;
 let isSameSite = true;
 
-servicepck.forEach((service: Record<string, any>) => {
-  const charges = service.charges;
+servicepck.forEach((servicepck: Record<string, any>) => {
+  const charges = servicepck.charges;
 
   if (charges) {
     const chargeObj = charges.find(
@@ -265,8 +265,8 @@ servicepck.forEach((service: Record<string, any>) => {
     }
   }
   // Check if any service is not on the same site
-  if (service.service) {
-    service.service.forEach((s: Record<string, any>) => {
+  if (servicepck.servicepck) {
+    servicepck.servicepck.forEach((s: Record<string, any>) => {
       if (!s.isSameSite) {
         isSameSite = false;
       }
@@ -277,8 +277,8 @@ servicepck.forEach((service: Record<string, any>) => {
 // Calculate the total service price
 let servicePrice = 0;
 
-services.forEach((service: Record<string, any>) => {
-  const charges = service.charges;
+servicepck.forEach((servicepck: Record<string, any>) => {
+  const charges = servicepck.charges;
 
   if (charges) {
     const chargeObj = charges.find(

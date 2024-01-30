@@ -1937,80 +1937,80 @@ const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
 
 
 export const createPatientStatus = PromiseWrapper(
-  async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-    session: ClientSession
-  ) => {
-    try {
-      const requestBody = req.body;
-      console.log(requestBody ,"requestBody");
-      let imageKey: string | null = null;
-      
-      if (req.file) {
-        const { Key } = await putMedia(
-          req.file,
-          `patients/${requestBody.consumer}/${requestBody.ticket}/patientStatus`,
-          BUCKET_NAME
-        );
-        imageKey = `https://${BUCKET_NAME}.s3.ap-south-1.amazonaws.com/${Key}`;
-        console.log(imageKey, "image key is after");
-      }
-      const payload = {
-        parentTicketId: requestBody.ticket,
-        consumer: requestBody.consumer,
-        note: requestBody.note || "",
-        dropReason: requestBody.dropReason || "",
-        paymentRefId: requestBody.paymentRefId || "",
-        image: imageKey,
-      };
-      
-      const result = await insertPatientStatusDetail(payload, session);
-      const remove = await UpdateDate(requestBody.ticket , { modifiedDate: new Date()} , session);
+    async (
+      req: Request,
+      res: Response,
+      next: NextFunction,
+      session: ClientSession
+    ) => {
+      try {
+        const requestBody = req.body;
+        console.log(requestBody ,"requestBody");
+        let imageKey: string | null = null;
+        
+        if (req.file) {
+          const { Key } = await putMedia(
+            req.file,
+            `patients/${requestBody.consumer}/${requestBody.ticket}/patientStatus`,
+            BUCKET_NAME
+          );
+          imageKey = `https://${BUCKET_NAME}.s3.ap-south-1.amazonaws.com/${Key}`;
+          console.log(imageKey, "image key is after");
+        }
+        const payload = {
+          parentTicketId: requestBody.ticket,
+          consumer: requestBody.consumer,
+          note: requestBody.note || "",
+          dropReason: requestBody.dropReason || "",
+          paymentRefId: requestBody.paymentRefId || "",
+          image: imageKey,
+        };
+        
+        const result = await insertPatientStatusDetail(payload, session);
+        // const remove = await UpdateDate(requestBody.ticket , { modifiedDate: new Date()} , session);
 
-      if (payload.note?.length > 0) {
-        const hardcodedObjectId = '65991601a62baad220000001';
-        try {
-          if (hardcodedObjectId) {
-            const wonId = hardcodedObjectId.toString();
-            const ticketId = requestBody.ticket.toString();
-            await addFilterWon(ticketId, wonId, session);
-          } else {
-            console.error('Invalid ObjectId format');
-            // Handle the case where the provided string doesn't match ObjectId format
+        if (payload.note?.length > 0) {
+          const hardcodedObjectId = '65991601a62baad220000001';
+          try {
+            if (hardcodedObjectId) {
+              const wonId = hardcodedObjectId.toString();
+              const ticketId = requestBody.ticket.toString();
+              await addFilterWon(ticketId, wonId, session);
+            } else {
+              console.error('Invalid ObjectId format');
+              // Handle the case where the provided string doesn't match ObjectId format
+            }
+          } catch (error) {
+            console.error('Error while constructing ObjectId:', error);
+            // Handle any potential errors during ObjectId creation
           }
-        } catch (error) {
-          console.error('Error while constructing ObjectId:', error);
-          // Handle any potential errors during ObjectId creation
         }
-      }
-      if(payload.dropReason?.length > 0){
-        const hardcodedObjectId = '65991601a62baad220000002';
-        try {
-          if (hardcodedObjectId) {
-            const lossId = hardcodedObjectId.toString();
-            const ticketId = requestBody.ticket.toString();
-            await addFilterlass(ticketId, lossId, session);
-          } else {
-            console.error('Invalid ObjectId format');
-            // Handle the case where the provided string doesn't match ObjectId format
+        if(payload.dropReason?.length > 0){
+          const hardcodedObjectId = '65991601a62baad220000002';
+          try {
+            if (hardcodedObjectId) {
+              const lossId = hardcodedObjectId.toString();
+              const ticketId = requestBody.ticket.toString();
+              await addFilterlass(ticketId, lossId, session);
+            } else {
+              console.error('Invalid ObjectId format');
+              // Handle the case where the provided string doesn't match ObjectId format
+            }
+          } catch (error) {
+            console.error('Error while constructing ObjectId:', error);
+            // Handle any potential errors during ObjectId creation
           }
-        } catch (error) {
-          console.error('Error while constructing ObjectId:', error);
-          // Handle any potential errors during ObjectId creation
         }
+        console.log(requestBody.ticket ,"requestBody.ticket");
+        
+        const remove = await UpdateDate(requestBody.ticket , { modifiedDate: new Date()} , session);
+        res.status(200).json({ result,  status: "Success" });
+      } catch (error) {
+        console.error("Error in createPatientStatus:", error);
+        res.status(500).json({ status: 500, error: "Internal Server Error" });
       }
-      
-      
- 
-      res.status(200).json({ result,  status: "Success" });
-    } catch (error) {
-      console.error("Error in createPatientStatus:", error);
-      res.status(500).json({ status: 500, error: "Internal Server Error" });
     }
-  }
-);
+  );
 
 export const skipResult = PromiseWrapper(
   async (
