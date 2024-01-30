@@ -170,6 +170,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
     today.setHours(0, 0, 0, 0);
     const ticketDetail = result.tickets[0];
     const hasResult = result.tickets[0].result;
+    console.log(hasResult , "hasResult");
     if (TicketId) {
       // FILTER TICKET BY MODIFIED DATE
       const statusModified = ticketObjCache[TicketId]?.status !== ticketDetail.status;

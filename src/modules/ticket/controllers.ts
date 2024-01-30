@@ -2003,7 +2003,12 @@ export const createPatientStatus = PromiseWrapper(
         }
         console.log(requestBody.ticket ,"requestBody.ticket");
         
-        const remove = await UpdateDate(requestBody.ticket , { modifiedDate: new Date()} , session);
+        const currentDate = new Date();
+const modifiedDatePlus50Days = new Date(currentDate);
+modifiedDatePlus50Days.setDate(currentDate.getDate() + 50);
+
+const remove = await UpdateDate(requestBody.ticket, { modifiedDate: modifiedDatePlus50Days }, session);
+
         res.status(200).json({ result,  status: "Success" });
       } catch (error) {
         console.error("Error in createPatientStatus:", error);
