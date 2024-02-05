@@ -5,6 +5,7 @@ import {
   findTicketsByStatusAndRepresentative,
   findTicketsByStatusAndRepresentativeforAdmin,
   findTicketsByWONandLOSS,
+  findTicketsByWONandLOSSAdmin,
   getTicketsCountByStage,
   getTicketsCountByStageAdmin,
   updateTicketStatusHandler,
@@ -33,7 +34,7 @@ export const updateTicketStatus = PromiseWrapper(
 // export const getStautsTicket = PromiseWrapper(async (req: Request, res: Response, next: NextFunction) => {
 //     const ticketId  = req.params.assigned ;
 // })
-export const getTicketsBydnd = PromiseWrapper(
+export const getTicketsBydnd = PromiseWrapper(   
   async (
     req: Request,
     res: Response,
@@ -209,9 +210,9 @@ export const pieWONLoss = PromiseWrapper(
       // Call the function to get won and loss tickets based on user's role
       const wonLossTickets =
         userRole === "ADMIN"
-          ? await findTicketsByWONandLOSS()
+          ? await findTicketsByWONandLOSSAdmin()
           : await findTicketsByWONandLOSS(representativeId);
-console.log(wonLossTickets, "wonLossTickets");
+           console.log(wonLossTickets, "wonLossTickets");
       const win = new ObjectId("65991601a62baad220000001");
       const lost = new ObjectId("65991601a62baad220000002");
       // Calculate the count of won and loss tickets

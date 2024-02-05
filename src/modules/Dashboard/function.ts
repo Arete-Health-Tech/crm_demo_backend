@@ -107,7 +107,7 @@ export const findTicketsByStatusAndRepresentative = async (
     const filterAssignedArray = representativeId
       ? [new ObjectId(representativeId)]
       : [];
-    console.log(filterAssignedArray, "filterAssignedArray");
+    // console.log(filterAssignedArray, "filterAssignedArray");
 
     let query: any = {
       status,
@@ -177,6 +177,33 @@ export const findTicketsByStatusAndRepresentativeforAdmin = async (
      throw new Error("Internal server error");
    }
  };
+
+ export const findTicketsByWONandLOSSAdmin = async (representativeId?: ObjectId) => {
+  try {
+
+    // const filterAssignedArray = representativeId
+    //   ? [new ObjectId(representativeId)]
+    //   : [];
+
+    const win = new ObjectId("65991601a62baad220000001");
+    const lost = new ObjectId("65991601a62baad220000002");
+
+    // Remove the status condition from the query
+    let query: any = {
+      // assigned: { $in: filterAssignedArray },
+      result: { $in: [win, lost] },
+    };
+
+    const tickets = await MongoService.collection(TICKET_DB)
+      .find(query)
+      .toArray();
+     //  console.log(tickets," this is win an dlo sssss")
+    return tickets;
+  } catch (error: any) {
+    console.error("Error finding tickets:", error.message);
+    throw new Error("Internal server error");
+  }
+};
 
 
  export const getTicketsCountByStage = async (representativeId?: ObjectId) => {

@@ -132,7 +132,10 @@ type tickeFollow = ifollowUp & iPrescription & iTicket & CONSUMER;
 
 export const UNDEFINED = "undefined";
 
+const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
+
 const lastAssignedRepIndexMap: Record<string, number> = {};
+console.log(lastAssignedRepIndexMap , "lastAssignedRepIndexMap jbdfuhdsifhb jbcsfhfisf bsuhdisd jshihdj");
 export const createTicket = PromiseWrapper(
   async (
     req: Request,
@@ -172,15 +175,11 @@ export const createTicket = PromiseWrapper(
     if (doctor === null) {
       throw new ErrorHandler("Invalid doctor id passed", 400);
     }
-    console.log(doctor,"ths is doctor")
     const { Key } = await putMedia(
       req.file,
       `patients/${ticket.consumer}/prescription`
     );
     //create prescription
-
-
-    console.log(Key," this is key")
     const { _id } = await createOnePrescription(
       {
         admission: ticket.admission,
@@ -228,6 +227,7 @@ export const createTicket = PromiseWrapper(
       if (!lastAssignedRepIndexMap[groupId2]) {
         lastAssignedRepIndexMap[groupId2] = 0;
       }
+      console.log("this comes insde")
       // Round-robin logic within the group
       // Get the next representative within the group
       let representatives2 = await MongoService.collection(REPRESENTATIVE_DB)
@@ -339,7 +339,7 @@ if (currentDate) {
           ).toISOString(),
         });
       }
-
+     console.log( body , "this is ticket body");
       return res.json(body);
     }
   }
@@ -1893,7 +1893,7 @@ export const EstimateUploadAndSend = PromiseWrapper(
 );
 
 
-const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
+
 
 
 
@@ -1997,17 +1997,17 @@ export const createPatientStatus = PromiseWrapper(
               // Handle the case where the provided string doesn't match ObjectId format
             }
           } catch (error) {
-            console.error('Error while constructing ObjectId:', error);
+            console.error('Error while constructing ObjectId:', error);   
             // Handle any potential errors during ObjectId creation
           }
         }
         console.log(requestBody.ticket ,"requestBody.ticket");
-        
-        const currentDate = new Date();
-const modifiedDatePlus50Days = new Date(currentDate);
-modifiedDatePlus50Days.setDate(currentDate.getDate() + 50);
+          
+         const currentDate = new Date();
+         const modifiedDatePlus50Days = new Date(currentDate);
+         modifiedDatePlus50Days.setDate(currentDate.getDate() - 50);
 
-const remove = await UpdateDate(requestBody.ticket, { modifiedDate: modifiedDatePlus50Days }, session);
+        const remove = await UpdateDate(requestBody.ticket, {   modifiedDate: modifiedDatePlus50Days , status : null}, session);
 
         res.status(200).json({ result,  status: "Success" });
       } catch (error) {

@@ -39,12 +39,13 @@ export const updatePendingTicket = async () => {
     const ticketsToUpdate = await MongoService.collection(TICKET_DB).find({
       $or: [
         { status: 'todayTask' },
-        { status: null },
+        // { status: null },
+        {result: null},
       ],
       'subStageCode.code': { $lt: 3 },
       date: { $lt: yesterday },
+      
     }).toArray();
-
     console.log('Matching Tickets:', ticketsToUpdate);
 
     // Update each ticket

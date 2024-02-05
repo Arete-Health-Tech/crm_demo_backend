@@ -169,8 +169,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
     const today = new Date(); // Get today's date
     today.setHours(0, 0, 0, 0);
     const ticketDetail = result.tickets[0];
-    const hasResult = result.tickets[0].result;
-    console.log(hasResult , "hasResult");
+    
     if (TicketId) {
       // FILTER TICKET BY MODIFIED DATE
       const statusModified = ticketObjCache[TicketId]?.status !== ticketDetail.status;
@@ -187,7 +186,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
           ticketDetail.subStageCode.code >= 4 &&
           today >= modifiedDatePlus_3 &&
           today < modifiedDatePlus_45 &&
-          !statusModified &&  !hasResult
+          !statusModified  
         ) {
           ticketObjCache[TicketId] = result.tickets[0];
         } else {
