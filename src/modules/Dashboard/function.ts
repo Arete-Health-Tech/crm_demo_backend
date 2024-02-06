@@ -21,16 +21,16 @@ export const updateTicketStatusHandler = async (
       return { status: 404, body: { error: "Ticket not found" } };
     }
     
-    const currentTime = new Date();
-    const currentMillis = currentTime.getTime();
-    const timeDifference = currentMillis - ticket.date.getTime();
-    const hoursDifference = timeDifference / (1000 * 60 * 60);
+    // const currentTime = new Date();
+    // const currentMillis = currentTime.getTime();
+    // const timeDifference = currentMillis - ticket.date.getTime();
+    // const hoursDifference = timeDifference / (1000 * 60 * 60);
 
-    if (hoursDifference <= 24 && ticket.subStageCode.code < 3) {
-      ticket.status = "todayTask";
-    } else if (hoursDifference > 24 && ticket.subStageCode.code < 3) {
-      ticket.status = "pendingTask";
-    }
+    // if (hoursDifference <= 24 && ticket.subStageCode.code < 3) {
+    //   ticket.status = "todayTask";
+    // } else if (hoursDifference > 24 && ticket.subStageCode.code < 3) {
+    //   ticket.status = "pendingTask";
+    // }
 
     // Check if the payload contains a specific property that should prevent RedisUpdateSingleTicketLookUp
     const skipRedisUpdate = ticket;

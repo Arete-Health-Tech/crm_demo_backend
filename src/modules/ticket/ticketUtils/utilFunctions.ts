@@ -147,6 +147,8 @@ export async function createTicketLookUps(ticketId?: string) {
   // console.log("Ticket Lookup ready to store! ::  Totalcount:", result.count);
   return result;
 }
+
+// if something is not working uncommet this and commment out the code below .
 export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
   try {
     console.log("Entering RedisUpdateSingleTicketLookUp");
@@ -172,21 +174,25 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
     
     if (TicketId) {
       // FILTER TICKET BY MODIFIED DATE
-      const statusModified = ticketObjCache[TicketId]?.status !== ticketDetail.status;
-        console.log(statusModified , "statusModified");
-        console.log("Status from cache:", ticketObjCache[TicketId]?.status);
-        console.log("Status from result:", ticketDetail.status);
-      if (ticketDetail.modifiedDate && statusModified !== true ) {
+     
+      if (ticketDetail.modifiedDate ) {
+        console.log("is it here")
         const modifiedDatePlus_3 =
           ticketDetail.modifiedDate + 3 * 24 * 60 * 60 * 1000;
         const modifiedDatePlus_45 =
           ticketDetail.modifiedDate + 45 * 24 * 60 * 60 * 1000;
 
+          const statusModified = ticketObjCache[TicketId]?.status !== ticketDetail.status;
+          console.log(statusModified , "statusModified");
+          console.log("Status from cache:", ticketObjCache[TicketId]?.status);
+          console.log("Status from result:", ticketDetail.status);
+          console.log(ticketDetail.modifiedDate ,"ticketDetail.modifiedDate");
+
         if (
           ticketDetail.subStageCode.code >= 4 &&
           today >= modifiedDatePlus_3 &&
-          today < modifiedDatePlus_45 &&
-          !statusModified  
+          today < modifiedDatePlus_45
+          && statusModified !== true
         ) {
           ticketObjCache[TicketId] = result.tickets[0];
         } else {
@@ -225,12 +231,60 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
     throw new ErrorHandler("Error occurred while updating redis", 500);
   }
 };
+export const delteWonandloss = async (TicketId?: string) => {
+  try {
+    console.log("Entering delteWonandloss");
+
+    const result: iTicketsResultJSON = await createTicketLookUps(TicketId);
+    const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
+
+    if (!data) {
+      return new Error(`No Data found in @Redis cache for Key ${TICKET_CACHE_OBJECT}`);
+    }
+
+    let ticketObjCache = JSON.parse(data);
+
+    const ticketDetail = result.tickets[0];
+
+    if (TicketId) {
+      if (ticketDetail.result !== null) {
+        // If result is present, remove the ticket from Redis
+        delete ticketObjCache[TicketId];
+        console.log("Ticket removed from Redis due to non-null result");
+      } else {
+        // If result is null, update the cache
+        ticketObjCache[TicketId] = result.tickets[0];
+      }
+    } else {
+      // Fetch all data again in case of restore
+      let cacheObj: any = {};
+      result.tickets.forEach((currentTicket: any) => {
+        let ticket_ID: string = currentTicket._id.toString();
+        cacheObj[ticket_ID] = currentTicket;
+      }); // setting {id: ticketdata} pair
+
+      ticketObjCache = cacheObj;
+    }
+
+    const finalTicketCaches = JSON.stringify(ticketObjCache);
+
+    await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
+    return ticketObjCache;
+  } catch (err) {
+    console.log("Error in delteWonandloss:", err);
+    throw new ErrorHandler("Error occurred while updating redis", 500);
+  }
+};
+
+
+
 export const pushToUpdatedTicketTop = async (
   fetchUpdated: "true" | "false",
   ticketId: string,
-  ticketObjCache: any
+    ticketObjCache: any
 ) => {
-  if (fetchUpdated === "true") {
+
+  if (fetchUpdated === "true" ) {
     const fetchSingleTicket = await createTicketLookUps(ticketId);
     delete ticketObjCache[ticketId];
     ticketObjCache = {
@@ -271,7 +325,7 @@ export const pushToUpdatedTicketTop = async (
 //     level: "majority",
 //     toJSON: () => ({ level: "majority" }),
 //   };
-//   // console.log("ticket lookup started...", ticketId);
+//   // console.log("ticket lookup started...", ticketId);`
 //   let tickets: any = await MongoService.collection(Collections.TICKET)
 //     .aggregate(
 //       [
@@ -288,7 +342,7 @@ export const pushToUpdatedTicketTop = async (
 //             as: "consumer",
 //           },
 //         },
-//         matchAssigned,
+//         matchAssigned,`
 //         {
 //           $lookup: {
 //             from: Collections.PRESCRIPTION,

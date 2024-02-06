@@ -123,7 +123,7 @@ export interface iflowData {
 }
 
 export interface iTicketDate {
-  status : null ;
+  status : null 
   modifiedDate?: Date | null;
 }
 

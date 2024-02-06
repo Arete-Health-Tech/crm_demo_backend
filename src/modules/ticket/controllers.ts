@@ -114,6 +114,7 @@ import {
   RedisUpdateSingleTicketLookUp,
   applyPagination,
   createTicketLookUps,
+  delteWonandloss,
   pushToUpdatedTicketTop,
 } from "./ticketUtils/utilFunctions";
 import { findOneConsumer } from "../consumer/crud";
@@ -1933,9 +1934,6 @@ export const EstimateUploadAndSend = PromiseWrapper(
 //   }
 // );
 
-
-
-
 export const createPatientStatus = PromiseWrapper(
     async (
       req: Request,
@@ -2001,13 +1999,13 @@ export const createPatientStatus = PromiseWrapper(
             // Handle any potential errors during ObjectId creation
           }
         }
-        console.log(requestBody.ticket ,"requestBody.ticket");
           
-         const currentDate = new Date();
-         const modifiedDatePlus50Days = new Date(currentDate);
-         modifiedDatePlus50Days.setDate(currentDate.getDate() - 50);
+        //  const currentDate = new Date();
+        //  const modifiedDatePlus50Days = new Date(currentDate);
+        //  modifiedDatePlus50Days.setDate(currentDate.getDate() - 50);
 
-        const remove = await UpdateDate(requestBody.ticket, {  status : null ,  modifiedDate: modifiedDatePlus50Days }, session);
+        const remove = await UpdateDate(requestBody.ticket, { status :null  , modifiedDate: new Date() }, session);
+        //  await delteWonandloss(requestBody.ticket);
 
         res.status(200).json({ result,  status: "Success" });
       } catch (error) {
@@ -2015,7 +2013,7 @@ export const createPatientStatus = PromiseWrapper(
         res.status(500).json({ status: 500, error: "Internal Server Error" });
       }
     }
-  );
+ );
 
 export const skipResult = PromiseWrapper(
   async (
