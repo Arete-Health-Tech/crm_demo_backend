@@ -65,7 +65,7 @@ export const ConnectFlow = PromiseWrapper(
 
     if (service === null) throw new ErrorHandler("Invalid Service Id", 400);
     const connector = await connectFlow(req.body, session);
-    console.log(connector.nodeId);
+    // console.log(connector.nodeId);
 
     res.status(200).json(connector);
   }
@@ -76,7 +76,7 @@ export const verifyWhatsap = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("query web hook", req.query);
+  // console.log("query web hook", req.query);
   let mode = req.query["hub.mode"];
   let challange = req.query["hub.challenge"];
   let token = req.query["hub.verify_token"];
@@ -85,7 +85,7 @@ export const verifyWhatsap = async (
     if (mode === "subscribe" && token === "arete-health-tech") {
       res.status(200).send(challange);
     } else {
-      console.log("credential not match");
+      // console.log("credential not match");
       res.status(403);
     }
   }
@@ -105,13 +105,13 @@ export const HandleWebhook = async (
         changes.value.messages.forEach((message, mi) => {
           (async function () {
             try {
-              console.log(message.button," this is button  ")
+              // console.log(message.button," this is button  ")
               const { prescription, ticket } =
                 await findTicketAndPrescriptionFromWAID(
                   changes.value.contacts[mi].wa_id
                 );
-                console.log(prescription," yif skdjsdjisfsfgdsggdg");
-                console.log(ticket," this is ticket ");
+                // console.log(prescription," yif skdjsdjisfsfgdsggdg");
+                // console.log(ticket," this is ticket ");
               const departmentSet = new Set([
                 "63ce58474dca242deb6a4d41",
                 "63ce59964dca242deb6a4d4c",
@@ -126,7 +126,7 @@ export const HandleWebhook = async (
                 // if (!departmentSet.has(prescription?.departments[0].toString()))
                 //   return;
                 if (message.button) {
-                  console.log(message.button," this is button")
+                  // console.log(message.button," this is button")
                   if (message.button.text.toLowerCase() === "english") {
                     await findAndSendNode(
                       prescription.service
@@ -147,11 +147,11 @@ export const HandleWebhook = async (
                     );
                   }
                 } else if (message.interactive) {
-                  console.log(message.button, " this i9s message .button");
-                  console.log(
-                    message.interactive,
-                    " this is interactive message"
-                  );
+                  // console.log(message.button, " this i9s message .button");
+                  // console.log(
+                  //   message.interactive,
+                  //   " this is interactive message"
+                  // );
                   const nodeIdentifier =
                     message.interactive.type === "button_reply"
                       ? message.interactive.button_reply.id
@@ -215,7 +215,7 @@ export const SendMessage = PromiseWrapper(
   ) => {
     const { message, consumerId, ticketID } = req.body;
 
-    console.log(req.body, "req body");
+    // console.log(req.body, "req body");
 
     const consumer = await findConsumerById(consumerId);
     // console.log(consumer, "hello")
@@ -247,7 +247,7 @@ export const FindNode = PromiseWrapper(
   ) => {
     const { flowQuery } = req.query as unknown as { flowQuery: string };
     const node = await findNodeByDiseaseId(flowQuery);
-    console.log(node);
+    // console.log(node);
     return res.status(200).json(node);
   }
 );
@@ -277,8 +277,8 @@ export const whatsappImageStatus = PromiseWrapper(
   ) => {
     const { consumerId, ticketID } = req.body;
     const newConsumerID = new ObjectId(consumerId);
-    console.log(ticketID, "this is ticketID for image");
-    console.log(req.file, "this is request of file");
+    // console.log(ticketID, "this is ticketID for image");
+    // console.log(req.file, "this is request of file");
     const { Location } = await putMedia(
       req.file,
       `patients/whatsappImageStatus`,
@@ -310,12 +310,12 @@ export const whatsappImageStatus = PromiseWrapper(
       return res.status(200).json({ message: "message sent." });
     } else if (messageType === "pdf") {
       // Handle PDF upload
-      console.log("this is pdf");
-      console.log(location, "yeh wo wali location hai dlkh lo ");
-      console.log(
-        consumer.phone,
-        "fjksdgksffffffffffffffffffffffffffffffffffffffffffg"
-      );
+      // console.log("this is pdf");
+      // console.log(location, "yeh wo wali location hai dlkh lo ");
+      // console.log(
+      //   consumer.phone,
+      //   "fjksdgksffffffffffffffffffffffffffffffffffffffffffg"
+      // );
       await sendPdfMessage(consumer.phone, location);
       await saveMessage(ticketID, {
         consumer: consumer._id.toString(),

@@ -200,10 +200,10 @@ export const pieWONLoss = PromiseWrapper(
   ) => {
     try {
       const coming = req.user?._id;
-      console.log(coming, "coming");
+      // console.log(coming, "coming");
       
        const representativeId = new ObjectId(coming);
-       console.log(representativeId, "representativeId");
+      //  console.log(representativeId, "representativeId");
        
        const userRole = req.user?.role;
 
@@ -212,18 +212,18 @@ export const pieWONLoss = PromiseWrapper(
         userRole === "ADMIN"
           ? await findTicketsByWONandLOSSAdmin()
           : await findTicketsByWONandLOSS(representativeId);
-           console.log(wonLossTickets, "wonLossTickets");
+          //  console.log(wonLossTickets, "wonLossTickets");
       const win = new ObjectId("65991601a62baad220000001");
       const lost = new ObjectId("65991601a62baad220000002");
       // Calculate the count of won and loss tickets
       const wonCount = wonLossTickets.filter((ticket) =>
         ticket.result.equals(win)
       ).length;
-      console.log(wonCount," this is win count");
+      // console.log(wonCount," this is win count");
       const lossCount = wonLossTickets.filter((ticket) =>
         ticket.result.equals(lost)
       ).length;
-      console.log(lossCount, " this is loss count");
+      // console.log(lossCount, " this is loss count");
 
       res.status(200).json({ wonCount, lossCount });
     } catch (error) {

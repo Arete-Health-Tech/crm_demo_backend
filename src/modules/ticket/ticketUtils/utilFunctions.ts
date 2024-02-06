@@ -183,10 +183,10 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
           ticketDetail.modifiedDate + 45 * 24 * 60 * 60 * 1000;
 
           const statusModified = ticketObjCache[TicketId]?.status !== ticketDetail.status;
-          console.log(statusModified , "statusModified");
-          console.log("Status from cache:", ticketObjCache[TicketId]?.status);
-          console.log("Status from result:", ticketDetail.status);
-          console.log(ticketDetail.modifiedDate ,"ticketDetail.modifiedDate");
+          // console.log(statusModified , "statusModified");
+          // console.log("Status from cache:", ticketObjCache[TicketId]?.status);
+          // console.log("Status from result:", ticketDetail.status);
+          // console.log(ticketDetail.modifiedDate ,"ticketDetail.modifiedDate");
 
         if (
           ticketDetail.subStageCode.code >= 4 &&

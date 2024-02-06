@@ -280,8 +280,8 @@ export const addFilterWon = async (ticketId: string, wonId: string, session?: Cl
   try {
     const wonObjectId = new ObjectId(wonId) ;
     const ticketObjectId = new ObjectId(ticketId);
-    console.log(ticketObjectId , "cat");
-    console.log(wonId , "wonid");
+    // console.log(ticketObjectId , "cat");
+    // console.log(wonId , "wonid");
     
     return await MongoService.collection(Collections.TICKET).findOneAndUpdate(
       { _id: ticketObjectId },
@@ -358,14 +358,14 @@ export const updateTicketStatus1 = async (
   status: string,
 ) => {
   try {
-    console.log(prescriptionId , "prescriptionId inside the prep");
-    console.log(status ,"status nubfnidkvc");
+    // console.log(prescriptionId , "prescriptionId inside the prep");
+    // console.log(status ,"status nubfnidkvc");
     const result = await MongoService.collection(TICKET_DB)
       .updateOne(
         { _id: prescriptionId },
         { $set: { status: "todayTask" } },
       );
-      console.log(result , "result bnucbsnkmlsc");
+      // console.log(result , "result bnucbsnkmlsc");
 
     if (result.modifiedCount > 0) {
       return { success: true };
@@ -387,7 +387,7 @@ export const updateSubStage3 = async (
   ticketId: ObjectId,
   subStageCode: subStageCodeType,
 ) => {
-  console.log(subStageCode ,"subStageCode");
+  // console.log(subStageCode ,"subStageCode");
   return await MongoService.collection(Collections.TICKET).updateOne(
     { _id: ticketId },
     { $set: { subStageCode } },

@@ -68,7 +68,7 @@ export const updateTicketStatusHandler = async (
     }
    
     const id :any =ticket._id
-    console.log(id ,"id");
+    // console.log(id ,"id");
    if(payload.select == "Call Completed"){
      await updateSubStage3(
       id,
@@ -239,7 +239,7 @@ export const findTicketsByStatusAndRepresentativeforAdmin = async (
          },
        ])
        .toArray();
-console.log(ticketsCountByStage,'ticketsCountByStage')
+// console.log(ticketsCountByStage,'ticketsCountByStage')
      return ticketsCountByStage;
    } catch (error: any) {
      console.error("Error getting tickets count by stage:", error.message);
@@ -280,7 +280,7 @@ console.log(ticketsCountByStage,'ticketsCountByStage')
         },
       ])
       .toArray();
-console.log(ticketsCountByStage,'ticketsCountByStage')
+// console.log(ticketsCountByStage,'ticketsCountByStage')
     return ticketsCountByStage;
   } catch (error: any) {
     console.error("Error getting tickets count by stage:", error.message);

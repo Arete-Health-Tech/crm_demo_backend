@@ -135,7 +135,7 @@ export const UNDEFINED = "undefined";
 const BUCKET_NAME = process.env.PUBLIC_BUCKET_NAME;
 
 const lastAssignedRepIndexMap: Record<string, number> = {};
-console.log(lastAssignedRepIndexMap , "lastAssignedRepIndexMap jbdfuhdsifhb jbcsfhfisf bsuhdisd jshihdj");
+// console.log(lastAssignedRepIndexMap , "lastAssignedRepIndexMap jbdfuhdsifhb jbcsfhfisf bsuhdisd jshihdj");
 export const createTicket = PromiseWrapper(
   async (
     req: Request,
@@ -163,7 +163,7 @@ export const createTicket = PromiseWrapper(
     if (consumer === null) {
       throw new ErrorHandler("consumer doesn't exist", 404);
     }
-    console.log(consumer,"this is consumer")
+    // console.log(consumer,"this is consumer")
     const departments: string[] = JSON.parse(req.body.departments);
     for await (const department of departments) {
       const dept = await getDepartmentById(new ObjectId(department));
@@ -227,7 +227,7 @@ export const createTicket = PromiseWrapper(
       if (!lastAssignedRepIndexMap[groupId2]) {
         lastAssignedRepIndexMap[groupId2] = 0;
       }
-      console.log("this comes insde")
+      // console.log("this comes insde")
       // Round-robin logic within the group
       // Get the next representative within the group
       let representatives2 = await MongoService.collection(REPRESENTATIVE_DB)
@@ -339,7 +339,7 @@ if (currentDate) {
           ).toISOString(),
         });
       }
-     console.log( body , "this is ticket body");
+    //  console.log( body , "this is ticket body");
       return res.json(body);
     }
   }
@@ -393,7 +393,7 @@ export const ticketsWithPrescription = PromiseWrapper(
 export const getRepresentativeTickets = PromiseWrapper(
   async (req: Request, res: Response, next: NextFunction) => {
     const requestQuery: any = req.query;
-    console.log(requestQuery, " this is request query ");
+    // console.log(requestQuery, " this is request query ");
     // console.log(requestQuery.phonev, "this is number");
     const phone = parseInt(requestQuery.phonev);
     // console.log(phone, " this is numbe");
@@ -424,7 +424,7 @@ export const getRepresentativeTickets = PromiseWrapper(
             )
         : [];
     const result = requestQuery.results ? requestQuery.results : [];
-    console.log(result , " this is result");
+    // console.log(result , " this is result");
     const rep = await MongoService.collection(REPRESENTATIVE_DB).findOne({
       phone: phone,
     });
@@ -715,10 +715,10 @@ export const getRepresentativeTickets = PromiseWrapper(
         .find({ group: group })
         .toArray();
       const lastTicket = alltickets[alltickets.length - 1];
-      console.log(lastTicket, " this is last ticket ");
+      // console.log(lastTicket, " this is last ticket ");
 
       const filterAssigned = lastTicket.assigned.toString();
-      console.log(filterAssigned, " this is filterassigned");
+      // console.log(filterAssigned, " this is filterassigned");
 
       let filters = {};
       if (stageList?.length > 0) {
@@ -1536,7 +1536,7 @@ export const createEstimateController = PromiseWrapper(
 
     const newTicket = new ObjectId(estimateBody.ticket);
     const ticketData: iTicket | null = await findOneTicket(newTicket);
-    console.log(ticketData , "ticketDataticketDataticketDataticketData busbfnisc cndkfn")
+    // console.log(ticketData , "ticketDataticketDataticketDataticketData busbfnisc cndkfn")
 
     if (ticketData !== null) {
       if (ticketData?.subStageCode.code < 2) {
@@ -1740,10 +1740,10 @@ export const updateTicketData = PromiseWrapper(
   ) => {
     try {
       const stageCode: number = req.body.stageCode;
-      console.log("stage code in update", stageCode);
+      // console.log("stage code in update", stageCode);
       const stage = await findStageByCode(stageCode);
-      console.log("SStage in update", stage.code);
-      console.log(req.body, "data in request");
+      // console.log("SStage in update", stage.code);
+      // console.log(req.body, "data in request");
       // const result = await updateTicket(
       //   req.body.ticket,
       //   {
@@ -1776,14 +1776,14 @@ export const updateTicketData = PromiseWrapper(
       }
 
       const whatsNumber = consumerData.phone;
-      console.log(whatsNumber, "this is whats up number");
+      // console.log(whatsNumber, "this is whats up number");
 
 const service = ticketData.prescription ;
-              console.log(service , " this is service");
+              // console.log(service , " this is service");
               
               const msgId = await findOnePrescription(service);
               const oneService : string | undefined= msgId?.service?.toString();
-              console.log(oneService , "oneService i sthe oneService in the nont")
+              // console.log(oneService , "oneService i sthe oneService in the nont")
               if (stageCode === 2 && oneService !== undefined) {
                 const nodeName = 'How'; // Set the desired nodeName
                 const messageFind: any = await findMeassage(oneService, nodeName);
@@ -1792,10 +1792,10 @@ const service = ticketData.prescription ;
                   console.log(`No messages with nodeName '${nodeName}' found for nodeId: ${oneService}`);
                 } else {
                   // Handle the case when no messages with nodeName 'How' are found
-                  console.log(messageFind, " this is messageFind");
+                  // console.log(messageFind, " this is messageFind");
               
                   const replyPayload = createReplyPayload(messageFind[0]);
-                  console.log(replyPayload, "this is a reply payload");
+                  // console.log(replyPayload, "this is a reply payload");
                   await sendMessage(whatsNumber, replyPayload);
                 }
               }
@@ -1810,7 +1810,7 @@ const service = ticketData.prescription ;
                   console.log(messageFind, " this is messageFind");
               
                   const replyPayload = createReplyPayload(messageFind[0]);
-                  console.log(replyPayload, "this is a reply payload");
+                  // console.log(replyPayload, "this is a reply payload");
                   await sendMessage(whatsNumber, replyPayload);
                 }
               }
@@ -1846,7 +1846,7 @@ export const updateTicketSubStageCode = PromiseWrapper(
   ) => {
     try {
       let ticketId = req.body?.ticket;
-      console.log(req.body," this is currentStatus data for won")
+      // console.log(req.body," this is currentStatus data for won")
       ticketId = new ObjectId(ticketId);
       const subStageCode = req.body?.subStageCode;
       const result = await updateSubStage(ticketId, subStageCode, session);
@@ -1942,7 +1942,7 @@ export const createPatientStatus = PromiseWrapper(
     ) => {
       try {
         const requestBody = req.body;
-        console.log(requestBody ,"requestBody");
+        // console.log(requestBody ,"requestBody");
         let imageKey: string | null = null;
         
         if (req.file) {
@@ -1952,7 +1952,7 @@ export const createPatientStatus = PromiseWrapper(
             BUCKET_NAME
           );
           imageKey = `https://${BUCKET_NAME}.s3.ap-south-1.amazonaws.com/${Key}`;
-          console.log(imageKey, "image key is after");
+          // console.log(imageKey, "image key is after");
         }
         const payload = {
           parentTicketId: requestBody.ticket,
