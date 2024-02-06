@@ -114,7 +114,6 @@ import {
   RedisUpdateSingleTicketLookUp,
   applyPagination,
   createTicketLookUps,
-  delteWonandloss,
   pushToUpdatedTicketTop,
 } from "./ticketUtils/utilFunctions";
 import { findOneConsumer } from "../consumer/crud";

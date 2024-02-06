@@ -231,50 +231,50 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
     throw new ErrorHandler("Error occurred while updating redis", 500);
   }
 };
-export const delteWonandloss = async (TicketId?: string) => {
-  try {
-    console.log("Entering delteWonandloss");
+// export const delteWonandloss = async (TicketId?: string) => {
+//   try {
+//     console.log("Entering delteWonandloss");
 
-    const result: iTicketsResultJSON = await createTicketLookUps(TicketId);
-    const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
+//     const result: iTicketsResultJSON = await createTicketLookUps(TicketId);
+//     const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
 
-    if (!data) {
-      return new Error(`No Data found in @Redis cache for Key ${TICKET_CACHE_OBJECT}`);
-    }
+//     if (!data) {
+//       return new Error(`No Data found in @Redis cache for Key ${TICKET_CACHE_OBJECT}`);
+//     }
 
-    let ticketObjCache = JSON.parse(data);
+//     let ticketObjCache = JSON.parse(data);
 
-    const ticketDetail = result.tickets[0];
+//     const ticketDetail = result.tickets[0];
 
-    if (TicketId) {
-      if (ticketDetail.result !== null) {
-        // If result is present, remove the ticket from Redis
-        delete ticketObjCache[TicketId];
-        console.log("Ticket removed from Redis due to non-null result");
-      } else {
-        // If result is null, update the cache
-        ticketObjCache[TicketId] = result.tickets[0];
-      }
-    } else {
-      // Fetch all data again in case of restore
-      let cacheObj: any = {};
-      result.tickets.forEach((currentTicket: any) => {
-        let ticket_ID: string = currentTicket._id.toString();
-        cacheObj[ticket_ID] = currentTicket;
-      }); // setting {id: ticketdata} pair
+//     if (TicketId) {
+//       if (ticketDetail.result !== null) {
+//         // If result is present, remove the ticket from Redis
+//         delete ticketObjCache[TicketId];
+//         console.log("Ticket removed from Redis due to non-null result");
+//       } else {
+//         // If result is null, update the cache
+//         ticketObjCache[TicketId] = result.tickets[0];
+//       }
+//     } else {
+//       // Fetch all data again in case of restore
+//       let cacheObj: any = {};
+//       result.tickets.forEach((currentTicket: any) => {
+//         let ticket_ID: string = currentTicket._id.toString();
+//         cacheObj[ticket_ID] = currentTicket;
+//       }); // setting {id: ticketdata} pair
 
-      ticketObjCache = cacheObj;
-    }
+//       ticketObjCache = cacheObj;
+//     }
 
-    const finalTicketCaches = JSON.stringify(ticketObjCache);
+//     const finalTicketCaches = JSON.stringify(ticketObjCache);
 
-    await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
-    return ticketObjCache;
-  } catch (err) {
-    console.log("Error in delteWonandloss:", err);
-    throw new ErrorHandler("Error occurred while updating redis", 500);
-  }
-};
+//     await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
+//     return ticketObjCache;
+//   } catch (err) {
+//     console.log("Error in delteWonandloss:", err);
+//     throw new ErrorHandler("Error occurred while updating redis", 500);
+//   }
+// };
 
 
 
