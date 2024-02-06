@@ -1,4 +1,4 @@
-import { Console } from "console";
+
 import { RedisUpdateSingleTicketLookUp } from "../../modules/ticket/ticketUtils/utilFunctions";
 import MongoService, { Collections } from "../mongo";
 import { TICKET_DB } from "../../modules/ticket/crud";
@@ -33,7 +33,7 @@ export const updatePendingTicket = async () => {
   try {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    console.log(yesterday ,"yesterdayyesterdayyesterday")
+    // console.log(yesterday ,"yesterdayyesterdayyesterday")
 
     // Find tickets with status "todayTask" and subStageCode.code < 3
     const ticketsToUpdate = await MongoService.collection(TICKET_DB).find({
@@ -46,7 +46,7 @@ export const updatePendingTicket = async () => {
       date: { $lt: yesterday },
       
     }).toArray();
-    console.log('Matching Tickets:', ticketsToUpdate);
+    console.log('Matching Tickets:', ticketsToUpdate.length);
 
     // Update each ticket
     for (const ticket of ticketsToUpdate) {
