@@ -2007,7 +2007,7 @@ export const createPatientStatus = PromiseWrapper(
          const modifiedDatePlus50Days = new Date(currentDate);
          modifiedDatePlus50Days.setDate(currentDate.getDate() - 50);
 
-        const remove = await UpdateDate(requestBody.ticket, {   modifiedDate: modifiedDatePlus50Days , status : null}, session);
+        const remove = await UpdateDate(requestBody.ticket, {  status : null ,  modifiedDate: modifiedDatePlus50Days }, session);
 
         res.status(200).json({ result,  status: "Success" });
       } catch (error) {
