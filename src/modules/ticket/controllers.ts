@@ -2090,7 +2090,6 @@ export const skipEstimate = PromiseWrapper(
   }
 );
 
-
 //ticket update handler
 export const updateTicketHandler = async (
   req: Request,

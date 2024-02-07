@@ -34,9 +34,9 @@ export const create = [
   body("caregiver_name").optional({ nullable: true }).isString(),
   body("caregiver_phone")
     .optional({ nullable: true })
-    .isLength({ min: 10, max: 10 })
+    .isLength({ min: 1, max: 20 })
     .isMobilePhone("en-IN")
-    .customSanitizer((value) => "91" + value),
+    .customSanitizer((value) =>  value),
 ];
 export const createEstimate = [
   body("icuType")
