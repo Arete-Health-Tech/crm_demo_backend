@@ -23,11 +23,11 @@ export const create = [
       if (index === -1) throw new Error("Invalid Role");
       return value;
     }),
-  body("phone"),
+  body("phone").isMobilePhone("en-IN"),
   body("image").notEmpty(),
   body("password").notEmpty().isStrongPassword({ minLength: 6 }),
 ];
 export const login = [
-  body("phone").isInt().toInt(),
+  body("phone").isMobilePhone("en-IN").isInt().toInt(),
   body("password").notEmpty(),
 ];
