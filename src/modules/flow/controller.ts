@@ -127,14 +127,14 @@ export const HandleWebhook = async (
                 //   return;
                 if (message.button) {
                   console.log(message.button," this is button")
-                  if (message.button.text.toLowerCase() === "English") {
+                  if (message.button.text.toLowerCase() === "english") {
                     await findAndSendNode(
                       prescription.service
                         ? prescription.service.toString()
                         : "DF",
                       changes.value.contacts[mi].wa_id,
                       ticket._id.toString(),
-                      "English"
+                      "english"
                     );
                   } else {
                     await findAndSendNodeHindi(
@@ -143,7 +143,7 @@ export const HandleWebhook = async (
                         : "DF",
                       changes.value.contacts[mi].wa_id,
                       ticket._id.toString(),
-                      "Hindi"
+                      "hindi"
                     );
                   }
                 } else if (message.interactive) {
@@ -174,7 +174,7 @@ export const HandleWebhook = async (
                         nodeIdentifier,
                         changes.value.contacts[mi].wa_id,
                         ticket._id.toString(),
-                        "Hindi"
+                        "hindi"
                       );
                     } catch (secondError) {
                       // Handle the error from the second function
