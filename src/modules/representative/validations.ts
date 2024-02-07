@@ -23,7 +23,7 @@ export const create = [
       if (index === -1) throw new Error("Invalid Role");
       return value;
     }),
-  body("phone").isMobilePhone("en-IN"),
+  body("phone"),
   body("image").notEmpty(),
   body("password").notEmpty().isStrongPassword({ minLength: 6 }),
 ];
