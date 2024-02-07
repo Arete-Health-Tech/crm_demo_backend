@@ -7,7 +7,7 @@ export const create = [
   body("dob").optional({ nullable: true }).toDate().notEmpty(),
   body("phone")
     .isLength({ max: 20, min: 1 })
-    .isMobilePhone("en-IN")
+    // .isMobilePhone("en-IN")
     .customSanitizer((value) => value),
   body("uid").notEmpty(),
   body("gender")
