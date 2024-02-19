@@ -527,10 +527,10 @@ if (serviceCount > 1) {
             document
             .fontSize(12)
             .font("Helvetica-Bold")
-            .text("MEDIVERSAL MULTI SUPER SPECIALITY HOSPITAL", 50 , 25 , { align: "center" })
+            .text("Amrita Hospital", 50 , 25 , { align: "center" })
             .fontSize(12)
             .font("Helvetica-Bold")
-            .text("(A Unit Of Mediversal Healthcare Pvt Ltd)", 50 , 38,{ align: "center" })
+            .text("(A Unit Of Amrita Hospital)", 50 , 38,{ align: "center" })
             .fontSize(10)
             .font("Helvetica")
             .text("Plot No. D/S-6, DOCTORS' COLONY, 90 FEET ROAD NEAR KANKARBAGH POLICE", 50  , 55 ,{ align: "center" })

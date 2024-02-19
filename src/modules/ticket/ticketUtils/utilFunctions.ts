@@ -164,8 +164,6 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
     }
 
     let ticketObjCache = JSON.parse(data);
-
-
     
     //SETTING UPDATED TICKET DATA TO REDIS TICKET CACHE BELOW
     const today = new Date(); // Get today's date

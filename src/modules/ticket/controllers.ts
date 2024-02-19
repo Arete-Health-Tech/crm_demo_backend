@@ -2036,12 +2036,26 @@ export const validateTicket = PromiseWrapper(
   ) => {
     try {
       const ticketId: string = req.body?.ticketId;
-      if (ticketId) {
-        await RedisUpdateSingleTicketLookUp(ticketId);
+      const ticketobj: ObjectId = req.body?.ticketId;
+      const finder = new ObjectId(ticketobj)
+      const ticket : any = await findTicketById(finder);
+      const date = ticket.modifiedDate
+      const today = new Date();
+      const modifiedDatePlus_3 =
+      date.modifiedDate + 3 * 24 * 60 * 60 * 1000;
+    const modifiedDatePlus_45 =
+       date.modifiedDate + 45 * 24 * 60 * 60 * 1000;
+      console.log(ticket ,"ticketid")
+      if (ticket.stage !== "6494196d698ecd9a9db95e3a" &&
+      today >= modifiedDatePlus_3 &&
+      today < modifiedDatePlus_45) {
         IO.emit(REFETCH_TICKETS); //trigger client side ticket re-fetch
         res.status(200).json("Done");
       } else {
-        res.status(200).json({ msg: "ticket not found" });
+        // res.status(200).json({ msg: "ticket not found" });
+        await RedisUpdateSingleTicketLookUp(ticketId);
+        IO.emit(REFETCH_TICKETS); //trigger client side ticket re-fetch
+        res.status(200).json("Done");
       }
     } catch (err) {
       res.status(400).json({ error: err });
