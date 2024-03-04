@@ -315,7 +315,7 @@ if (currentDate) {
             ],
           },
         ];
-        await startTemplateFlow("flow", "en", consumer.phone, components);
+        await startTemplateFlow("flow_amrita", "en", consumer.phone, components);
       }
 
       if( req.body.isPharmacy === "Pharmacy Advised" && req.body.admission === null){
