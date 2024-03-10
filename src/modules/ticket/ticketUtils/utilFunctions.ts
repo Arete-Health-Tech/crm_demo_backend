@@ -65,9 +65,9 @@ export async function createTicketLookUps(ticketId?: string) {
         {
           $match: filterTicket,
         },
-        {
-          $match: dateFilter,
-        },
+        // {
+        //   $match: dateFilter,
+        // },
         {
           $lookup: {
             from: Collections.PRESCRIPTION,
