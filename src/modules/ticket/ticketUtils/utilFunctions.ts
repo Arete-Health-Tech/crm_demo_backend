@@ -36,6 +36,7 @@ export const applyPagination = (
 //   }
 // };
 export async function createTicketLookUps(ticketId?: string) {
+  console.log("8")
   const filterTicket = ticketId
     ? {
         _id: new ObjectId(ticketId),
@@ -207,10 +208,14 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
           );
         }
       } else {
+        console.log("1")
         if (ticketObjCache[TicketId]) {
+          console.log("2")
           ticketObjCache[TicketId] = result.tickets[0];
         } else {
+          console.log("3")
           ticketObjCache = {
+            
             [TicketId]: result.tickets[0],
             ...ticketObjCache,
           };
@@ -218,6 +223,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
       }
     } else {
       // to Fetch all data again in case of restore
+      console.log("4")
       let cacheObj: any = {};
       result.tickets.forEach((currentTicket: any) => {
         let ticket_ID: string = currentTicket._id.toString();

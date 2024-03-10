@@ -489,7 +489,7 @@ export const getRepresentativeTickets = PromiseWrapper(
           //   //HERE TICKET WILL UPDATED IN CACHE IF MONGODB DATA HAS CHANGED
           //   tempTicketcache = await RedisUpdateSingleTicketLookUp(ticketId);
           // } else {
-
+            console.log("7")
           const result = await createTicketLookUps(ticketId);
           return res.json(result);
           //}
@@ -498,6 +498,7 @@ export const getRepresentativeTickets = PromiseWrapper(
           const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
           if (data === null) {
             console.log("No cache in redis!");
+            console.log("10")
             const ticketsResult = await createTicketLookUps();
             const listOfTicketObjects = ticketsResult?.tickets;
 
@@ -534,6 +535,7 @@ export const getRepresentativeTickets = PromiseWrapper(
             return res.status(200).json(ticketsJson) && console.log("DONE!");
           } else {
             console.log("Cache being fetched from redis...");
+            console.log("11");
 
             let ticketObjCache = JSON.parse(data);
             if (fetchUpdated === "true") {
