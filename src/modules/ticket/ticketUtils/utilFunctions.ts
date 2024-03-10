@@ -44,7 +44,7 @@ export async function createTicketLookUps(ticketId?: string) {
         _id: new ObjectId(ticketId),
       }
     : {};
-  const dateFilter = ticketId ? {} : modificationDateQuery;
+  // const dateFilter = ticketId ? {} : modificationDateQuery;
   const customReadConcern: ReadConcern = {
     level: "majority",
     toJSON: () => ({ level: "majority" }),
@@ -69,9 +69,9 @@ export async function createTicketLookUps(ticketId?: string) {
         {
           $match: filterTicket,
         },
-        {
-          $match: dateFilter,
-        },
+        // {
+        //   $match: dateFilter,
+        // },
         {
           $lookup: {
             from: Collections.PRESCRIPTION,
