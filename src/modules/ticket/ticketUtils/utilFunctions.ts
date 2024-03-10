@@ -38,6 +38,7 @@ export const applyPagination = (
 //   }
 // };
 export async function createTicketLookUps(ticketId?: string) {
+  console.log("1")
   const filterTicket = ticketId
     ? {
         _id: new ObjectId(ticketId),
@@ -192,8 +193,10 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
           today < modifiedDatePlus_45
           && statusModified !== true && !isSystemReloaded
         ) {
+          console.log("2")
           ticketObjCache[TicketId] = result.tickets[0];
         } else {
+          console.log("3")
           delete ticketObjCache[TicketId];
           console.log(
             "modified Date invalidated. Ticket is being removed from the current cache"
@@ -201,10 +204,12 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
         }
       } else {
         if (ticketObjCache[TicketId]) {
-          
+          console.log("4")
           ticketObjCache[TicketId] = result.tickets[0];
         } else {
+          console.log("6")
           ticketObjCache = {
+            
             [TicketId]: result.tickets[0],
             ...ticketObjCache,
           };
@@ -212,6 +217,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
       }
     } else {
       // to Fetch all data again in case of restore
+      console.log("7")
       let cacheObj: any = {};
       result.tickets.forEach((currentTicket: any) => {
         let ticket_ID: string = currentTicket._id.toString();
@@ -222,7 +228,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
     }                                                                       
 
     const finalTicketCaches = JSON.stringify(ticketObjCache);
-
+    console.log("8")
     await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
     return ticketObjCache;
   } catch (err) {
