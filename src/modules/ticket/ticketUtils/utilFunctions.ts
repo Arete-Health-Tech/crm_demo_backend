@@ -11,13 +11,14 @@ import { getMedia } from "../../../services/aws/s3";
 import { getServiceById } from "../../service/functions";
 import { findOneService } from "../crud";
 import { REFETCH_TICKETS } from "../../../utils/socket/constants";
-// const RELOAD_TIMESTAMP_KEY = "reloadTimestamp"
+
+const RELOAD_TIMESTAMP_KEY = "reloadTimestamp";
+
 export const applyPagination = (
   listOfData: any[],
   page: number,
   size: number
 ) => {
-  console.log(page ," this")
   const start = (page - 1) * size;
   const end = page * size;
   return listOfData.slice(start, end);
@@ -36,252 +37,205 @@ export const applyPagination = (
 //     return [];
 //   }
 // };
-  export async function createTicketLookUps(ticketId?: string) {
-    console.log("8")
-    const filterTicket = ticketId
-      ? {
-          _id: new ObjectId(ticketId),
-        }
-      : {};
-    const dateFilter = ticketId ? {} : modificationDateQuery;
-    const customReadConcern: ReadConcern = {
-      level: "majority",
-      toJSON: () => ({ level: "majority" }),
-    };
-    // console.log("ticket lookup started...", ticketId);
-    let tickets: any = await MongoService.collection(Collections.TICKET)
-      .aggregate(
-        [
-          {
-            $lookup: {
-              from: Collections.CONSUMER,
-              localField: "consumer",
-              foreignField: "_id",
-              let: { consumer: "$consumer" },
-              pipeline: [
-                { $match: { $expr: { $eq: ["$_id", "$$consumer"] } } },
-                { $limit: 1 },
-              ],
-              as: "consumer",
-            },
-          },
-          {
-            $match: filterTicket,
-          },
-          {
-            $match: dateFilter,
-          },
-          {
-            $lookup: {
-              from: Collections.PRESCRIPTION,
-              localField: "prescription",
-              let: { prescription: "$prescription" },
-              pipeline: [
-                { $match: { $expr: { $eq: ["$_id", "$$prescription"] } } },
-                { $limit: 1 },
-              ],
-              foreignField: "_id",
-              as: "prescription",
-            },
-          },
-          {
-            $lookup: {
-              from: Collections.ESTIMATE,
-              let: { id: "$_id" },
-              pipeline: [
-                { $match: { $expr: { $eq: ["$$id", "$ticket"] } } },
-                { $sort: { _id: -1 } },
-                { $limit: 1 },
-              ],
-              as: "estimate",
-            },
-          },
-          {
-            $lookup: {
-              from: Collections.REPRESENTATIVE,
-              localField: "creator",
-              let: { creator: "$creator" },
-              pipeline: [
-                { $match: { $expr: { $eq: ["$_id", "$$creator"] } } },
-                { $limit: 1 },
-                { $project: { firstName: 1, lastName: 1, email: 1, phone: 1 } },
-              ],
-              foreignField: "_id",
-              as: "creator",
-            },
-          },
-          {
-            $sort: {
-              _id: -1,
-            },
-          },
-        ],
-        { readConcern: customReadConcern }
-      )
-      .toArray();
-    // console.log(`ticket id updated for", ${tickets[0]?._id}`);
-    for await (const ticket of tickets) {
-      ticket.prescription[0].image = getMedia(ticket.prescription[0].image);
-      if (ticket.prescription[0].service) {
-        const presService = await getServiceById(ticket.prescription[0].service);
-        if (presService) {
-          ticket.prescription[0].service = presService;
-        }
+export async function createTicketLookUps(ticketId?: string) {
+  const filterTicket = ticketId
+    ? {
+        _id: new ObjectId(ticketId),
       }
-      ticket.createdAt = getCreateDate(ticket._id);
-      ticket.prescription[0].createdAt = getCreateDate(
-        ticket.prescription[0]._id
-      );
-      if (ticket.estimate[0]) {
-        const service = await findOneService({
-          _id: ticket.estimate[0].service[0]?._id,
-        });
-        ticket.estimate[0].service[0] = {
-          ...ticket.estimate[0].service[0],
-          ...service,
-        };
-        ticket.estimate[0].createdAt = getCreateDate(ticket.estimate[0]._id);
+    : {};
+  const dateFilter = ticketId ? {} : modificationDateQuery;
+  const customReadConcern: ReadConcern = {
+    level: "majority",
+    toJSON: () => ({ level: "majority" }),
+  };
+  // console.log("ticket lookup started...", ticketId);
+  let tickets: any = await MongoService.collection(Collections.TICKET)
+    .aggregate(
+      [
+        {
+          $lookup: {
+            from: Collections.CONSUMER,
+            localField: "consumer",
+            foreignField: "_id",
+            let: { consumer: "$consumer" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$_id", "$$consumer"] } } },
+              { $limit: 1 },
+            ],
+            as: "consumer",
+          },
+        },
+        {
+          $match: filterTicket,
+        },
+        {
+          $match: dateFilter,
+        },
+        {
+          $lookup: {
+            from: Collections.PRESCRIPTION,
+            localField: "prescription",
+            let: { prescription: "$prescription" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$_id", "$$prescription"] } } },
+              { $limit: 1 },
+            ],
+            foreignField: "_id",
+            as: "prescription",
+          },
+        },
+        {
+          $lookup: {
+            from: Collections.ESTIMATE,
+            let: { id: "$_id" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$$id", "$ticket"] } } },
+              { $sort: { _id: -1 } },
+              { $limit: 1 },
+            ],
+            as: "estimate",
+          },
+        },
+        {
+          $lookup: {
+            from: Collections.REPRESENTATIVE,
+            localField: "creator",
+            let: { creator: "$creator" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$_id", "$$creator"] } } },
+              { $limit: 1 },
+              { $project: { firstName: 1, lastName: 1, email: 1, phone: 1 } },
+            ],
+            foreignField: "_id",
+            as: "creator",
+          },
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+      ],
+      { readConcern: customReadConcern }
+    )
+    .toArray();
+  // console.log(`ticket id updated for", ${tickets[0]?._id}`);
+  for await (const ticket of tickets) {
+    ticket.prescription[0].image = getMedia(ticket.prescription[0].image);
+    if (ticket.prescription[0].service) {
+      const presService = await getServiceById(ticket.prescription[0].service);
+      if (presService) {
+        ticket.prescription[0].service = presService;
       }
     }
-    const result: iTicketsResultJSON = {
-      tickets: tickets,
-      count: tickets.length,
-    };
-    // console.log("Ticket Lookup ready to store! ::  Totalcount:", result.count);
-    return result;
+    ticket.createdAt = getCreateDate(ticket._id);
+    ticket.prescription[0].createdAt = getCreateDate(
+      ticket.prescription[0]._id
+    );
+    if (ticket.estimate[0]) {
+      const service = await findOneService({
+        _id: ticket.estimate[0].service[0]?._id,
+      });
+      ticket.estimate[0].service[0] = {
+        ...ticket.estimate[0].service[0],
+        ...service,
+      };
+      ticket.estimate[0].createdAt = getCreateDate(ticket.estimate[0]._id);
+    }
   }
+  const result: iTicketsResultJSON = {
+    tickets: tickets,
+    count: tickets.length,
+  };
+  // console.log("Ticket Lookup ready to store! ::  Totalcount:", result.count);
+  return result;
+}
+export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
+  try {
+    console.log("Entering RedisUpdateSingleTicketLookUp");
 
-  // if something is not working uncommet this and commment out the code below .
-  export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
-    try {
-      console.log("Entering RedisUpdateSingleTicketLookUp");
-  
-      const result: iTicketsResultJSON = await createTicketLookUps(TicketId);
-      const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
-  
-      if (!data) {
-        return new Error(`No Data found in @Redis cache for Key ${TICKET_CACHE_OBJECT}`);
-      }
-  
-      let ticketObjCache = JSON.parse(data);
-  
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-  
-      let modifiedDatePlus_3: Date | undefined;
-      let modifiedDatePlus_45: Date | undefined;
-  
-      if (TicketId) {
-        const ticketDetail = result.tickets[0];
-  
-        if (ticketDetail.modifiedDate) {
-          modifiedDatePlus_3 = new Date(ticketDetail.modifiedDate + 3 * 24 * 60 * 60 * 1000);
-          modifiedDatePlus_45 = new Date(ticketDetail.modifiedDate + 45 * 24 * 60 * 60 * 1000);
-  
+    const result: iTicketsResultJSON = await createTicketLookUps(TicketId);
+    const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
+    const reloadTimestamp = await (await redisClient).GET(RELOAD_TIMESTAMP_KEY);
+   
+    if (!data) {
+      return new Error(
+        `No Data found in @Redis cache for Key ${TICKET_CACHE_OBJECT}`
+      );
+    }
+
+    let ticketObjCache = JSON.parse(data);
+
+    
+    
+    //SETTING UPDATED TICKET DATA TO REDIS TICKET CACHE BELOW
+    const today = new Date(); // Get today's date
+    today.setHours(0, 0, 0, 0);
+    const ticketDetail = result.tickets[0];
+    const isSystemReloaded = reloadTimestamp && today < new Date(reloadTimestamp);
+    
+    if (TicketId) {
+      // FILTER TICKET BY MODIFIED DATE
+     
+      if (ticketDetail.modifiedDate ) {
+        console.log("is it here")
+        const modifiedDatePlus_3 =
+          ticketDetail.modifiedDate + 3 * 24 * 60 * 60 * 1000;
+        const modifiedDatePlus_45 =
+          ticketDetail.modifiedDate + 45 * 24 * 60 * 60 * 1000;
+
           const statusModified = ticketObjCache[TicketId]?.status !== ticketDetail.status;
-  
-          if (
-            ticketDetail.subStageCode.code >= 4 &&
-            today >= modifiedDatePlus_3! &&
-            today < modifiedDatePlus_45! &&
-            statusModified !== true
-          ) {
-            // Check if the ticket matches the filter conditions before updating the cache
-            const filterMatches = ticketDetail.modifiedDate && today >= modifiedDatePlus_3! && today < modifiedDatePlus_45!;
-  
-            if (filterMatches) {
-              ticketObjCache[TicketId] = result.tickets[0];
-            } else {
-              delete ticketObjCache[TicketId];
-              console.log("Modified Date invalidated. Ticket is being removed from the current cache");
-            }
-          }
+
+        if (
+          ticketDetail.subStageCode.code >= 4 &&
+          today >= modifiedDatePlus_3 &&
+          today < modifiedDatePlus_45
+          && statusModified !== true && !isSystemReloaded
+        ) {
+          ticketObjCache[TicketId] = result.tickets[0];
         } else {
-          if (ticketObjCache[TicketId]) {
-            ticketObjCache[TicketId] = result.tickets[0];
-          } else {
-            ticketObjCache = {
-              [TicketId]: result.tickets[0],
-              ...ticketObjCache,
-            };
-          }
+          delete ticketObjCache[TicketId];
+          console.log(
+            "modified Date invalidated. Ticket is being removed from the current cache"
+          );
         }
       } else {
-        let cacheObj: any = {};
-  
-        // Only add tickets to the cache that match the filter conditions
-        result.tickets.forEach((currentTicket: any) => {
-          if (currentTicket.modifiedDate && today >= modifiedDatePlus_3! && today < modifiedDatePlus_45!) {
-            let ticket_ID: string = currentTicket._id.toString();
-            cacheObj[ticket_ID] = currentTicket;
-          }
-        });
-  
-        ticketObjCache = cacheObj;
+        if (ticketObjCache[TicketId]) {
+          
+          ticketObjCache[TicketId] = result.tickets[0];
+        } else {
+          ticketObjCache = {
+            [TicketId]: result.tickets[0],
+            ...ticketObjCache,
+          };
+        }
       }
-  
-      const finalTicketCaches = JSON.stringify(ticketObjCache);
-  
-      await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
-      return ticketObjCache;
-    } catch (err) {
-      console.log("error in redis update", err);
-      throw new ErrorHandler("Error occurred while updating redis", 500);
-    }
-  };
+    } else {
+      // to Fetch all data again in case of restore
+      let cacheObj: any = {};
+      result.tickets.forEach((currentTicket: any) => {
+        let ticket_ID: string = currentTicket._id.toString();
+        cacheObj[ticket_ID] = currentTicket;
+      }); // setting {id: ticketdata} pair
 
-// export const delteWonandloss = async (TicketId?: string) => {
-//   try {
-//     console.log("Entering delteWonandloss");
+      ticketObjCache = cacheObj;
+    }                                                                       
 
-//     const result: iTicketsResultJSON = await createTicketLookUps(TicketId);
-//     const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
+    const finalTicketCaches = JSON.stringify(ticketObjCache);
 
-//     if (!data) {
-//       return new Error(`No Data found in @Redis cache for Key ${TICKET_CACHE_OBJECT}`);
-//     }
-
-//     let ticketObjCache = JSON.parse(data);
-
-//     const ticketDetail = result.tickets[0];
-
-//     if (TicketId) {
-//       if (ticketDetail.result !== null) {
-//         // If result is present, remove the ticket from Redis
-//         delete ticketObjCache[TicketId];
-//         console.log("Ticket removed from Redis due to non-null result");
-//       } else {
-//         // If result is null, update the cache
-//         ticketObjCache[TicketId] = result.tickets[0];
-//       }
-//     } else {
-//       // Fetch all data again in case of restore
-//       let cacheObj: any = {};
-//       result.tickets.forEach((currentTicket: any) => {
-//         let ticket_ID: string = currentTicket._id.toString();
-//         cacheObj[ticket_ID] = currentTicket;
-//       }); // setting {id: ticketdata} pair
-
-//       ticketObjCache = cacheObj;
-//     }
-
-//     const finalTicketCaches = JSON.stringify(ticketObjCache);
-
-//     await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
-//     return ticketObjCache;
-//   } catch (err) {
-//     console.log("Error in delteWonandloss:", err);
-//     throw new ErrorHandler("Error occurred while updating redis", 500);
-//   }
-// };
-
+    await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
+    return ticketObjCache;
+  } catch (err) {
+    console.log("error in redis update", err);
+    throw new ErrorHandler("Error occurred while updating redis", 500);
+  }
+};
 export const pushToUpdatedTicketTop = async (
   fetchUpdated: "true" | "false",
   ticketId: string,
-    ticketObjCache: any
+  ticketObjCache: any
 ) => {
-
-  if (fetchUpdated === "true" ) {
+  if (fetchUpdated === "true") {
     const fetchSingleTicket = await createTicketLookUps(ticketId);
     delete ticketObjCache[ticketId];
     ticketObjCache = {
@@ -296,126 +250,4 @@ export const pushToUpdatedTicketTop = async (
   IO.emit(REFETCH_TICKETS); //trigger client side ticket re-fetch
   return ticketObjCache;
 };
-// export const pushToUpdatedTicketTop2 = async (fetchUpdated : "true" | "false",ticketId: string, ticketObjCache: any ) => {
-//   if (fetchUpdated === "true") {
-//     const fetchSingleTicket = await createTicketLookUps(ticketId);
-//     delete ticketObjCache[ticketId];
-//     ticketObjCache = {
-//       [ticketId]: fetchSingleTicket?.tickets[0],
-//       ...ticketObjCache,
-//     };
-//     await (
-//       await redisClient
-//     ).SET(TICKET_CACHE_OBJECT, JSON.stringify(ticketObjCache));
-//   }
-//   console.log("\npushing ticket top of cache\n")
-//   IO.emit(REFETCH_TICKETS); //trigger client side ticket re-fetch
-//   return ticketObjCache;
-// }
-// export async function createsortedData(filterAssigned? : ObjectId) {
-//   const matchAssigned = {
-//     $match: {
-//       assigned: filterAssigned, // Convert filterAssigned to ObjectId
-//     },
-//   };
-//   const customReadConcern: ReadConcern = {
-//     level: "majority",
-//     toJSON: () => ({ level: "majority" }),
-//   };
-//   // console.log("ticket lookup started...", ticketId);`
-//   let tickets: any = await MongoService.collection(Collections.TICKET)
-//     .aggregate(
-//       [
-//         {
-//           $lookup: {
-//             from: Collections.CONSUMER,
-//             localField: "consumer",
-//             foreignField: "_id",
-//             let: { consumer: "$consumer" },
-//             pipeline: [
-//               { $match: { $expr: { $eq: ["$_id", "$$consumer"] } } },
-//               { $limit: 1 },
-//             ],
-//             as: "consumer",
-//           },
-//         },
-//         matchAssigned,`
-//         {
-//           $lookup: {
-//             from: Collections.PRESCRIPTION,
-//             localField: "prescription",
-//             let: { prescription: "$prescription" },
-//             pipeline: [
-//               { $match: { $expr: { $eq: ["$_id", "$$prescription"] } } },
-//               { $limit: 1 },
-//             ],
-//             foreignField: "_id",
-//             as: "prescription",
-//           },
-//         },
-//         {
-//           $lookup: {
-//             from: Collections.ESTIMATE,
-//             let: { id: "$_id" },
-//             pipeline: [
-//               { $match: { $expr: { $eq: ["$$id", "$ticket"] } } },
-//               { $sort: { _id: -1 } },
-//               { $limit: 1 },
-//             ],
-//             as: "estimate",
-//           },
-//         },
-//         {
-//           $lookup: {
-//             from: Collections.REPRESENTATIVE,
-//             localField: "creator",
-//             let: { creator: "$creator" },
-//             pipeline: [
-//               { $match: { $expr: { $eq: ["$_id", "$$creator"] } } },
-//               { $limit: 1 },
-//               { $project: { firstName: 1, lastName: 1, email: 1, phone: 1 } },
-//             ],
-//             foreignField: "_id",
-//             as: "creator",
-//           },
-//         },
-//         {
-//           $sort: {
-//             _id: -1,
-//           },
-//         },
-//       ],
-//       { readConcern: customReadConcern }
-//     )
-//     .toArray();
-//   // console.log(`ticket id updated for", ${tickets[0]?._id}`);
-//   for await (const ticket of tickets) {
-//     ticket.prescription[0].image = getMedia(ticket.prescription[0].image);
-//     if (ticket.prescription[0].service) {
-//       const presService = await getServiceById(ticket.prescription[0].service);
-//       if (presService) {
-//         ticket.prescription[0].service = presService;
-//       }
-//     }
-//     ticket.createdAt = getCreateDate(ticket._id);
-//     ticket.prescription[0].createdAt = getCreateDate(
-//       ticket.prescription[0]._id
-//     );
-//     if (ticket.estimate[0]) {
-//       const service = await findOneService({
-//         _id: ticket.estimate[0].service[0]?._id,
-//       });
-//       ticket.estimate[0].service[0] = {
-//         ...ticket.estimate[0].service[0],
-//         ...service,
-//       };
-//       ticket.estimate[0].createdAt = getCreateDate(ticket.estimate[0]._id);
-//     }
-//   }
-//   const result: iTicketsResultJSON = {
-//     tickets: tickets,
-//     count: tickets.length,
-//   };
-//   // console.log("Ticket Lookup ready to store! ::  Totalcount:", result.count);
-//   return result;
-// }
+
