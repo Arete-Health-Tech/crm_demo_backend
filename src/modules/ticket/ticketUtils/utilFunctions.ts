@@ -158,84 +158,72 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
     const result: iTicketsResultJSON = await createTicketLookUps(TicketId);
     const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
     const reloadTimestamp = await (await redisClient).GET(RELOAD_TIMESTAMP_KEY);
-   
+
     if (!data) {
-      return new Error(
-        `No Data found in @Redis cache for Key ${TICKET_CACHE_OBJECT}`
-      );
+      return new Error(`No Data found in @Redis cache for Key ${TICKET_CACHE_OBJECT}`);
     }
 
     let ticketObjCache = JSON.parse(data);
 
-    
-    
-    //SETTING UPDATED TICKET DATA TO REDIS TICKET CACHE BELOW
-    const today = new Date(); // Get today's date
+    // SETTING UPDATED TICKET DATA TO REDIS TICKET CACHE BELOW
+    const today = new Date();
     today.setHours(0, 0, 0, 0);
     const ticketDetail = result.tickets[0];
     const isSystemReloaded = reloadTimestamp && today < new Date(reloadTimestamp);
-    
+
     if (TicketId) {
       // FILTER TICKET BY MODIFIED DATE
-     
-      if (ticketDetail.modifiedDate ) {
-        console.log("is it here")
-        const modifiedDatePlus_3 =
-          ticketDetail.modifiedDate + 3 * 24 * 60 * 60 * 1000;
-        const modifiedDatePlus_45 =
-          ticketDetail.modifiedDate + 45 * 24 * 60 * 60 * 1000;
+      if (ticketDetail.modifiedDate) {
+        const modifiedDatePlus_3 = new Date(ticketDetail.modifiedDate + 3 * 24 * 60 * 60 * 1000);
+        const modifiedDatePlus_45 = new Date(ticketDetail.modifiedDate + 45 * 24 * 60 * 60 * 1000);
 
-          const statusModified = ticketObjCache[TicketId]?.status !== ticketDetail.status;
+        const statusModified = ticketObjCache[TicketId]?.status !== ticketDetail.status;
 
         if (
           ticketDetail.subStageCode.code >= 4 &&
           today >= modifiedDatePlus_3 &&
-          today < modifiedDatePlus_45
-          && statusModified !== true && !isSystemReloaded
+          today < modifiedDatePlus_45 &&
+          statusModified !== true &&
+          !isSystemReloaded
         ) {
-          console.log("2")
+          console.log("Ticket is valid. Updating cache.");
           ticketObjCache[TicketId] = result.tickets[0];
         } else {
-          console.log("3")
+          console.log("Modified Date invalidated. Ticket is being removed from the current cache.");
           delete ticketObjCache[TicketId];
-          console.log(
-            "modified Date invalidated. Ticket is being removed from the current cache"
-          );
         }
       } else {
-        if (ticketObjCache[TicketId]) {
-          console.log("4")
-          ticketObjCache[TicketId] = result.tickets[0];
-        } else {
-          console.log("6")
-          ticketObjCache = {
-            
-            [TicketId]: result.tickets[0],
-            ...ticketObjCache,
-          };
-        }
+        console.log("Ticket has no modified date. Updating cache.");
+        ticketObjCache[TicketId] = result.tickets[0];
       }
     } else {
-      // to Fetch all data again in case of restore
-      console.log("7")
+      // FETCH ALL DATA AGAIN IN CASE OF RESTORE
       let cacheObj: any = {};
       result.tickets.forEach((currentTicket: any) => {
-        let ticket_ID: string = currentTicket._id.toString();
-        cacheObj[ticket_ID] = currentTicket;
-      }); // setting {id: ticketdata} pair
+        if (
+          currentTicket.modifiedDate &&
+          today >= new Date(currentTicket.modifiedDate + 3 * 24 * 60 * 60 * 1000) &&
+          today < new Date(currentTicket.modifiedDate + 45 * 24 * 60 * 60 * 1000)
+        ) {
+          let ticket_ID: string = currentTicket._id.toString();
+          cacheObj[ticket_ID] = currentTicket;
+        }
+      });
 
+      console.log("Fetching all data again for restore.");
       ticketObjCache = cacheObj;
-    }                                                                       
+    }
 
     const finalTicketCaches = JSON.stringify(ticketObjCache);
-    console.log("8")
+    console.log("Updating Redis Cache.");
     await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
     return ticketObjCache;
   } catch (err) {
-    console.log("error in redis update", err);
-    throw new ErrorHandler("Error occurred while updating redis", 500);
+    console.log("Error in Redis update", err);
+    throw new ErrorHandler("Error occurred while updating Redis", 500);
   }
 };
+
 export const pushToUpdatedTicketTop = async (
   fetchUpdated: "true" | "false",
   ticketId: string,
