@@ -148,6 +148,16 @@ export async function createTicketLookUps(ticketId?: string) {
     count: tickets.length,
   };
   // console.log("Ticket Lookup ready to store! ::  Totalcount:", result.count);
+ 
+  const cacheData = await (await redisClient).GET(TICKET_CACHE_OBJECT);
+  const ticketObjCache: { [key: string]: any } = cacheData ? JSON.parse(cacheData) : {};
+  
+  if (ticketId && tickets.length === 1) {
+      // Add the newly created ticket to the cache
+      ticketObjCache[ticketId] = tickets[0];
+      await (await redisClient).SET(TICKET_CACHE_OBJECT, JSON.stringify(ticketObjCache));
+      console.log(`New ticket added to cache: ${ticketId}`);
+  }
   return result;
 }
 
