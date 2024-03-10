@@ -227,9 +227,9 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
       ticketObjCache = cacheObj;
     }                                                                       
 
-    // const finalTicketCaches = JSON.stringify(ticketObjCache);
-    // console.log("8")
-    // await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
+    const finalTicketCaches = JSON.stringify(ticketObjCache);
+    console.log("8")
+    await (await redisClient).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
     return ticketObjCache;
   } catch (err) {
     console.log("error in redis update", err);
