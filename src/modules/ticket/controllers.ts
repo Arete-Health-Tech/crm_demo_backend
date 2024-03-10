@@ -495,6 +495,7 @@ export const getRepresentativeTickets = PromiseWrapper(
           //}
         }
         try {
+          console.log("001")
           const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
           if (data === null) {
             console.log("No cache in redis!");
@@ -509,9 +510,10 @@ export const getRepresentativeTickets = PromiseWrapper(
 
             if (listOfTicketObjects.length < 1)
               return res.status(200).json({ tickets: [], count: 0 });
-
+              console.log("002")
             let TicketCacheObj: any = {};
             listOfTicketObjects.forEach((currentTicket: any) => {
+              console.log("003")
               let ticket_ID: string = currentTicket._id.toString();
               TicketCacheObj[ticket_ID] = currentTicket;
             }); // setting {id: ticketdata} pair
@@ -551,7 +553,7 @@ export const getRepresentativeTickets = PromiseWrapper(
               pageNum,
               10
             );
-            
+
             console.log("page is not", pageNum, "\n");
             const ticketsResultJson: iTicketsResultJSON = {
               tickets: sortedTicketData,

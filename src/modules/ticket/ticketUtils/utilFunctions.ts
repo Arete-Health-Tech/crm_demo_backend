@@ -206,15 +206,14 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
         if (ticketObjCache[TicketId]) {
           console.log("4")
           ticketObjCache[TicketId] = result.tickets[0];
-        } 
-       // else {
-          //   console.log("6")
-          //   ticketObjCache = {
-              
-          //     [TicketId]: result.tickets[0],
-          //     ...ticketObjCache,
-          //   };
-          // }
+        } else {
+          console.log("6")
+          ticketObjCache = {
+            
+            [TicketId]: result.tickets[0],
+            ...ticketObjCache,
+          };
+        }
       }
     } else {
       // to Fetch all data again in case of restore
@@ -243,6 +242,7 @@ export const pushToUpdatedTicketTop = async (
   ticketObjCache: any
 ) => {
   if (fetchUpdated === "true") {
+    console.log("006")
     const fetchSingleTicket = await createTicketLookUps(ticketId);
     delete ticketObjCache[ticketId];
     ticketObjCache = {
