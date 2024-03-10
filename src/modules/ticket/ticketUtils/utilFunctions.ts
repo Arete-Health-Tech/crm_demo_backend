@@ -158,6 +158,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
     const result: iTicketsResultJSON = await createTicketLookUps(TicketId);
     const data = await (await redisClient).GET(TICKET_CACHE_OBJECT);
     const reloadTimestamp = await (await redisClient).GET(RELOAD_TIMESTAMP_KEY);
+    console.log(reloadTimestamp ,"reloadTimestampreloadTimestamp")
    
     if (!data) {
       return new Error(
@@ -172,6 +173,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
     today.setHours(0, 0, 0, 0);
     const ticketDetail = result.tickets[0];
     const isSystemReloaded = reloadTimestamp && today < new Date(reloadTimestamp);
+    console.log(isSystemReloaded ,"isSystemReloadedisSystemReloadedisSystemReloaded")
     
     if (TicketId) {
       // FILTER TICKET BY MODIFIED DATE
@@ -195,8 +197,10 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
           today < modifiedDatePlus_45
           && statusModified !== true && !isSystemReloaded
         ) {
+          console.log("kidhar")
           ticketObjCache[TicketId] = result.tickets[0];
         } else {
+          console.log("idhar")
           delete ticketObjCache[TicketId];
           console.log(
             "modified Date invalidated. Ticket is being removed from the current cache"
