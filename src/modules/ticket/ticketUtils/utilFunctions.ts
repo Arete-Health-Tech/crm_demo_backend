@@ -17,6 +17,7 @@ export const applyPagination = (
   page: number,
   size: number
 ) => {
+  console.log(page ," this is inside utilsfunction")
   const start = (page - 1) * size;
   const end = page * size;
   return listOfData.slice(start, end);
