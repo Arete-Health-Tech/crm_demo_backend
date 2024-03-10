@@ -211,7 +211,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
           ticketObjCache = {
             
             [TicketId]: result.tickets[0],
-            ...ticketObjCache,
+            // ...ticketObjCache,
           };
         }
       }
