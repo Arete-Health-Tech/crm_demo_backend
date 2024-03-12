@@ -114,6 +114,7 @@ import {
   RedisUpdateSingleTicketLookUp,
   applyPagination,
   createTicketLookUps,
+  filterTicketsByStage,
   pushToUpdatedTicketTop,
 } from "./ticketUtils/utilFunctions";
 import { findOneConsumer } from "../consumer/crud";
@@ -150,14 +151,14 @@ export const createTicket = PromiseWrapper(
     // const token = auth?.split(" ")[1];
     // const user = <Record<string, any>>JWT.verify(token, accessSecret!);
     // req.user = user;
-
+     console.log(req.body , "req.body dfknils");
     if (!req.file) {
       throw new ErrorHandler("Prescription image not found", 400);
     }
     const ticket: ticketBody = req.body;
     // await sendTemplateMessageOne("9650496830","hello_world","en_us")
-    // console.log(ticket , "ticket is the above");
-    // console.log(ticket , "this is first ticket ");
+    console.log(ticket , "ticket is the above");
+    console.log(ticket , "this is first ticket ");
 
     const consumer = await findConsumerById(ticket.consumer);
     if (consumer === null) {
@@ -395,6 +396,7 @@ export const getRepresentativeTickets = PromiseWrapper(
     const requestQuery: any = req.query;
     // console.log(requestQuery, " this is request query ");
     // console.log(requestQuery.phonev, "this is number");
+    console.log(requestQuery , "requestQuery.stage requestQuery.stage ")
     const phone = parseInt(requestQuery.phonev);
     // console.log(phone, " this is numbe");
     const download = requestQuery.downloadAll;
@@ -476,6 +478,7 @@ export const getRepresentativeTickets = PromiseWrapper(
       const filterFlag = Object.keys(filters).length > 0;
       const ticketId = requestQuery.ticketId;
       const fetchUpdated = requestQuery.fetchUpdated;
+      console.log(fetchUpdated ,"fetchUpdatedfetchUpdated");
 
       if (
         requestQuery.name === UNDEFINED &&
@@ -513,7 +516,7 @@ export const getRepresentativeTickets = PromiseWrapper(
               console.log("002")
             let TicketCacheObj: any = {};
             listOfTicketObjects.forEach((currentTicket: any) => {
-              console.log("003")
+              // console.log("003")
               let ticket_ID: string = currentTicket._id.toString();
               TicketCacheObj[ticket_ID] = currentTicket;
             }); // setting {id: ticketdata} pair
@@ -525,11 +528,20 @@ export const getRepresentativeTickets = PromiseWrapper(
             ).SET(TICKET_CACHE_OBJECT, finalTicketCaches);
 
             console.log("final tickets cache being saved to redis!");
+            console.log(requestQuery.stageList , "requestQuery.stageList is just before the function");
+            let sortedData : any
+            if(!requestQuery.stageList){
+               sortedData = applyPagination(listOfTicketObjects, 1, 10);
+            }else{
+                const filterData = await filterTicketsByStage(listOfTicketObjects , requestQuery.stageList ) 
+                console.log(filterData ,"filterDatafilterData");
+                sortedData = applyPagination(filterData, 1, 10);
+                console.log(sortedData ,"sortedDatasortedData")
 
-            const sortedData = applyPagination(listOfTicketObjects, 1, 10);
+            }
 
             const ticketsJson: iTicketsResultJSON = {
-              tickets: sortedData,
+              tickets : sortedData,
               count: listOfTicketObjects.length,
             };
 
@@ -541,25 +553,25 @@ export const getRepresentativeTickets = PromiseWrapper(
 
             let ticketObjCache = JSON.parse(data);
             if (fetchUpdated === "true") {
+              console.log("00000111111")
               ticketObjCache = await pushToUpdatedTicketTop(
                 fetchUpdated,
                 ticketId,
                 ticketObjCache
               );
             } // tempTicketcache === null ? JSON.parse(data) : tempTicketcache;
+            console.log("00000111112")
             const listOfTicketsObj = Object.values(ticketObjCache);
             const sortedTicketData = applyPagination(
               listOfTicketsObj,
               pageNum,
               10
             );
-
-            console.log("page is not", pageNum, "\n");
             const ticketsResultJson: iTicketsResultJSON = {
               tickets: sortedTicketData,
               count: listOfTicketsObj.length,
             };
-
+            console.log("00000111113")
             return res.status(200).json(ticketsResultJson);
           }
         } catch (err: any) {

@@ -18,6 +18,8 @@ export const applyPagination = (
 ) => {
   const start = (page - 1) * size;
   const end = page * size;
+  const first = listOfData[0];
+   console.log(first ,"firstfirst")
   return listOfData.slice(start, end);
 };
 // export const applyPagination = (
@@ -172,7 +174,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
     
     if (TicketId) {
       // FILTER TICKET BY MODIFIED DATE
-     
+     console.log('00000198222')
       if (ticketDetail.modifiedDate ) {
         console.log("is it here")
         const modifiedDatePlus_3 =
@@ -180,7 +182,7 @@ export const RedisUpdateSingleTicketLookUp = async (TicketId?: string) => {
         const modifiedDatePlus_45 =
           ticketDetail.modifiedDate + 45 * 24 * 60 * 60 * 1000;
 
-          const statusModified = ticketObjCache[TicketId]?.status !== ticketDetail.status;
+        const statusModified = ticketObjCache[TicketId]?.status !== ticketDetail.status;
           // console.log(statusModified , "statusModified");
           // console.log("Status from cache:", ticketObjCache[TicketId]?.status);
           // console.log("Status from result:", ticketDetail.status);
@@ -425,3 +427,17 @@ export const pushToUpdatedTicketTop = async (
 //   // console.log("Ticket Lookup ready to store! ::  Totalcount:", result.count);
 //   return result;
 // }
+export const filterTicketsByStage = async (tickets: any[], stage: string) => {
+  // Check if either tickets or stage is undefined
+  if (!tickets || !stage) {
+    return [];
+  }
+
+  // Split the comma-separated stages into an array
+  const stagesToFilter = stage.split(',');
+
+  // Filter tickets based on the specified stages
+  const filteredTickets = tickets.filter(ticket => stagesToFilter.includes(ticket.stage));
+
+  return filteredTickets;
+};
