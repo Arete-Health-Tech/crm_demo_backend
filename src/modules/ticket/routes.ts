@@ -11,7 +11,7 @@ const upload = multer();
 const router: Router = Router();
 router.use(isLoggedIn);
 router
-  .route("/")
+  .route("/create")
   .post(upload.single("image"), validations.create, controllers.createTicket)
   // .get(isLoggedIn ,controllers.createTicket )
   router
