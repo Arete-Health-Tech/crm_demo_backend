@@ -11,6 +11,10 @@ import task from "./task/routes";
 import dashboard from "./Dashboard/routes";
 // import { searchedTicketData } from "./ticket/controllers";
 const router = Router();
+// router.use((req, res, next) => {
+//     res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+//     next();
+//   });
 
 router.use("/representative", representative);
 router.use("/consumer", consumer);
