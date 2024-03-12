@@ -9,14 +9,12 @@ import * as validations from "./validations";
 import { updateSubStage } from "./functions";
 const upload = multer();
 const router: Router = Router();
-
 router.use(isLoggedIn);
 router
-  .route("/create")
+  .route("/")
   .post(upload.single("image"), validations.create, controllers.createTicket)
   // .get(isLoggedIn ,controllers.createTicket )
-  router
-  .route("/get").get(isRepresentative, controllers.getRepresentativeTickets);
+   .get(isRepresentative, controllers.getRepresentativeTickets);
 router.route("/:consumerId").get(controllers.ticketsWithPrescription);
 router.route("/ticketUpdate").put(controllers.updateTicketData);
 router.route("/subStageUpdate").put(controllers.updateTicketSubStageCode);
